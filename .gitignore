@@ -1,0 +1,42 @@
+# Development
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Environment
+.env
+.env.local
+*.pem
+*.key
+
+# Git setup (keep repo private)
+.git-personal/
+setup.sh
+setup.bat
+
+# Local testing
+test-output/
+.claude-local/
+
+# Dependencies
+node_modules/
+poetry.lock
+package-lock.json
+venv/
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
