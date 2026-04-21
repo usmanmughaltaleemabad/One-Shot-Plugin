@@ -1,7 +1,7 @@
 {
   "name": "one-shot-prompting",
   "description": "Generate a complete sidecar feature module from a single prompt. No approval gates, no back-and-forth. Claude makes decisions, states assumptions, ships the code — you rerun with constraints if you disagree.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Claude Plugins Community",
     "url": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin"

@@ -48,11 +48,23 @@ claude --plugin-dir ./One-Shot-Plugin
 
 ## Usage
 
+### Basic Usage (Python)
+
 ```
 /one-shot-prompting:generate Add a rate limiter that throttles message.received per user to 10 per minute, dropping excess
 ```
 
 Claude responds with assumptions + module + tests + README + install line + rerun hints — all in one turn.
+
+### Generate in Different Languages
+
+```
+/one-shot-prompting:generate Add a rate limiter that throttles message.received per user to 10 per minute, dropping excess. In Rust.
+```
+
+Supported languages: **Python** (default), **Go**, **Rust**, **JavaScript/TypeScript**, **Java**
+
+### Iterate by Rerunning with Constraints
 
 If the algorithm Claude picked is wrong for you:
 
@@ -60,7 +72,23 @@ If the algorithm Claude picked is wrong for you:
 /one-shot-prompting:generate Add a rate limiter that throttles message.received per user to 10 per minute, dropping excess. Use token bucket, not sliding window.
 ```
 
+Or switch languages on regeneration:
+
+```
+/one-shot-prompting:generate Add a rate limiter that throttles message.received per user to 10 per minute, dropping excess. In Go.
+```
+
 Just rerun with the constraint added. Claude regenerates the whole thing with the new constraint applied.
+
+## What's New in v0.2.0
+
+- ✨ **Multi-language support**: Generate in Python, Go, Rust, JavaScript/TypeScript, or Java
+- 🔍 **Type hints by default**: All generated code includes proper type safety
+- ✅ **Linting compliance**: Generated code passes PEP 8 (Python), gofmt (Go), clippy (Rust), etc.
+- 🛡️ **Better edge case handling**: Handles null values, timeouts, concurrent access, resource cleanup
+- 🔄 **Language switching on rerun**: Regenerate in a different language with one constraint
+
+[See full changelog](CHANGELOG.md)
 
 ## Example response structure
 

@@ -25,7 +25,7 @@ Before generating, Claude resolves ambiguity internally:
 
 **Interpret vocabulary precisely.** If the user says "throttle," decide whether they mean "drop excess," "queue and delay," or "reject with error." Pick the most common meaning for the domain. State the choice in the assumptions block.
 
-**Enumerate edge cases silently.** Empty payload, missing fields, clock skew, concurrent events, new user, inactive user. Handle the likely ones in code; note the handling in assumptions; mention non-handled ones in rerun hints.
+**Enumerate edge cases silently.** Empty payload, missing fields, clock skew, concurrent events, new user, inactive user, resource cleanup, timeouts, null values. Handle the likely ones in code; note the handling in assumptions; mention non-handled ones in rerun hints.
 
 **Pick defensible defaults.** When the user doesn't specify algorithm, window size, storage, failure mode — pick what a senior engineer would defend in review. State the reasoning in assumptions.
 
@@ -58,15 +58,42 @@ Alternatives considered: [list]. Rerun with "use [X] instead" to override.
 If you have an existing event catalog, rerun with "use events [X, Y]" to
 constrain.
 
+**Language:** [Python/Go/Rust/JavaScript/TypeScript] with type hints and linting compliance (PEP 8/Black/Flake8 for Python, idiomatic style for others).
+
 **Project shape assumed:** Event-driven, [language], has an async bus
 (or will use something like [specific bus]).
 ```
 
 If any of these don't apply to the request (e.g. no algorithm choice needed), omit that line. Never pad.
 
+## Language Support
+
+**Supported Languages:**
+- **Python** (default if not specified) — async, type hints, PEP 8 compliant, Black/Flake8 clean
+- **Go** — goroutines, idiomatic error handling, formatted with gofmt
+- **Rust** — async/await, strong typing, clippy compliant
+- **JavaScript/TypeScript** — async, with JSDoc comments and TypeScript types (if --typescript)
+- **Java** — async patterns, proper exception handling, following Google style guide
+
+**Language Detection:** If user specifies language in prompt ("in Go", "Rust sidecar", etc.), generate in that language. Otherwise default to Python.
+
+**Type Hints:** ALL languages use their native type system:
+- Python: type annotations (`def foo(x: str) -> bool:`)
+- Go: explicit types (`func Foo(x string) bool`)
+- Rust: strong typing (`fn foo(x: &str) -> bool`)
+- TypeScript: full typing enabled
+- Java: generic types and annotations
+
+**Code Quality:** Generated code passes standard linting:
+- Python: PEP 8 + Black + Flake8
+- Go: gofmt + go vet
+- Rust: clippy with default lint settings
+- TypeScript: eslint with recommended config
+- Java: Google style guide
+
 ## Deliverables (after assumptions block)
 
-**Module file.** Complete, copy-pasteable, in the target language. Uses the project's idioms. No imports from other skills. No reach into a specific core implementation — write against a generic `Bus` interface with `subscribe` and `emit`, and note in the README what the user needs to adapt if their bus has a different API.
+**Module file.** Complete, copy-pasteable, in the target language. Uses the project's idioms and conventions. No imports from other skills. No reach into a specific core implementation — write against a generic `Bus` interface with `subscribe` and `emit`, and note in the README what the user needs to adapt if their bus has a different API. Code must pass linting and include type hints in the target language's style.
 
 **Test file.** Two tests minimum. One for the happy path event/command. One for an edge case from the assumptions block. Use the target language's standard test framework.
 
@@ -87,10 +114,13 @@ If any of these don't apply to the request (e.g. no algorithm choice needed), om
 
 If something is wrong, rerun with one of these additions to your prompt:
 
+- "In Rust" / "In Go" / "In TypeScript" — generate in different language
 - "Use X instead of Y" — changes an algorithm/storage choice
-- "Also handle [edge case]" — adds error handling
+- "Also handle [edge case]" — adds error handling (null safety, timeouts, concurrency)
 - "Use existing event [X] instead of creating a new one" — matches your catalog
 - "Target [specific bus library]" — adapts to your actual event system
+- "No type hints" — remove type annotations (not recommended)
+- "Skip linting compliance" — omit formatting/style compliance (not recommended)
 - "Make it [stricter/looser/faster/smaller]" — general tone adjustment
 ```
 
