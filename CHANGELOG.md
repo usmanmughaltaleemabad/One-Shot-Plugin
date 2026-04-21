@@ -2,6 +2,45 @@
 
 All notable changes to the One-Shot Prompting plugin are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.3.0] - 2026-04-21
+
+### Added
+- **Deployment configuration generation** (new)
+  - Docker Dockerfile with multi-stage builds (production-optimized)
+  - Kubernetes manifests (Deployment, Service, ConfigMap)
+  - Docker Compose for local development
+  - Request in prompt: "Include Dockerfile", "Add Kubernetes manifests", "Include Docker Compose"
+
+- **CI/CD pipeline templates** (new)
+  - GitHub Actions workflows (.github/workflows/test.yml)
+  - GitLab CI pipeline support
+  - Automated test coverage reporting
+  - Code scanning and security checks
+  - Performance benchmarking setup
+  - Request in prompt: "Generate GitHub Actions workflow" or "Add GitLab CI"
+
+- **Enhanced documentation**
+  - Environment variable templates
+  - Deployment architecture diagrams in README
+  - Security best practices per language
+  - Performance optimization guidelines
+
+- **Development ergonomics**
+  - Hot-reload development setup hints
+  - Local debugging configuration
+  - Integration test setup instructions
+  - Performance profiling helpers (Go pprof, Python cProfile, Node.js profiler)
+
+### Changed
+- Skill now prompts for deployment needs automatically
+- README generation includes deployment section by default
+- Assumptions block now documents deployment/CI-CD choices
+
+### Improved
+- Generated modules are now cloud-ready (12-factor app compliant)
+- Better integration with modern DevOps workflows
+- Comprehensive development-to-production guides
+
 ## [0.2.0] - 2026-04-21
 
 ### Added

@@ -91,6 +91,29 @@ If any of these don't apply to the request (e.g. no algorithm choice needed), om
 - TypeScript: eslint with recommended config
 - Java: Google style guide
 
+## Deployment & CI/CD Support (v0.3.0+)
+
+Generated modules can now include:
+
+**Deployment Configurations:**
+- Docker Dockerfile with multi-stage builds
+- Kubernetes manifests (Deployment, Service, ConfigMap)
+- Docker Compose for local development
+- Environment variable documentation
+
+**CI/CD Pipeline Templates:**
+- GitHub Actions workflows (test, build, deploy)
+- GitLab CI pipelines
+- GitHub code scanning and security checks
+- Automated test coverage reports
+- Performance benchmarking setup
+
+**Request in prompt:**
+- "Include Dockerfile" — generates production-ready Dockerfile
+- "Generate GitHub Actions workflow" — creates .github/workflows/test.yml
+- "Add Kubernetes manifests" — generates deployment specs
+- "Include Docker Compose" — for local dev setup
+
 ## Deliverables (after assumptions block)
 
 **Module file.** Complete, copy-pasteable, in the target language. Uses the project's idioms and conventions. No imports from other skills. No reach into a specific core implementation — write against a generic `Bus` interface with `subscribe` and `emit`, and note in the README what the user needs to adapt if their bus has a different API. Code must pass linting and include type hints in the target language's style.
