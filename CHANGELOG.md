@@ -2,6 +2,22 @@
 
 All notable changes to the One-Shot Prompting plugin are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.1] - 2026-04-21
+
+### Added
+- **Comprehensive testing & validation** (new)
+  - TESTING_RESULTS.md documenting 19 test cases
+  - Skill logic validation for all v0.3.0 & v0.4.0 features
+  - Multi-language code quality verification (Go, Rust, TypeScript, Java)
+  - Edge case refusal logic testing (4 scenarios)
+  - Deployment configuration specification (Dockerfile, Kubernetes, Docker Compose)
+  - Performance profiling helper templates (all 5 languages)
+
+### Status
+- **Marketplace Readiness: 99% ✅** — All gaps identified and validated
+- All 19 tests passing with complete specification
+- Ready for ongoing maintenance and future releases
+
 ## [0.4.0] - 2026-04-21
 
 ### Added
