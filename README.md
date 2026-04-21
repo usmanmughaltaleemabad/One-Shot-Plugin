@@ -42,8 +42,8 @@ If the plugin generates something wrong, you rerun. That's the design. If you ha
 ### Local development
 
 ```
-git clone https://github.com/one-shot-prompting/one-shot-prompting
-claude --plugin-dir ./one-shot-prompting
+git clone https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
+claude --plugin-dir ./One-Shot-Plugin
 ```
 
 ## Usage

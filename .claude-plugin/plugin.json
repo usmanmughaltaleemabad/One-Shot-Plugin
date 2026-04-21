@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "author": {
     "name": "Claude Plugins Community",
-    "url": "https://github.com/one-shot-prompting/one-shot-prompting"
+    "url": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin"
   },
-  "homepage": "https://github.com/one-shot-prompting/one-shot-prompting",
-  "repository": "https://github.com/one-shot-prompting/one-shot-prompting",
+  "homepage": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin",
+  "repository": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin",
   "license": "MIT",
   "keywords": [
     "one-shot",
