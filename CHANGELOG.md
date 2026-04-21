@@ -2,6 +2,46 @@
 
 All notable changes to the One-Shot Prompting plugin are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.0] - 2026-04-21
+
+### Added
+- **Event versioning and schema evolution** (new)
+  - Auto-generate backwards-compatible event schemas
+  - Version migration helpers for event schema changes
+  - Deprecation warnings in generated code
+  - Request: "Add event versioning" or "Generate event schema"
+
+- **Advanced error handling patterns** (new)
+  - Circuit breaker implementation
+  - Exponential backoff with jitter
+  - Dead letter queue handling
+  - Error telemetry and observability hooks
+  - Request: "Include circuit breaker" or "Add dead letter queue"
+
+- **Observability and monitoring** (new)
+  - Structured logging templates
+  - Distributed tracing integration (OpenTelemetry)
+  - Metrics collection (Prometheus format)
+  - Health check endpoints
+  - Request: "Add observability" or "Include OpenTelemetry"
+
+- **Security hardening** (new)
+  - Input validation templates
+  - Rate limiting strategies
+  - Authentication/authorization patterns
+  - Encryption helpers
+  - Request: "Include security checks" or "Add authentication"
+
+### Changed
+- Assumptions block documents error handling strategy
+- Generated code includes observability by default
+- README includes runbook for debugging and monitoring
+
+### Improved
+- Production-ready error handling
+- Complete observability stack
+- Enterprise security patterns
+
 ## [0.3.0] - 2026-04-21
 
 ### Added

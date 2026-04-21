@@ -80,15 +80,22 @@ Or switch languages on regeneration:
 
 Just rerun with the constraint added. Claude regenerates the whole thing with the new constraint applied.
 
-## What's New in v0.3.0
+## What's New in v0.4.0
 
+- 🛡️ **Advanced error handling**: Circuit breaker, exponential backoff, dead letter queues, error telemetry
+- 📊 **Observability stack**: Structured logging, OpenTelemetry integration, Prometheus metrics, health checks
+- 🔐 **Security hardening**: Input validation, rate limiting, auth patterns, encryption helpers
+- 📈 **Event versioning**: Backwards-compatible schema evolution, migration helpers, deprecation warnings
+- 🎯 **Enterprise patterns**: Production-grade error handling, complete observability, security best practices
+
+### Previous Releases
+
+**v0.3.0:**
 - 🐳 **Deployment configurations**: Generate production-ready Dockerfiles, Kubernetes manifests, Docker Compose
 - 🚀 **CI/CD pipelines**: Auto-generate GitHub Actions workflows, GitLab CI, test coverage, security scanning
 - 📊 **Performance profiling**: Built-in helpers for profiling in each language (Go pprof, Python cProfile, etc.)
 - 🏗️ **Cloud-ready code**: 12-factor app compliance, environment variable templates, deployment best practices
 - 🔧 **Development setup**: Hot-reload configs, local debugging, integration test scaffolding
-
-### Previous Releases
 
 **v0.2.0:**
 - ✨ **Multi-language support**: Generate in Python, Go, Rust, JavaScript/TypeScript, or Java
