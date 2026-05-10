@@ -314,17 +314,6 @@ Refusals are final responses, not invitations to discuss. Rerun with a narrower 
 
 They're both valid tools. Pick based on how you want to work.
 
-## Before submitting to the marketplace (if forking)
-
-1. Replace `YOUR-GITHUB-USERNAME` and `Your Name` in all files
-2. Test locally with `claude --plugin-dir ./one-shot-prompting`
-3. Generate at least one real feature on a real project
-4. Confirm the assumptions block covers everything important
-5. Push to a public GitHub repo
-6. Submit via [claude.ai/settings/plugins/submit](https://claude.ai/settings/plugins/submit)
-
-See `SUBMISSION_CHECKLIST.md` for the full pre-submission list.
-
 ## License
 
 MIT. See LICENSE.
