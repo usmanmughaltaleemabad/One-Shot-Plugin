@@ -175,48 +175,7 @@ Or switch languages on regeneration:
 
 Just rerun with the constraint added. Claude regenerates the whole thing with the new constraint applied.
 
-## What's New in v0.5.0
-
-- 📨 **Message Queue Support**: Generate complete subscriber sidecars for Kafka, RabbitMQ, AWS SQS/SNS, GCP Pub/Sub, and Azure Service Bus
-- 🌐 **Broker Auto-Detection**: Claude infers broker from your prompt — no explicit config needed
-- 🔁 **Delivery Guarantees**: At-least-once by default; rerun with "exactly-once" for transactional processing
-- 🪣 **DLQ by Default**: Dead letter queues included automatically for all MQ sidecars
-- 🐳 **Broker in Docker Compose**: Local dev setup includes the broker service (Kafka/RabbitMQ)
-- 🔐 **Credential Templates**: Kubernetes Secrets + .env.example for secure broker auth
-
-### MQ Examples
-
-```
-/one-shot-prompting:generate Add a Kafka consumer that reads from orders.created, validates the order, and publishes to orders.validated
-/one-shot-prompting:generate Add a RabbitMQ subscriber for payment.received events. In Go.
-/one-shot-prompting:generate Add an SQS consumer for user.signup events with dead letter queue. In TypeScript.
-```
-
-## What's New in v0.4.0
-
-- 🛡️ **Advanced error handling**: Circuit breaker, exponential backoff, dead letter queues, error telemetry
-- 📊 **Observability stack**: Structured logging, OpenTelemetry integration, Prometheus metrics, health checks
-- 🔐 **Security hardening**: Input validation, rate limiting, auth patterns, encryption helpers
-- 📈 **Event versioning**: Backwards-compatible schema evolution, migration helpers, deprecation warnings
-- 🎯 **Enterprise patterns**: Production-grade error handling, complete observability, security best practices
-
-### Previous Releases
-
-**v0.3.0:**
-- 🐳 **Deployment configurations**: Generate production-ready Dockerfiles, Kubernetes manifests, Docker Compose
-- 🚀 **CI/CD pipelines**: Auto-generate GitHub Actions workflows, GitLab CI, test coverage, security scanning
-- 📊 **Performance profiling**: Built-in helpers for profiling in each language (Go pprof, Python cProfile, etc.)
-- 🏗️ **Cloud-ready code**: 12-factor app compliance, environment variable templates, deployment best practices
-- 🔧 **Development setup**: Hot-reload configs, local debugging, integration test scaffolding
-
-**v0.2.0:**
-- ✨ **Multi-language support**: Generate in Python, Go, Rust, JavaScript/TypeScript, or Java
-- 🔍 **Type hints by default**: All generated code includes proper type safety
-- ✅ **Linting compliance**: Generated code passes PEP 8 (Python), gofmt (Go), clippy (Rust), etc.
-- 🛡️ **Better edge case handling**: Handles null values, timeouts, concurrent access, resource cleanup
-- 🔄 **Language switching on rerun**: Regenerate in a different language with one constraint
-
-[See full changelog](CHANGELOG.md)
+[See full changelog →](CHANGELOG.md)
 
 ## Example response structure
 
@@ -264,16 +223,6 @@ Copy rate_limiter/ into your skills directory and import it.
 ```
 
 Every field above is actionable. You scan the assumptions, find what's wrong, rerun with the specific override.
-
-## When the plugin refuses
-
-Some requests can't be one-shot and the plugin refuses narrowly:
-
-- **Multi-feature requests:** "Your request contains 3 features. Rerun with one."
-- **Cross-cutting changes:** "This needs core modification, not a sidecar. Use a design conversation."
-- **Wrong project shape:** "This isn't event-driven work. Use regular Claude for this."
-
-Refusals are final responses, not invitations to discuss. Rerun with a narrower request.
 
 ## Comparison to spec-first plugins
 
