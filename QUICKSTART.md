@@ -1,24 +1,42 @@
-# One-Shot Prompting v5.0.0 — Quick Start
+# One-Shot Prompting v2.0.0 — Quick Start
 
-**✅ ALL 177 MODULES COMPLETE** (Phase 0-5: 57 shipped + 120 implemented)
+**Status**: Phases 0-3 shipped (69 modules). Phases 4-5 planned but not yet implemented.
 
-**What you can do today:**
-- REST API generation (44 modules) — ✅ Shipped, proven
-- Batch job systems (13 modules) — ✅ Shipped, proven
-- Production hardening (60 modules) — ✅ Implemented, tested
-- Advanced patterns (50+ modules) — ✅ Implemented, tested
+**What works right now:**
+- ✅ REST API generation (44 modules) — Proven, tested
+- ✅ Batch job systems (13 modules) — Proven, tested
+- ✅ Multi-file output formatting, auto-wiring, migrations
+- ✅ Codebase analysis and framework detection
 
-**All frameworks supported**: Django, FastAPI, Spring, Go, Node.js, NestJS
+**Coming later (Q3-Q4 2026):**
+- 📋 Production hardening patterns (DDD, CQRS, TDD, cost optimization, chaos, compliance)
+- 📋 Advanced patterns (microservices, real-time, GraphQL, ML, legacy modernization)
+
+**Frameworks supported**: Django, FastAPI, Spring Boot, Go, Node.js, NestJS
 
 ---
 
-## 1️⃣ Discovery (Learn What You Can Build)
+## Getting Started
 
-### Health Check: Scan Your Project
+### 1. Install the Plugin
+
 ```bash
-/one-shot-prompting:health-check @/path/to/project
+git clone https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
+claude --plugin-dir ./One-Shot-Plugin/one-shot-prompting
 ```
-Shows: Framework, message bus, testing setup, logging, IaC tools, which features are unlocked
+
+### 2. Check Your Project's Capabilities
+
+```bash
+/one-shot-prompting:one-shot-generator /health-check @/path/to/project
+```
+
+This analyzes your codebase and shows:
+- Framework & version detected
+- Message bus (if any)
+- Testing framework
+- Logging setup
+- What code you can generate
 
 **Example output:**
 ```
@@ -26,290 +44,312 @@ Shows: Framework, message bus, testing setup, logging, IaC tools, which features
 ✅ Bus: Celery + Redis
 ✅ Testing: pytest + factories
 ✅ Logging: structlog
-⚠️  No IaC detected (consider Docker)
+✅ Deployment: Docker + GitHub Actions
 
-Features unlocked:
-  - Multi-file generation (models, views, tests, migrations)
-  - Auto-wiring into Django
-  - Event orchestration
-  - Observability patterns
-  - Dead-letter queue routing
+Capabilities unlocked:
+  - REST API generation (models, views, serializers, tests, migrations)
+  - Batch job generation (tasks, retries, DLQ routing)
+  - Multi-file output with auto-wiring
+  - OpenAPI documentation
 ```
 
-### Tour: Guided Discovery
+### 3. Generate Your First Feature
+
+**For your existing project** (codebase-aware):
 ```bash
-/one-shot-prompting:tour
-```
-Interactive walk-through:
-1. What do you want to build? (API, message queue consumer, game server, trading bot, etc.)
-2. What language? (Python, Go, Rust, TypeScript, Java)
-3. What framework? (Django, FastAPI, Spring, etc.)
-4. What message bus? (Kafka, RabbitMQ, SQS, Pub/Sub, etc.)
-
-**Output:**
-```
-Based on your answers, try:
-  /one-shot-prompting:generate Add Kafka consumer for user.signup events @/project --tdd
+/one-shot-prompting:one-shot-generator add user authentication with JWT @/path/to/project
 ```
 
-### Template Library: 25+ Proven Patterns
+Claude analyzes your project and generates:
+- Models/schemas
+- Views/endpoints
+- Tests (unit + integration)
+- Migrations
+- Settings configuration
+- README
+
+**For a new feature** (greenfield):
 ```bash
-/one-shot-prompting:templates
-/one-shot-prompting:templates --tag messaging
-/one-shot-prompting:templates --search kafka
-/one-shot-prompting:templates --language python
+/one-shot-prompting:one-shot-generator add a kafka consumer for order.placed events in Python
 ```
-
-Browse categories:
-- Messaging (Kafka, RabbitMQ, SQS, DLQ, exactly-once)
-- APIs (REST, GraphQL, webhooks, OpenAPI)
-- Deployment (Docker, Kubernetes, Terraform, GitHub Actions)
-- Observability (logging, tracing, metrics, domain-specific)
-- Quality (integration tests, TDD, code review, performance)
-- Refactoring (strangler pattern, consistency, versioning)
-- Architecture (blueprint, service design)
 
 ---
 
-## 2️⃣ Code Generation (Build Features)
+## Available Features (Phase 0-3)
 
-### Basic: Single Prompt, Complete Feature
+### ✅ REST API Generation
 ```bash
-/one-shot-prompting:generate "Add rate limiter for order.created events" @/path/to/project
-```
-
-**Output in ONE response:**
-- Models/schemas (with migrations)
-- Handlers/endpoints
-- Tests (2+ tests, integration + unit)
-- README with setup instructions
-- Auto-wiring guide for your framework
-
-All framework-aware: Django generates models.py + views.py + serializers.py + migrations. FastAPI generates schemas.py + router.py + service.py. Etc.
-
----
-
-## 3️⃣ Optional Harness Modes (Advanced Features)
-
-### Preview: See Structure Before Committing
-```bash
-/one-shot-prompting:generate "Add payment processor" @/project --preview
-```
-
-Shows:
-- Files that will be generated
-- Key decisions made
-- Estimated integration time
-
-Then run WITHOUT `--preview` when ready to generate full code.
-
-### Test-First: TDD Mode
-```bash
-/one-shot-prompting:generate "Add payment processor" @/project --tdd
-```
-
-Output order:
-1. **Test file** (with failing tests) ← run these to see them fail
-2. **Implementation** (makes tests pass)
-3. **README**
-
-Optional `--explain-tdd` for methodology walkthrough of each test.
-
-### Code Review: Quality Gates
-```bash
-/one-shot-prompting:generate "Add payment processor" @/project --review
-```
-
-Automatically checks:
-- ✅ Linting compliance (flake8, eslint, etc.)
-- ✅ Security (no hardcoded secrets, SQL injection prevention, safe subprocess calls)
-- ✅ Type coverage (100% type hints)
-- ✅ Test coverage (minimum 2 tests)
-
-Blocks generation if critical issues found.
-
-### Catalog Validation: Event Governance
-```bash
-/one-shot-prompting:generate "Add payment processor" @/project --catalog ./events.yaml
-```
-
-Validates generated events against your event schema:
-- ✅ Matched events (in catalog)
-- ⚠️  New events (catalog extension needed)
-- ❌ Conflicting events (must resolve)
-
-### Domain-Specific Observability
-```bash
-/one-shot-prompting:generate "Add game server handler" @/project --observability game
-```
-
-Injects domain-tuned metrics:
-- **Games:** Frame timing, event queue depth, per-player latency
-- **Trading bots:** Roundtrip latency, missed opportunities, operation cost
-- **ML pipelines:** Feature freshness, inference latency, data quality
-
-### Strangler Pattern: Legacy Migration
-```bash
-/one-shot-prompting:generate "Migrate payment system to new service" --strangler --legacy old_payment.py --new payment_v2.py
+/one-shot-prompting:one-shot-generator add a user endpoint with JWT auth and rate limiting @/project
 ```
 
 Generates:
-- New implementation (clean, testable)
-- Router/adapter (routes traffic between old and new)
-- Dual-run scaffold (old + new in parallel for validation)
-- Parity test (verify both produce same results)
-- Cutover plan (gradual rollout: 5% → 50% → 100%)
-- Rollback script (if new version fails)
+- Models/schemas
+- Views/routers
+- Serializers/schemas
+- URL routing
+- Tests (unit + integration)
+- Migrations
 
-### Other Modes
+All framework-native (no generic stubs).
+
+### ✅ Batch Job Generation
 ```bash
-/one-shot-prompting:generate "..." @/project --detect-bus       # Auto-detect Kafka/RabbitMQ/etc
-/one-shot-prompting:generate "..." @/project --detect-bus       # Auto-detect bus from imports
-/one-shot-prompting:generate "..." @/project --architecture     # Lightweight blueprint first
-/one-shot-prompting:generate "..." @/project --budget 100000    # Track token usage vs budget
+/one-shot-prompting:one-shot-generator add a background job to send emails asynchronously @/project
 ```
+
+Generates:
+- Task/job handler
+- Queue configuration
+- Retry logic
+- Dead-letter queue (DLQ) handling
+- Tests
+- Setup instructions
+
+### ✅ Multi-File Generation
+Automatically splits large features into multiple files:
+- Models file
+- Views/routers file
+- Tests file
+- Utilities file
+- Configuration file
+- Each file is generated with correct imports and structure
+
+### ✅ Auto-Wiring into Projects
+Generated code automatically:
+- Imports your project's settings/config
+- Uses your existing models/schemas
+- Integrates with your testing framework
+- Follows your naming conventions
+- Uses your ORM/query patterns
+
+### ✅ Migration Generation
+For data models, Claude generates database migrations:
+- Django migrations (makemigrations)
+- Alembic migrations
+- Flyway SQL migrations
+- Go migrate SQL files
 
 ---
 
-## 4️⃣ Example Workflows
+## Generation Modes
 
-### Workflow A: From Scratch (Greenfield)
+### Preview Mode
+See what will be generated before committing:
 ```bash
-# 1. Discover
-/one-shot-prompting:tour
-→ Output: "try this prompt: /one-shot-prompting:generate Add Kafka consumer for ..."
+/one-shot-prompting:one-shot-generator "add payment handler" @/project --preview
+```
 
-# 2. Preview
-/one-shot-prompting:generate "Add Kafka consumer for user.signup" @/my-project --preview
-→ Output: Shows files, decisions, estimated time
+Shows:
+- Files that will be created
+- Key design decisions
+- Estimated integration time
+
+### Test-First (TDD) Mode
+Generate tests first, then implementation:
+```bash
+/one-shot-prompting:one-shot-generator "add payment handler" @/project --tdd
+```
+
+Output order:
+1. Test file (with failing tests)
+2. Implementation (makes tests pass)
+3. README
+
+### Code Review Mode
+Automatic quality checks before generation:
+```bash
+/one-shot-prompting:one-shot-generator "add payment handler" @/project --review
+```
+
+Checks:
+- ✅ Linting (flake8, eslint, etc.)
+- ✅ Security (no hardcoded secrets, SQL injection prevention)
+- ✅ Type coverage (100% type hints)
+- ✅ Test coverage (minimum 2 tests)
+
+Blocks if critical issues found.
+
+---
+
+## Iteration Example
+
+First attempt:
+```bash
+/one-shot-prompting:one-shot-generator add a rate limiter for API requests
+```
+
+If you want a different algorithm:
+```bash
+/one-shot-prompting:one-shot-generator add a rate limiter for API requests using token bucket instead of sliding window
+```
+
+If you want to change languages:
+```bash
+/one-shot-prompting:one-shot-generator add a rate limiter for API requests in Go
+```
+
+No conversation. Just rerun with your constraint. Claude regenerates from scratch.
+
+---
+
+## Example Workflows
+
+### Workflow 1: Add Feature to Existing Project
+
+```bash
+# 1. Check what you can generate
+/one-shot-prompting:one-shot-generator /health-check @/my-django-app
+
+# 2. Preview the output
+/one-shot-prompting:one-shot-generator add user profile endpoint @/my-django-app --preview
 
 # 3. Generate
-/one-shot-prompting:generate "Add Kafka consumer for user.signup" @/my-project
-→ Output: Complete, ready-to-copy code
+/one-shot-prompting:one-shot-generator add user profile endpoint @/my-django-app
 
-# 4. Install
-# Copy files, run: python manage.py migrate && pytest
+# 4. Copy code into your project
+# Copy output to your Django app directory
+
+# 5. Run tests
+pytest
+
+# 6. Apply migrations (if generated)
+python manage.py migrate
 ```
 
-### Workflow B: Quality-First (Enterprise)
+### Workflow 2: Generate from Scratch (Greenfield)
+
 ```bash
-# 1. Health check
-/one-shot-prompting:health-check @/project
-→ Shows capabilities
+# Generate a complete Celery task handler
+/one-shot-prompting:one-shot-generator add a celery task to send email notifications in Python
 
-# 2. Generate with review
-/one-shot-prompting:generate "Add payment handler" @/project --review
-→ Checks linting, security, types, tests, blocks if critical
-
-# 3. Test-first to understand design
-/one-shot-prompting:generate "..." @/project --tdd --explain-tdd
-→ Failing tests first, explanation of why each test matters
-
-# 4. PR integration
-/one-shot-prompting:generate "..." @/project --pr
-→ PR title, body, branch name suggestion, ready to push
+# Copy into your project
+# Create requirements.txt entry (Claude includes it)
+# Run tests and integrate
 ```
 
-### Workflow C: Legacy Migration (Strangler)
+### Workflow 3: Test-Driven Development
+
 ```bash
-# 1. Plan migration
-/one-shot-prompting:generate "..." --architecture "split payment from orders"
-→ Lightweight blueprint
+# Generate tests first
+/one-shot-prompting:one-shot-generator add payment processing API --tdd @/project
 
-# 2. Generate new service
-/one-shot-prompting:generate "Add new payment service" @/project --tdd
-→ Tests + implementation for new service
-
-# 3. Set up strangler
-/one-shot-prompting:generate "..." --strangler --legacy old_payment.py --new payment_v2.py
-→ Router, adapter, dual-run, parity test, cutover plan
-
-# 4. Test both in parallel, gradually cutover
+# See test output
+# Understand the design through tests
+# Implementation follows
 ```
 
 ---
 
-## 5️⃣ Key Commands Reference
+## What You Get in Each Generation
 
-| Command | What It Does |
-|---------|------------|
-| `/health-check @/project` | Scan for frameworks, buses, testing, logging, IaC |
-| `/tour` | Guided discovery walk-through |
-| `/templates [--tag] [--search] [--language]` | Browse 25+ templates |
-| `/generate "[prompt]" @/project` | Generate code (default) |
-| `/generate ... --preview` | Show outline, don't generate yet |
-| `/generate ... --tdd` | Test-first mode |
-| `/generate ... --review` | Quality gates (lint, security, types, tests) |
-| `/generate ... --strangler` | Legacy migration scaffolding |
-| `/generate ... --catalog events.yaml` | Validate events against catalog |
-| `/generate ... --detect-bus` | Auto-detect Kafka/RabbitMQ/etc |
-| `/generate ... --observability game` | Domain-tuned metrics |
-| `/generate ... --budget 100000` | Set token budget |
-
----
-
-## 6️⃣ What You Get in Every Generation
-
-```
-## Assumptions (always first)
-- Framework detected, decisions made
-- Confidence scores for each choice
+### 1. Assumptions Section
+- Framework detected
+- Design choices explained
+- Confidence scores
 - How to override
 
-## Module Code
-- Multi-file (models, views/routers, tests, migrations, configs)
-- Framework-native (not generic stubs)
-- Convention-matched (naming, docstrings, error handling)
+### 2. Code
+- Multiple files (organized by responsibility)
+- Framework-native patterns
+- Your project's conventions
+- Well-formatted and documented
 
-## Tests
+### 3. Tests
 - 2+ tests per module
-- Integration + unit
-- Uses your testing framework (pytest, Jest, JUnit, etc.)
-- Fixtures from your conftest/setup
+- Unit + integration tests
+- Uses your testing framework
+- Imports from your conftest/fixtures
 
-## README
-- How to install
-- Events consumed/produced
-- Endpoints or handlers
+### 4. README
+- Installation instructions
+- What was generated
+- How to integrate
 - Next steps
 
-## Installation
-- One-liner command
-- Migration instructions
-- Run & verify
-```
+### 5. Auto-Integration Guide
+- Where to copy files
+- What to import
+- Settings to update (if any)
+- How to verify it works
 
 ---
 
-## 7️⃣ Pro Tips
+## Common Patterns
 
-1. **Start with health-check** to see your project's capabilities
-2. **Use --preview before generating** if you're not sure
-3. **Use --review for production code** (security + linting gates)
-4. **Use --tdd to understand design** before implementation
-5. **Pass @/path/to/project for codebase-aware code** (adapts to your conventions)
-6. **Browse templates for proven patterns** before writing custom prompts
-7. **Use --strangler for legacy migration** (incremental, safe cutover)
-8. **Check --budget to track usage** (tokens, cost)
-
----
-
-## 8️⃣ When to Rerun (Iteration)
-
-Generation didn't feel right? Rerun with:
+### REST Endpoint with Auth
 ```bash
-/one-shot-prompting:generate "..." @/project --sync          # force sync instead of async
-/one-shot-prompting:generate "..." @/project --raw-sql       # force raw SQL instead of ORM
-/one-shot-prompting:generate "..." @/project --minimal       # smaller, simpler code
-/one-shot-prompting:generate "..." @/project In Go           # different language
-/one-shot-prompting:generate "..." @/project --tdd           # test-first
-/one-shot-prompting:generate "..." @/project --explain-tdd   # walkthrough of tests
+/one-shot-prompting:one-shot-generator add user profile endpoint with JWT authentication @/project
 ```
 
-No questions asked. No clarification needed. Just rerun with your adjustment.
+### Background Job with Retries
+```bash
+/one-shot-prompting:one-shot-generator add background job to process orders with retry logic @/project
+```
+
+### Event Consumer
+```bash
+/one-shot-prompting:one-shot-generator add kafka consumer for order.placed events with error handling @/project
+```
+
+### Batch Migration
+```bash
+/one-shot-prompting:one-shot-generator add database migration for denormalizing user data @/project
+```
 
 ---
 
-**Status: v2.0.0 Released ✅ | 98/98 Tests Passing | All Features Live**
+## Troubleshooting
 
-Next: Explore templates, run health-check, or generate your first feature!
+**"I don't have a codebase to analyze"**
+→ Just use the basic syntax without `@/path`. Claude generates generic, framework-specific code.
+
+**"The generated code doesn't match my style"**
+→ Rerun with a constraint: "use async/await", "use raw SQL instead of ORM", "add error logging", etc.
+
+**"I want a different language"**
+→ Rerun with "In Go" or "In Rust" or "In TypeScript".
+
+**"The test doesn't cover my edge case"**
+→ Rerun with "--tdd" to see the test first, then adjust.
+
+---
+
+## Important Limitations
+
+**Phases 4-5 NOT YET AVAILABLE** (coming Q3-Q4 2026):
+- ❌ Architecture pattern generation (DDD, CQRS, Event Sourcing)
+- ❌ Advanced testing (property tests, mutation tests, chaos tests)
+- ❌ Production hardening (cost optimization, compliance, chaos engineering)
+- ❌ Advanced patterns (microservices, real-time, GraphQL, ML, legacy modernization)
+
+**What's tested and verified**:
+- ✅ Phases 0-3 code generation
+- ✅ 6 frameworks (Django, FastAPI, Spring, Go, Node.js, NestJS)
+- ✅ REST API + Batch job generation
+
+**What you should test**:
+- Your specific edge cases
+- Your project's deployment process
+- Your team's coding standards
+
+**Recommendation**: Test on a non-critical feature first.
+
+---
+
+## Next Steps
+
+1. **Install** the plugin (see above)
+2. **Run health-check** on your project to see capabilities
+3. **Generate** a simple feature (REST endpoint or batch job)
+4. **Review** the generated code
+5. **Iterate** if anything feels off
+6. **Integrate** into your project
+
+For more details, see:
+- **[Full Documentation](README.md)** — Comprehensive guide
+- **[Architecture](CLAUDE.md)** — How it works internally
+- **[Roadmap](ROADMAP.md)** — What's coming in Phase 4-5
+
+---
+
+**Status**: v2.0.0 shipped | Phases 0-3 complete | Phases 4-5 planned

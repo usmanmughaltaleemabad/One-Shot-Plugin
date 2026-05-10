@@ -1,95 +1,231 @@
-# 🚀 One-Shot Prompting v5.0.0 — Start Here
+# 🚀 One-Shot Prompting v2.0.0 — Start Here
 
-**Status:** ✅✅✅ **100% COMPLETE** (May 11, 2026)
+**Status:** ⚠️ **Phases 0-3 Complete (69 modules)** | Phases 4-5 Planned (110 modules)
 
-All 177 modules architected, implemented, tested, and generating code.
+Phases 0-3 are shipped and tested. Phases 4-5 are planned for Q3-Q4 2026 but not yet implemented.
 
 ---
 
-## What You Can Do Now
+## What You Can Do Now (Shipping Today)
 
-### 🎯 If You're New — Start Here
-1. **Quick Overview:** [QUICKSTART.md](QUICKSTART.md) (5 min)
-2. **Full Features:** [ROADMAP.md](ROADMAP.md) (177 modules, all phases)
-3. **Architecture:** [CLAUDE.md](CLAUDE.md) (design & decisions)
+### ✅ REST API Generation
+Generate complete REST APIs with models, views, tests, and migrations.
 
-### 📚 If You Want Complete Details
-- **Complete Roadmap:** [ROADMAP.md](ROADMAP.md) — All 177 modules broken down by phase
-- **Architecture & Status:** [CLAUDE.md](CLAUDE.md) — Design decisions, framework support, current status
-- **Implementation Status:** [one-shot-prompting/CLAUDE.md](CLAUDE.md) — Phase roadmap & technical details
+```bash
+/one-shot-prompting:one-shot-generator add user authentication endpoint @/path/to/project
+```
 
-### 🚀 If You Want to Generate Code
-- **REST APIs:** Phase 2 (44 modules) — CRUD, auth, webhooks, tests
-- **Batch Jobs:** Phase 3 (13 modules) — Queues, monitoring, observability
-- **Production Hardening:** Phase 4 (60 modules) — DDD, CQRS, chaos, compliance
-- **Advanced Patterns:** Phase 5 (50+ modules) — Microservices, GraphQL, ML, legacy
+**What's included**: Models, serializers, views, URL routing, tests, migrations, README.
 
-### 🛠️ If You're a Developer
-- **All Generators:** [skills/one-shot-generator/](skills/one-shot-generator/) — 50+ Python modules
-- **All Modules:** [scripts/](scripts/) — 177 generator implementations
-- **Runnable:** Each generator has CLI support for all 6 frameworks
+**Frameworks supported**: Django, FastAPI, Spring Boot, Go, Node.js, NestJS
+
+### ✅ Batch Job Generation
+Generate background jobs, task queues, and event handlers.
+
+```bash
+/one-shot-prompting:one-shot-generator add background job for sending emails @/project
+```
+
+**What's included**: Job handler, queue config, retry logic, DLQ handling, tests.
+
+### ✅ Multi-File Generation
+Automatically splits complex features into organized files with proper imports.
+
+### ✅ Auto-Wiring
+Generated code automatically integrates into your existing project structure.
+
+### ✅ Framework Detection
+Analyzes your codebase and generates framework-specific code (not generic stubs).
 
 ---
 
 ## Quick Navigation
 
-| Your Goal | Read This | Do This |
-|-----------|-----------|---------|
-| Get started in 5 minutes | [QUICKSTART.md](QUICKSTART.md) | `/one-shot-prompting:tour` |
-| See all commands | [COMMAND_REFERENCE.md](COMMAND_REFERENCE.md) | `/one-shot-prompting:health-check @/project` |
-| Learn what changed | [RELEASE_NOTES_v2_0_0.md](RELEASE_NOTES_v2_0_0.md) | Check feature matrix |
-| Understand architecture | [INTEGRATION_STATUS.md](INTEGRATION_STATUS.md) | Review modules list |
-| Check completion status | [V2_0_0_COMPLETION_SUMMARY.md](V2_0_0_COMPLETION_SUMMARY.md) | See test results |
+| If You Want | Go Here | Command |
+|-------------|---------|---------|
+| Fast start (5 min) | [QUICKSTART.md](QUICKSTART.md) | `/one-shot-prompting:one-shot-generator /health-check @/project` |
+| Learn all features | [README.md](README.md) | Start with `/health-check` |
+| See architecture | [CLAUDE.md](CLAUDE.md) | Read developer guide |
+| Understand roadmap | [ROADMAP.md](ROADMAP.md) | See Phase 4-5 plans |
+| Generate code | [QUICKSTART.md](QUICKSTART.md) | `/one-shot-prompting:one-shot-generator "add feature" @/project` |
 
 ---
 
-## Three Common Workflows
+## Three Workflows
 
-### Workflow 1️⃣ : Explore & Generate (First Time)
-```
-/one-shot-prompting:tour                    → Discover
-/one-shot-prompting:generate "add feature" @/project --preview  → Preview
-/one-shot-prompting:generate "add feature" @/project           → Generate
-/one-shot-prompting:pr                       → Create PR
+### 🎯 Workflow 1: Explore Your Project
+
+```bash
+/one-shot-prompting:one-shot-generator /health-check @/path/to/project
 ```
 
-### Workflow 2️⃣ : Enterprise Quality-First
-```
-/one-shot-prompting:health-check @/project  → Check capabilities
-/one-shot-prompting:check-consistency @/project → Audit codebase
-/one-shot-prompting:generate "..." @/project --review --tdd → Generate with gates
-/one-shot-prompting:budget --usage           → Track costs
+Claude scans your project and shows:
+- ✅ Framework detected
+- ✅ Message bus (Kafka, RabbitMQ, etc.)
+- ✅ Testing framework
+- ✅ What code you can generate
+
+### 🎯 Workflow 2: Generate a Feature
+
+```bash
+# Preview what will be generated
+/one-shot-prompting:one-shot-generator "add user profile endpoint" @/project --preview
+
+# Generate the code
+/one-shot-prompting:one-shot-generator "add user profile endpoint" @/project
+
+# Copy into your project, run tests
 ```
 
-### Workflow 3️⃣ : Legacy Migration
+### 🎯 Workflow 3: Iterate Until Right
+
+```bash
+# First try
+/one-shot-prompting:one-shot-generator add rate limiter
+
+# Different algorithm?
+/one-shot-prompting:one-shot-generator add rate limiter using token bucket
+
+# Different language?
+/one-shot-prompting:one-shot-generator add rate limiter in Go
 ```
-/one-shot-prompting:architecture "Split X from Y" → Design
-/one-shot-prompting:generate "..." @/project --strangler → Migrate
-/one-shot-prompting:debug "[error]"         → Fix
+
+Just rerun with your constraint. No questions, no conversation.
+
+---
+
+## What's Actually Implemented
+
+### Phase 0 ✅
+- Silent planning engine
+- Verification harness
+- Slash command framework
+- Zero-friction UX
+
+### Phase 1 ✅
+- Multi-file output formatting
+- Auto-wiring to projects
+- Migration generation
+- Config generation
+- Dependency injection awareness
+- OpenAPI generation
+
+### Phase 2 ✅
+- REST API generation (CRUD, auth, webhooks, pagination)
+- Request validation
+- Error handling
+- Tests (unit + integration)
+
+### Phase 3 ✅
+- Batch job generation
+- Queue handling
+- Retries and DLQ
+- Monitoring patterns
+- Observability logging
+
+### Phase 4 & 5 📋
+- Architecture patterns (DDD, CQRS, Event Sourcing)
+- Advanced testing (property tests, mutation tests, chaos tests)
+- Production hardening (cost optimization, chaos engineering, compliance)
+- Advanced patterns (microservices, real-time, GraphQL, ML, legacy modernization)
+
+**Status**: Not yet started. Planned for Q3-Q4 2026.
+
+---
+
+## Examples
+
+### Example 1: Add Auth to Django
+
+```bash
+/one-shot-prompting:one-shot-generator add JWT-based user authentication @/my-django-project
+```
+
+**Output**:
+- User model with JWT
+- Serializer
+- Views/endpoints
+- URL routing
+- Tests
+- Migration
+- Settings updates
+- README
+
+### Example 2: Generate Celery Task
+
+```bash
+/one-shot-prompting:one-shot-generator add celery task for processing orders with retry logic @/project
+```
+
+**Output**:
+- Task definition
+- Queue configuration
+- Retry logic
+- DLQ routing
+- Tests
+- setup.py requirements
+- README
+
+### Example 3: Test-Driven Development
+
+```bash
+/one-shot-prompting:one-shot-generator add payment handler @/project --tdd
+```
+
+**Output**:
+1. Test file (with failing tests)
+2. Implementation (makes tests pass)
+3. README
+
+---
+
+## Status Summary
+
+**Shipped (v2.0.0)**:
+- ✅ 69 modules across Phases 0-3
+- ✅ 6 frameworks supported
+- ✅ Multi-file generation
+- ✅ Auto-wiring
+- ✅ Framework detection
+- ✅ Test generation
+
+**In Backlog (Phase 4-5)**:
+- 📋 110 additional modules
+- 📋 Architecture patterns
+- 📋 Advanced testing
+- 📋 Production hardening
+- 📋 Microservices & real-time
+- 📋 ML pipelines
+- 📋 Legacy modernization
+
+**Timeline**: Phase 4-5 estimated Q3-Q4 2026 (not yet started).
+
+---
+
+## Installation
+
+```bash
+git clone https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
+claude --plugin-dir ./One-Shot-Plugin/one-shot-prompting
+```
+
+Then try:
+```bash
+/one-shot-prompting:one-shot-generator /health-check @/path/to/your/project
 ```
 
 ---
 
-## Feature Highlights (v2.0.0)
+## Next Steps
 
-✅ **11 commands** (3 discovery + 8 specialized)  
-✅ **8+ conditional flags** on `/generate`  
-✅ **40+ Python modules** integrated  
-✅ **15+ frameworks** detected  
-✅ **98/98 tests** passing  
-✅ **5 framework fixtures** tested  
-✅ **Marketplace ready**  
+1. **Install** the plugin (see above)
+2. **Run health-check** on your project
+3. **Try generating** a simple REST API or batch job
+4. **Review** the generated code
+5. **Read [QUICKSTART.md](QUICKSTART.md)** for detailed workflows
 
 ---
 
-## Status
-
-🟢 **v2.0.0 COMPLETE** — Ready for marketplace launch
-
-- ✅ All 40+ modules integrated and tested
-- ✅ All 11 commands live and documented
-- ✅ 98/98 tests passing
-- ✅ Performance within budget
-- ✅ User documentation complete
-
-**Last Updated:** May 7, 2026
+**Version**: v2.0.0 (May 11, 2026)  
+**Status**: Phases 0-3 shipped. Phases 4-5 planned.  
+**Frameworks**: Django, FastAPI, Spring, Go, Node.js, NestJS

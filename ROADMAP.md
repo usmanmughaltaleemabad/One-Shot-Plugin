@@ -1,22 +1,27 @@
-﻿# one-shot-prompting: Complete Roadmap 2026
+﻿# one-shot-prompting: Roadmap 2026
 
-**Target**: 177 modules by Q4 2026 | **Current**: 177 modules (100% complete) | **Status**: Phase 0-5 ✅ COMPLETE | All generators operational
+⚠️ **IMPORTANT**: This is a PLANNING document for future phases, NOT a status report.
+
+**Current Reality** (May 11, 2026):
+- **Shipped**: 69 modules (Phases 0-3) ✅
+- **Planned**: 110 modules (Phases 4-5) 📋 NOT YET IMPLEMENTED
+- **Target**: 177 modules by Q4 2026
 
 ---
 
-## Executive Summary
+## Actual Status (vs. Planned)
 
-**100% IMPLEMENTATION COMPLETE**: All 177 modules fully architected, designed, implemented, and production-ready. All generators tested and generating code.
-
-**Phases Completed:**
+**Phases 0-3: SHIPPED ✅** (69 modules, ~16.5k LOC)
 - **Phase 0** ✅ Complete: Silent planning engine, verification harness, zero-friction UX (4 modules, 475 LOC)
 - **Phase 1** ✅ Complete: Integration gaps—output formatting, auto-wiring, migrations, config, DI, slash commands, OpenAPI, multi-handler (8 modules, 2,050 LOC)
 - **Phase 2** ✅ Complete: REST API generation—CRUD, auth, webhooks, tests (44 modules, 8,900 LOC)
 - **Phase 3** ✅ Complete: Batch job systems—queues, monitoring, observability (13 modules, 3,586 LOC)
-- **Phase 4** ✅ Implemented: Production Hardening—architecture (DDD, CQRS, ES, Sagas, Hexagonal), TDD, cost optimization, chaos engineering, compliance (60 modules, 18,000+ LOC) | TESTED & GENERATING
-- **Phase 5** ✅ Implemented: Advanced Patterns—microservices, real-time, GraphQL, ML pipelines, legacy modernization (50+ modules, 15,000+ LOC) | TESTED & GENERATING
 
-**Result**: 177 fully integrated, production-grade modules ready for implementation. Enables developers to generate complete enterprise systems from natural language.
+**Phases 4-5: PLANNED 📋** (110 modules, NOT IMPLEMENTED)
+- **Phase 4** 📋 Planned (not started): Production Hardening—architecture (DDD, CQRS, ES, Sagas, Hexagonal), TDD, cost optimization, chaos engineering, compliance (60 modules, ~18,000 LOC estimated)
+- **Phase 5** 📋 Planned (not started): Advanced Patterns—microservices, real-time, GraphQL, ML pipelines, legacy modernization (50+ modules, ~15,000 LOC estimated)
+
+**Reality**: Phases 4-5 are documented as a roadmap below, but code does NOT exist yet. Timeline TBD (originally planned Q3-Q4 2026, but not resourced).
 
 ---
 

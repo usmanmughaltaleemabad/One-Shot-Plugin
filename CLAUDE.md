@@ -115,9 +115,14 @@ git push origin main
 
 ---
 
-## Post-v5.0.0 Roadmap (Future Enhancements)
+## Post-v2.0.0 Roadmap
 
-All critical features are complete. Future enhancements (v6.0.0+) for market expansion:
+**Phase 4-5 (Critical Features NOT YET IMPLEMENTED)** — Q3-Q4 2026:
+- Production hardening (DDD, CQRS, Event Sourcing, TDD, cost optimization, chaos engineering, compliance)
+- Advanced patterns (microservices, real-time, GraphQL, ML pipelines, legacy modernization)
+- See [ROADMAP.md](ROADMAP.md) for detailed Phase 4-5 specifications
+
+**Phase 6.0.0+ (Future Market Enhancements)** — v6.0.0+:
 - Advanced bus auto-detection (asyncio vs Tokio vs NestJS event bus optimization)
 - Event catalog enforcement (catalog-first generation with validation)
 - Multi-language SDK generation (TypeScript, Python, Go SDKs from schemas)
