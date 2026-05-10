@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(pwsh *)",
+      "Bash(powershell *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Read",
+      "Write(.claude)",
+      "Write(.gitignore)",
+      "Edit(.claude)",
+      "Edit(.gitignore)",
+      "Edit(CLAUDE.md)",
+      "Glob"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -Command \"$rootDir = (Get-Location).Path; $claudeDir = Join-Path $rootDir '.claude'; $archiveDir = Join-Path $claudeDir 'archive'; if (-not (Test-Path $archiveDir)) { New-Item -ItemType Directory -Path $archiveDir -Force | Out-Null }; $today = Get-Date -Format 'yyyy-MM-dd'; @((Join-Path $rootDir 'CLAUDE.md'), (Join-Path $rootDir 'one-shot-prompting' 'CLAUDE.md'), (Join-Path $rootDir 'one-shot-prompting' 'FUTURE_PLAN.md')) | ForEach-Object { if (Test-Path $_) { $content = Get-Content $_ -Raw; $content = $content -replace '(Last [Uu]pdated:|Last updated:)[^\\n]*', \\\"Last updated: $today\\\"; Set-Content -Path $_ -Value $content -Encoding UTF8 } }; Write-Output '{\\\"systemMessage\\\": \\\"✓ Auto-cleanup complete: docs archived, timestamps updated\\\"}'\"",
+            "timeout": 30,
+            "statusMessage": "Auto-cleanup: archiving docs & updating timestamps",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -Command @'\n$rootDir = (Get-Location).Path\n$claudeDir = Join-Path $rootDir '.claude'\n$archiveDir = Join-Path $claudeDir 'archive'\n$commandsDir = Join-Path $claudeDir 'commands'\n\n# Create directories if they don't exist\n@($archiveDir, $commandsDir) | ForEach-Object { if (-not (Test-Path $_)) { New-Item -ItemType Directory -Path $_ -Force | Out-Null } }\n\n# 1. Move old status/audit docs to archive\n$oldDocPatterns = @(\n  'SESSION_COMPLETION*.md',\n  '*AUDIT*.md',\n  '*STATUS*.md',\n  'GAPS_COMPLETED*.md',\n  'IMPLEMENTATION*.md',\n  'STRATEGIC*.md',\n  'EXECUTIVE*.md',\n  'MARKET*.md',\n  'LEGACY*.md',\n  'WHATS_LEFT*.md',\n  'RELEASE_GUIDE.md',\n  'TESTING.md',\n  'PLUGIN_*.md',\n  'MISSING*.md',\n  'PLUGIN_READINESS*.md',\n  'v1_0_LAUNCH*.md'\n)\n\n$oldDocPatterns | ForEach-Object {\n  Get-Item (Join-Path $rootDir $_) -ErrorAction SilentlyContinue | ForEach-Object {\n    if ($_.FullName -ne (Join-Path $rootDir 'CLAUDE.md') -and $_.FullName -ne (Join-Path $rootDir 'README.md')) {\n      Move-Item -Path $_.FullName -Destination $archiveDir -Force -ErrorAction SilentlyContinue\n    }\n  }\n}\n\n# 2. Move command docs to .claude/commands/\nif (Test-Path (Join-Path $rootDir 'commands')) {\n  Get-ChildItem (Join-Path $rootDir 'commands') -Filter '*.md' -ErrorAction SilentlyContinue | ForEach-Object {\n    Move-Item -Path $_.FullName -Destination $commandsDir -Force -ErrorAction SilentlyContinue\n  }\n  # Remove empty commands directory\n  Remove-Item (Join-Path $rootDir 'commands') -ErrorAction SilentlyContinue -Force\n}\n\n# 3. Update .gitignore to exclude moved docs\n$gitignorePath = Join-Path $rootDir '.gitignore'\n$gitignoreContent = if (Test-Path $gitignorePath) { Get-Content $gitignorePath -Raw } else { \"\" }\n\n$newEntries = @(\n  '.claude/archive/**',\n  '.claude/commands/**',\n  'SESSION_COMPLETION*.md',\n  '*AUDIT*.md',\n  '*STATUS*.md',\n  'GAPS_COMPLETED*.md',\n  'IMPLEMENTATION*.md',\n  'STRATEGIC*.md',\n  'EXECUTIVE*.md',\n  'MARKET*.md',\n  'LEGACY*.md',\n  'WHATS_LEFT*.md',\n  'PLUGIN_*.md',\n  'MISSING*.md',\n  'v1_0_LAUNCH*.md'\n)\n\n$needsUpdate = $false\n$newEntries | ForEach-Object {\n  if (-not ($gitignoreContent -match [regex]::Escape($_))) {\n    $gitignoreContent += \"`n$_\"\n    $needsUpdate = $true\n  }\n}\n\nif ($needsUpdate) {\n  Set-Content -Path $gitignorePath -Value ($gitignoreContent.TrimStart()) -Encoding UTF8\n}\n\nWrite-Output '{\"systemMessage\": \"✓ Docs cleaned: old status docs → archive, commands → .claude/commands, .gitignore updated\"}'\n'@",
+            "timeout": 30,
+            "statusMessage": "Organizing docs (archive, commands, gitignore)",
+            "if": "Bash|Write|Edit"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -Command @'\n$claudeMdPath = Join-Path (Get-Location).Path 'CLAUDE.md'\n$memoryPath = Join-Path (Get-Location).Path '.claude\\projects\\c--Projects-plugin\\memory\\MEMORY.md'\n\nif (-not (Test-Path $memoryPath)) {\n  $memoryPath = Join-Path (Get-Location).Path '.\\memory\\MEMORY.md'\n}\n\nif (Test-Path $memoryPath) {\n  # Extract latest status from MEMORY.md\n  $memory = Get-Content $memoryPath -Raw\n  $statusMatch = $memory | Select-String -Pattern '## Latest Status \\(UPDATED ([^)]+)' | Select-Object -First 1\n  \n  if ($statusMatch) {\n    $timestamp = $statusMatch.Matches[0].Groups[1].Value\n    # Update CLAUDE.md with status timestamp if needed\n    $claudeMd = Get-Content $claudeMdPath -Raw -ErrorAction SilentlyContinue\n    if ($claudeMd -and -not ($claudeMd -match \"Last updated: $timestamp\")) {\n      $claudeMd = $claudeMd -replace 'Last updated: [^\\n]*', \"Last updated: $timestamp\"\n      if (-not ($claudeMd -match 'Last updated:')) {\n        $claudeMd = $claudeMd.TrimEnd() + \"`n\n**Last updated:** $timestamp\"\n      }\n      Set-Content -Path $claudeMdPath -Value $claudeMd -Encoding UTF8\n    }\n  }\n}\n\nWrite-Output '{\"systemMessage\": \"✓ CLAUDE.md synced with memory\"}'\n'@",
+            "timeout": 15,
+            "statusMessage": "Syncing CLAUDE.md with memory",
+            "if": "Write|Edit"
+          }
+        ]
+      }
+    ]
+  }
+}
