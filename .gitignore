@@ -46,5 +46,13 @@ venv/
 !requirements.txt
 !package.json.txt
 
+# Test & Development Artifacts (never commit)
+*test_results.json
+benchmark_results.json
+benchmark_suite.py
+job_vault/
+.pytest_cache/
+.coverage
+
 # OS
 Thumbs.db
