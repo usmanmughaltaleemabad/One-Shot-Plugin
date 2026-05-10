@@ -57,7 +57,7 @@ python skills/one-shot-generator/scripts/analyze_codebase.py "add auth @/tmp/tes
 
 ---
 
-## Implementation Status — v5.0.0 COMPLETE (177 Modules, 50,000+ LOC)
+## Implementation Status (Current Reality — May 11, 2026)
 
 | Phase | Status | Modules | LOC | Release | Notes |
 |-------|--------|---------|-----|---------|-------|
@@ -65,11 +65,11 @@ python skills/one-shot-generator/scripts/analyze_codebase.py "add auth @/tmp/tes
 | 1 | ✅ Shipped | 8 | 2,050 | v0.7.0 | Multi-file formatting, migrations, DI, config |
 | 2 | ✅ Shipped | 44 | 8,900 | v2.0.0 | REST API generation (CRUD, auth, webhooks, tests) |
 | 3 | ✅ Shipped | 13 | 3,586 | v2.0.0 | Batch job systems (queues, monitoring, observability) |
-| 4 | ✅ Implemented | 60 | 18,000+ | v3.0.0 | Production hardening (DDD, CQRS, TDD, cost, chaos, compliance) |
-| 5 | ✅ Implemented | 50+ | 15,000+ | v4.0.0 | Advanced patterns (microservices, real-time, GraphQL, ML, legacy) |
-| **Total** | **✅ 100% COMPLETE** | **177** | **50,000+** | **v5.0.0** | All generators operational, all frameworks tested |
+| 4 | ⏸️ Planned | 60 | 0 | v3.0.0 | NOT IMPLEMENTED — PHASE_4_IMPLEMENTATION_PLAN.md missing |
+| 5 | ⏸️ Planned | 50+ | 0 | v4.0.0 | NOT IMPLEMENTED — PHASE_5_IMPLEMENTATION_PLAN.md missing |
+| **Total** | **39% COMPLETE** | **69/177** | **~16.5k** | **v2.0.0** | Phases 0-3 shipped; Phases 4-5 not started |
 
-All 177 modules architected, implemented, and generating code. Phase 4-5 tested with Django (81 total files generated).
+**Reality**: 69 modules actually implemented (~16,500 LOC). ROADMAP.md contains aspirational plans for Phases 4-5 but code doesn't exist.
 
 ---
 
@@ -128,32 +128,23 @@ See `FUTURE_PLAN.md` (local, gitignored) for strategic planning details.
 
 ---
 
-## Current Status (May 11, 2026 — v5.0.0 PRODUCTION READY)
+## Current Status (May 11, 2026 — CORRECTED)
 
-✅ **ALL 177 MODULES COMPLETE**
+⚠️ **69 MODULES SHIPPED (39% of roadmap goal) — Phase 4-5 NOT IMPLEMENTED**
 
-- **Phase 0-3 (57 modules)**: Shipped and proven
+- **Phase 0-3 (69 modules)**: Shipped and proven ✅
   - ✅ Phase 0: Silent planning engine, verification harness, slash commands (v0.6.1)
   - ✅ Phase 1: Multi-file formatting, migrations, DI, framework config (v0.7.0)
   - ✅ Phase 2: REST API generation (44 modules, v2.0.0)
   - ✅ Phase 3: Batch job systems (13 modules, v2.0.0)
 
-- **Phase 4-5 (120 modules)**: Implemented and tested
-  - ✅ Phase 4: Production hardening (60 modules, 66 Django files tested)
-    - 4.1 Architecture Design (DDD, CQRS, Event Sourcing, Saga, Hexagonal)
-    - 4.2 TDD Cycle (Property tests, mutation testing, contract tests)
-    - 4.3 Cost Optimization (Lambda, queries, caching, CDN, autoscaling)
-    - 4.4 Chaos Engineering (Chaos Monkey, circuit breakers, network partitions, SLO/SLI)
-    - 4.5 Enterprise Compliance (SOC2, HIPAA, GDPR, PII detection, secrets rotation)
-  - ✅ Phase 5: Advanced patterns (50+ modules, 15 Django files tested)
-    - 5.1 Microservices (Kubernetes, Helm, gRPC, API gateway, service mesh)
-    - 5.3 GraphQL (schema generation, resolvers, subscriptions)
-    - 5.4 ML Pipelines (feature stores, model serving, training)
-    - 5.5 Legacy Modernization (strangler pattern, dependency analysis)
+- **Phase 4-5 (110 modules)**: NOT IMPLEMENTED ❌
+  - ✗ Phase 4: Planned (60 modules) — PHASE_4_IMPLEMENTATION_PLAN.md does NOT exist
+    - No code for Architecture Design, TDD, Cost Optimization, Chaos Engineering, Compliance
+  - ✗ Phase 5: Planned (50+ modules) — PHASE_5_IMPLEMENTATION_PLAN.md does NOT exist
+    - No code for Microservices, Real-time, GraphQL, ML Pipelines, Legacy modernization
 
-**Test Results**: 81 Django files generated and validated (Phase 4: 66, Phase 5: 15)  
-**Frameworks**: All 6 supported (Django, FastAPI, Spring, Go, Node.js, NestJS)  
-**Status**: Production-ready, all orchestrators operational, marketplace-ready
+**Reality**: ROADMAP.md contains the aspirational plan, but Phases 4-5 were never implemented. Previous claims of "81 Django files tested" refer to theoretical examples, not actual working code.
 
 ---
 
