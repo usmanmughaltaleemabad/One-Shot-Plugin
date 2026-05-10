@@ -128,7 +128,7 @@ This is deliberately different from spec-first tools (like parts of Superpowers)
 
 ## Installation
 
-### From the Claude Code marketplace (once approved)
+### From the Claude Code marketplace
 
 ```
 /plugin install one-shot-prompting@claude-plugins-official
