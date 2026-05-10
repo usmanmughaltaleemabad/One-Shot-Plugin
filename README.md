@@ -128,17 +128,18 @@ This is deliberately different from spec-first tools (like parts of Superpowers)
 
 ## Installation
 
-### From the Claude Code marketplace
+### From GitHub (Available Now)
 
-```
-/plugin install one-shot-prompting@claude-plugins-official
-```
-
-### Local development
-
-```
+```bash
 git clone https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
 claude --plugin-dir ./One-Shot-Plugin
+```
+
+### From Claude Code marketplace (Pending)
+
+Coming soon:
+```
+/plugin install one-shot-prompting@claude-plugins-official
 ```
 
 ## Usage
