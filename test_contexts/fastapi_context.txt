@@ -1,0 +1,122 @@
+## CODEBASE ANALYSIS REPORT
+
+**Project Root:** /home/dev/fastapi-project
+**Analysis Time:** 2026-05-06T10:30:00
+
+---
+
+## PROJECT METADATA
+
+| Field | Value |
+|-------|-------|
+| **Language** | Python |
+| **Framework** | FastAPI |
+| **Python Version** | 3.10 |
+| **Build Tool** | pip |
+| **Package Manager** | pip |
+
+---
+
+## FRAMEWORK DETECTION
+
+| Framework | Found | Confidence | Evidence |
+|-----------|-------|------------|----------|
+| **FastAPI** | ✅ YES | 99% | Import: `from fastapi import FastAPI` (main.py, line 1) |
+| **Async** | ✅ YES | 95% | Pattern: `async def` (8 handlers, all async) |
+| **SQLAlchemy** | ✅ YES | 95% | Import: `from sqlalchemy` (models.py) |
+| **Pydantic** | ✅ YES | 99% | Import: `from pydantic import BaseModel` (schemas.py) |
+| **pytest** | ✅ YES | 95% | Config: `pytest.ini` found + `test_*.py` files (8 test files) |
+| **structlog** | ✅ YES | 90% | Import: `import structlog` (logging.py) |
+
+---
+
+## KEY DEPENDENCIES
+
+```
+fastapi==0.104.1
+sqlalchemy==2.0.23
+pydantic==2.5.0
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+structlog==23.2.0
+uvicorn==0.24.0
+```
+
+---
+
+## CODEBASE PATTERNS
+
+### Async/Await Usage
+```
+async def read_item(item_id: int) -> ItemResponse:
+    async with db.session() as session:
+        item = await session.get(Item, item_id)
+        return ItemResponse.from_orm(item)
+```
+**Pattern:** async/await throughout. All handlers use `async def`.
+
+### Database (SQLAlchemy ORM)
+```
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50))
+```
+**Pattern:** SQLAlchemy models with declarative syntax.
+
+### Validation (Pydantic)
+```
+from pydantic import BaseModel, Field
+
+class UserCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    email: str = Field(..., regex=r'^[\w\.-]+@[\w\.-]+\.\w+$')
+```
+**Pattern:** Pydantic v2 with BaseModel validation.
+
+### Testing (pytest)
+```
+@pytest.mark.asyncio
+async def test_read_item(client):
+    response = await client.get("/items/1")
+    assert response.status_code == 200
+```
+**Pattern:** pytest with pytest-asyncio for async test support.
+
+### Error Handling
+```
+try:
+    result = await db.execute(query)
+except SQLAlchemyError as e:
+    logger.exception("Database error", error=e)
+    raise HTTPException(status_code=500, detail="DB error")
+```
+**Pattern:** try/except with structured logging.
+
+### Logging (structlog)
+```
+import structlog
+logger = structlog.get_logger()
+logger.info("user_created", user_id=user.id, email=user.email)
+```
+**Pattern:** structlog for structured logging.
+
+---
+
+## STATISTICS
+
+| Metric | Value |
+|--------|-------|
+| Python Files | 28 |
+| async functions | 18 |
+| sync functions | 0 |
+| SQLAlchemy models | 6 |
+| Test files | 8 |
+| Test coverage | 92% |
+| Lines of code | 2,340 |

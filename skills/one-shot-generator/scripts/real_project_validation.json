@@ -1,0 +1,72 @@
+[
+  {
+    "fixture": "django",
+    "steps": {
+      "health": "pass",
+      "bus_detect": "pass (none)",
+      "planner": "pass",
+      "verify": "pass",
+      "format": "pass",
+      "autowire": "pass",
+      "consistency": "pass (7 files)"
+    },
+    "passed": true,
+    "errors": []
+  },
+  {
+    "fixture": "fastapi",
+    "steps": {
+      "health": "pass",
+      "bus_detect": "pass (kafka)",
+      "planner": "pass",
+      "verify": "pass",
+      "format": "pass",
+      "autowire": "pass",
+      "consistency": "pass (3 files)"
+    },
+    "passed": true,
+    "errors": []
+  },
+  {
+    "fixture": "spring",
+    "steps": {
+      "health": "pass",
+      "bus_detect": "pass (none)",
+      "planner": "pass",
+      "verify": "skip (non-python fixture)",
+      "format": "pass",
+      "autowire": "skip",
+      "consistency": "pass (1 files)"
+    },
+    "passed": true,
+    "errors": []
+  },
+  {
+    "fixture": "go",
+    "steps": {
+      "health": "pass",
+      "bus_detect": "pass (go_channels)",
+      "planner": "pass",
+      "verify": "skip (non-python fixture)",
+      "format": "pass",
+      "autowire": "skip",
+      "consistency": "pass (1 files)"
+    },
+    "passed": true,
+    "errors": []
+  },
+  {
+    "fixture": "nestjs",
+    "steps": {
+      "health": "pass",
+      "bus_detect": "pass (none)",
+      "planner": "pass",
+      "verify": "skip (non-python fixture)",
+      "format": "pass",
+      "autowire": "skip",
+      "consistency": "pass (1 files)"
+    },
+    "passed": true,
+    "errors": []
+  }
+]

@@ -29,6 +29,9 @@ setup.bat
 test-output/
 .claude-local/
 
+# Strategic planning (local only, not committed)
+FUTURE_PLAN.md
+
 # Dependencies
 node_modules/
 poetry.lock

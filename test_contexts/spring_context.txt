@@ -1,0 +1,166 @@
+## CODEBASE ANALYSIS REPORT
+
+**Project Root:** /home/dev/spring-boot-project
+**Analysis Time:** 2026-05-06T10:45:00
+
+---
+
+## PROJECT METADATA
+
+| Field | Value |
+|-------|-------|
+| **Language** | Java |
+| **Framework** | Spring Boot |
+| **Java Version** | 17 |
+| **Build Tool** | Maven |
+| **Spring Boot Version** | 3.1.5 |
+
+---
+
+## FRAMEWORK DETECTION
+
+| Framework | Found | Confidence | Evidence |
+|-----------|-------|------------|----------|
+| **Spring Boot** | ✅ YES | 99% | Import: `org.springframework.boot` + `pom.xml` |
+| **JPA/Hibernate** | ✅ YES | 99% | Import: `javax.persistence.*` + `@Entity` annotations |
+| **JUnit 5** | ✅ YES | 95% | Dependency: `junit-jupiter` (pom.xml) |
+| **Log4j 2** | ✅ YES | 90% | Config: `log4j2.xml` found |
+| **Bean Validation** | ✅ YES | 95% | Import: `jakarta.validation.*` annotations |
+
+---
+
+## KEY DEPENDENCIES (pom.xml)
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+    </dependency>
+</dependencies>
+```
+
+---
+
+## CODEBASE PATTERNS
+
+### Spring REST Controller (Synchronous)
+```java
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    @PostMapping
+    public ResponseEntity<UserDto> createUser(@RequestBody UserCreateDto request) {
+        User user = userService.createUser(request.getName());
+        return ResponseEntity.status(201).body(UserDto.fromEntity(user));
+    }
+}
+```
+**Pattern:** Synchronous Spring REST controllers.
+
+### JPA Entity
+```java
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+}
+```
+**Pattern:** JPA entities with Hibernate annotations.
+
+### JPA Repository
+```java
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+}
+```
+**Pattern:** Spring Data JPA repositories.
+
+### Testing (JUnit 5)
+```java
+@SpringBootTest
+class UserControllerTest {
+    @Test
+    void testCreateUser() {
+        UserCreateDto request = new UserCreateDto("John Doe");
+        ResponseEntity<UserDto> response = userController.createUser(request);
+        assertEquals(201, response.getStatusCodeValue());
+    }
+}
+```
+**Pattern:** JUnit 5 with @SpringBootTest annotation.
+
+### Error Handling
+```java
+try {
+    user = userRepository.save(user);
+} catch (DataIntegrityViolationException e) {
+    logger.error("Failed to create user", e);
+    throw new ConflictException("Email already exists");
+}
+```
+**Pattern:** Java checked exceptions and Spring exceptions.
+
+### Logging (Log4j)
+```java
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+Logger logger = LogManager.getLogger(UserService.class);
+logger.info("User created: {}", user.getId());
+```
+**Pattern:** Log4j 2 for structured logging.
+
+### Validation (Jakarta Bean Validation)
+```java
+public class UserCreateDto {
+    @NotBlank(message = "Name is required")
+    @Size(min = 1, max = 100)
+    private String name;
+
+    @Email(message = "Invalid email")
+    private String email;
+}
+```
+**Pattern:** Bean Validation annotations on DTOs.
+
+---
+
+## STATISTICS
+
+| Metric | Value |
+|--------|-------|
+| Java files | 48 |
+| async methods | 0 |
+| sync methods | 84 |
+| JPA entities | 9 |
+| REST controllers | 6 |
+| Test files | 11 |
+| Test coverage | 82% |
+| Lines of code | 3,890 |

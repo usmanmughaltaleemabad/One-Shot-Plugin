@@ -1,0 +1,97 @@
+## CODEBASE ANALYSIS REPORT
+
+**Project Root:** /home/dev/unknown-project
+**Analysis Time:** 2026-05-06T10:50:00
+
+---
+
+## PROJECT METADATA
+
+| Field | Value |
+|-------|-------|
+| **Language** | Unknown (possibly Python) |
+| **Framework** | Not detected |
+| **Files Analyzed** | 4 |
+| **Build Tool** | Unknown |
+
+---
+
+## FRAMEWORK DETECTION
+
+| Framework | Found | Confidence | Evidence |
+|-----------|-------|------------|----------|
+| **Framework** | ❌ NO | 0% | No major framework detected |
+| **Language** | ⚠️ UNCLEAR | 40% | Mix of .py and unclear structure |
+| **Database** | ❌ NO | 0% | No database integration found |
+| **Testing** | ❌ NO | 0% | No test framework detected |
+| **Logging** | ❌ NO | 0% | No logging library detected |
+
+---
+
+## KEY DEPENDENCIES
+
+Not detected. Project appears minimal/new.
+
+---
+
+## CODEBASE PATTERNS
+
+### General Code Structure (Limited)
+```python
+def process_data(data):
+    result = []
+    for item in data:
+        result.append(item * 2)
+    return result
+```
+**Pattern:** Basic synchronous functions. No async detected.
+
+### Database (None detected)
+No database operations found in analyzed files.
+
+### Error Handling (Minimal)
+```python
+try:
+    value = int(input())
+except ValueError:
+    print("Invalid input")
+```
+**Pattern:** Basic try/except, no structured error handling.
+
+### Testing (None)
+No test files found in project.
+
+### Logging (None)
+No logging library detected. Uses print() statements.
+
+### Validation (None)
+No validation library detected.
+
+---
+
+## STATISTICS
+
+| Metric | Value |
+|--------|-------|
+| Total files | 4 |
+| Python files | 3 |
+| Unknown files | 1 |
+| async functions | 0 |
+| sync functions | 2 |
+| Lines of code | 145 |
+| Frameworks detected | 0 |
+| Libraries detected | 0 |
+
+---
+
+## ANALYSIS NOTES
+
+- **Sparse codebase:** Very few files to analyze
+- **No patterns detected:** Cannot infer architectural decisions
+- **Recommended:** Use fallback logic with safe defaults
+  - Framework: Unknown → assume Django (most common) with 5/10 confidence
+  - Async: Unknown → recommend sync (safer default) with 5/10 confidence
+  - Database: Unknown → recommend ORM (safer than raw SQL) with 7/10 confidence
+  - Testing: Unknown → recommend pytest (most popular) with 7/10 confidence
+  - Logging: Unknown → recommend structlog (modern default) with 7/10 confidence
+  - Validation: Unknown → recommend Pydantic v2 (modern standard) with 8/10 confidence

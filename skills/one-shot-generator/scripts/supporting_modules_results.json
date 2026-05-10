@@ -1,0 +1,47 @@
+[
+  {
+    "name": "health-check django project",
+    "passed": true,
+    "error": null
+  },
+  {
+    "name": "health-check empty project",
+    "passed": true,
+    "error": null
+  },
+  {
+    "name": "template library list+search",
+    "passed": true,
+    "error": null
+  },
+  {
+    "name": "tour initial state",
+    "passed": true,
+    "error": null
+  },
+  {
+    "name": "tour walks to recommendation",
+    "passed": true,
+    "error": null
+  },
+  {
+    "name": "tour browse state populated",
+    "passed": true,
+    "error": null
+  },
+  {
+    "name": "tour unknown key fallback",
+    "passed": true,
+    "error": null
+  },
+  {
+    "name": "multi-sidecar pipeline",
+    "passed": true,
+    "error": null
+  },
+  {
+    "name": "multi-sidecar dashboard json",
+    "passed": true,
+    "error": null
+  }
+]

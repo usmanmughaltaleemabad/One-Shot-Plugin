@@ -1,0 +1,498 @@
+{
+  "plan_decisions": [
+    {
+      "name": "Django 4.2 with async + pytest",
+      "context": {
+        "framework": "django",
+        "language": "python",
+        "framework_version": "4.2",
+        "package_manager": "pip",
+        "async_patterns": [
+          "asyncio"
+        ],
+        "orm_usage": true,
+        "orm_type": "django_orm",
+        "testing_framework": "pytest",
+        "logging_style": "structured",
+        "error_handling": "try_except_logging",
+        "validation_style": "model_validators",
+        "api_framework": "rest_framework",
+        "codebase_size": "large",
+        "file_count": 150,
+        "has_requirements": true
+      },
+      "decisions": {
+        "async_sync": {
+          "choice": "async",
+          "score": 8.0,
+          "reasoning": [
+            "Django detected (assume modern)",
+            "Async code patterns detected"
+          ]
+        },
+        "persistence": {
+          "choice": "Django ORM",
+          "score": 9.0,
+          "reasoning": [
+            "Django ORM detected"
+          ]
+        },
+        "testing": {
+          "choice": "pytest",
+          "score": 9.0,
+          "reasoning": [
+            "pytest configured",
+            "Django community standard: pytest-django"
+          ]
+        },
+        "error_handling": {
+          "choice": "exceptions",
+          "score": 8.0,
+          "reasoning": [
+            "Python convention: exceptions"
+          ]
+        },
+        "logging": {
+          "choice": "structlog",
+          "score": 7.0,
+          "reasoning": [
+            "Python default: structlog"
+          ]
+        },
+        "validation": {
+          "choice": "Pydantic v2",
+          "score": 8.0,
+          "reasoning": [
+            "Python default: Pydantic v2"
+          ]
+        },
+        "async_decision": {
+          "choice": "async",
+          "score": 8.0,
+          "reasoning": [
+            "Django detected (assume modern)",
+            "Async code patterns detected"
+          ]
+        },
+        "orm_decision": {
+          "choice": "Django ORM",
+          "score": 9.0,
+          "reasoning": [
+            "Django ORM detected"
+          ]
+        },
+        "testing_framework": {
+          "choice": "pytest",
+          "score": 9.0,
+          "reasoning": [
+            "pytest configured",
+            "Django community standard: pytest-django"
+          ]
+        },
+        "error_decision": {
+          "choice": "exceptions",
+          "score": 8.0,
+          "reasoning": [
+            "Python convention: exceptions"
+          ]
+        },
+        "logging_decision": {
+          "choice": "structlog",
+          "score": 7.0,
+          "reasoning": [
+            "Python default: structlog"
+          ]
+        },
+        "validation_decision": {
+          "choice": "Pydantic v2",
+          "score": 8.0,
+          "reasoning": [
+            "Python default: Pydantic v2"
+          ]
+        }
+      },
+      "expected_async": 8.0,
+      "expected_orm": 8.0,
+      "expected_testing": 8.0,
+      "passed": true
+    },
+    {
+      "name": "FastAPI 0.95 with SQLAlchemy + pytest",
+      "context": {
+        "framework": "fastapi",
+        "language": "python",
+        "framework_version": "0.95",
+        "package_manager": "pip",
+        "async_patterns": [
+          "asyncio",
+          "async def",
+          "await"
+        ],
+        "orm_usage": true,
+        "orm_type": "sqlalchemy",
+        "testing_framework": "pytest",
+        "logging_style": "python_logging",
+        "error_handling": "exceptions",
+        "validation_style": "pydantic",
+        "codebase_size": "medium",
+        "file_count": 40,
+        "has_requirements": true
+      },
+      "decisions": {
+        "async_sync": {
+          "choice": "async",
+          "score": 8.5,
+          "reasoning": [
+            "FastAPI detected",
+            "Async code patterns detected"
+          ]
+        },
+        "persistence": {
+          "choice": "SQLAlchemy",
+          "score": 8.3,
+          "reasoning": [
+            "SQLAlchemy detected",
+            "Pydantic models detected",
+            "ORM patterns in code"
+          ]
+        },
+        "testing": {
+          "choice": "pytest",
+          "score": 9.0,
+          "reasoning": [
+            "pytest configured",
+            "FastAPI community standard: pytest-asyncio"
+          ]
+        },
+        "error_handling": {
+          "choice": "exceptions",
+          "score": 8.0,
+          "reasoning": [
+            "Python convention: exceptions"
+          ]
+        },
+        "logging": {
+          "choice": "structlog",
+          "score": 7.0,
+          "reasoning": [
+            "Python default: structlog"
+          ]
+        },
+        "validation": {
+          "choice": "Pydantic v2",
+          "score": 9.0,
+          "reasoning": [
+            "Pydantic v2 detected"
+          ]
+        },
+        "async_decision": {
+          "choice": "async",
+          "score": 8.5,
+          "reasoning": [
+            "FastAPI detected",
+            "Async code patterns detected"
+          ]
+        },
+        "orm_decision": {
+          "choice": "SQLAlchemy",
+          "score": 8.3,
+          "reasoning": [
+            "SQLAlchemy detected",
+            "Pydantic models detected",
+            "ORM patterns in code"
+          ]
+        },
+        "testing_framework": {
+          "choice": "pytest",
+          "score": 9.0,
+          "reasoning": [
+            "pytest configured",
+            "FastAPI community standard: pytest-asyncio"
+          ]
+        },
+        "error_decision": {
+          "choice": "exceptions",
+          "score": 8.0,
+          "reasoning": [
+            "Python convention: exceptions"
+          ]
+        },
+        "logging_decision": {
+          "choice": "structlog",
+          "score": 7.0,
+          "reasoning": [
+            "Python default: structlog"
+          ]
+        },
+        "validation_decision": {
+          "choice": "Pydantic v2",
+          "score": 9.0,
+          "reasoning": [
+            "Pydantic v2 detected"
+          ]
+        }
+      },
+      "expected_async": 9.0,
+      "expected_orm": 8.0,
+      "expected_testing": 8.0,
+      "passed": true
+    },
+    {
+      "name": "Spring Boot 2.7 with Hibernate + JUnit",
+      "context": {
+        "framework": "spring",
+        "language": "java",
+        "framework_version": "2.7",
+        "package_manager": "maven",
+        "async_patterns": [
+          "CompletableFuture",
+          "@Async"
+        ],
+        "orm_usage": true,
+        "orm_type": "hibernate_jpa",
+        "testing_framework": "junit",
+        "logging_style": "log4j2",
+        "error_handling": "exceptions",
+        "validation_style": "annotations",
+        "codebase_size": "large",
+        "file_count": 80,
+        "has_pom": true
+      },
+      "decisions": {
+        "async_sync": {
+          "choice": "sync",
+          "score": 9.0,
+          "reasoning": [
+            "Framework default: sync"
+          ]
+        },
+        "persistence": {
+          "choice": "JPA",
+          "score": 8.7,
+          "reasoning": [
+            "JPA/Hibernate detected",
+            "ORM patterns in code",
+            "Spring/JPA default"
+          ]
+        },
+        "testing": {
+          "choice": "JUnit 5",
+          "score": 9.0,
+          "reasoning": [
+            "Spring standard: JUnit 5"
+          ]
+        },
+        "error_handling": {
+          "choice": "exceptions",
+          "score": 9.0,
+          "reasoning": [
+            "Java convention: checked exceptions"
+          ]
+        },
+        "logging": {
+          "choice": "Log4j 2",
+          "score": 9.0,
+          "reasoning": [
+            "Log4j 2 configured"
+          ]
+        },
+        "validation": {
+          "choice": "Bean Validation",
+          "score": 9.0,
+          "reasoning": [
+            "Java standard: Bean Validation"
+          ]
+        },
+        "async_decision": {
+          "choice": "sync",
+          "score": 9.0,
+          "reasoning": [
+            "Framework default: sync"
+          ]
+        },
+        "orm_decision": {
+          "choice": "JPA",
+          "score": 8.7,
+          "reasoning": [
+            "JPA/Hibernate detected",
+            "ORM patterns in code",
+            "Spring/JPA default"
+          ]
+        },
+        "testing_framework": {
+          "choice": "JUnit 5",
+          "score": 9.0,
+          "reasoning": [
+            "Spring standard: JUnit 5"
+          ]
+        },
+        "error_decision": {
+          "choice": "exceptions",
+          "score": 9.0,
+          "reasoning": [
+            "Java convention: checked exceptions"
+          ]
+        },
+        "logging_decision": {
+          "choice": "Log4j 2",
+          "score": 9.0,
+          "reasoning": [
+            "Log4j 2 configured"
+          ]
+        },
+        "validation_decision": {
+          "choice": "Bean Validation",
+          "score": 9.0,
+          "reasoning": [
+            "Java standard: Bean Validation"
+          ]
+        }
+      },
+      "expected_orm": 9.0,
+      "expected_testing": 9.0,
+      "passed": true
+    },
+    {
+      "name": "Go 1.19 with goroutines + testing",
+      "context": {
+        "framework": "go",
+        "language": "go",
+        "framework_version": "1.19",
+        "package_manager": "go",
+        "async_patterns": [
+          "goroutines",
+          "channels"
+        ],
+        "orm_usage": false,
+        "orm_type": "raw_sql",
+        "testing_framework": "testing",
+        "logging_style": "structured",
+        "error_handling": "error_returns",
+        "validation_style": "manual",
+        "codebase_size": "medium",
+        "file_count": 25,
+        "has_go_mod": true
+      },
+      "decisions": {
+        "async_sync": {
+          "choice": "sync",
+          "score": 9.0,
+          "reasoning": [
+            "Framework default: sync"
+          ]
+        },
+        "persistence": {
+          "choice": "raw SQL",
+          "score": 1.0,
+          "reasoning": [
+            "Go stdlib (raw SQL)",
+            "Context indicates raw SQL"
+          ]
+        },
+        "testing": {
+          "choice": "Go testing + testify",
+          "score": 9.0,
+          "reasoning": [
+            "Go standard: testing + testify"
+          ]
+        },
+        "error_handling": {
+          "choice": "error returns",
+          "score": 8.5,
+          "reasoning": [
+            "Go convention: error returns",
+            "error return pattern detected"
+          ]
+        },
+        "logging": {
+          "choice": "zap",
+          "score": 7.0,
+          "reasoning": [
+            "Go default: zap"
+          ]
+        },
+        "validation": {
+          "choice": "manual validation",
+          "score": 6.0,
+          "reasoning": [
+            "Go: manual validation"
+          ]
+        },
+        "async_decision": {
+          "choice": "sync",
+          "score": 9.0,
+          "reasoning": [
+            "Framework default: sync"
+          ]
+        },
+        "orm_decision": {
+          "choice": "raw SQL",
+          "score": 1.0,
+          "reasoning": [
+            "Go stdlib (raw SQL)",
+            "Context indicates raw SQL"
+          ]
+        },
+        "testing_framework": {
+          "choice": "Go testing + testify",
+          "score": 9.0,
+          "reasoning": [
+            "Go standard: testing + testify"
+          ]
+        },
+        "error_decision": {
+          "choice": "error returns",
+          "score": 8.5,
+          "reasoning": [
+            "Go convention: error returns",
+            "error return pattern detected"
+          ]
+        },
+        "logging_decision": {
+          "choice": "zap",
+          "score": 7.0,
+          "reasoning": [
+            "Go default: zap"
+          ]
+        },
+        "validation_decision": {
+          "choice": "manual validation",
+          "score": 6.0,
+          "reasoning": [
+            "Go: manual validation"
+          ]
+        }
+      },
+      "expected_async": 9.0,
+      "expected_orm": 1.0,
+      "passed": true
+    }
+  ],
+  "verify_generated": [
+    {
+      "name": "Python syntax validation (valid code)",
+      "code_snippet": "User model with 3 fields",
+      "status": "PASSED",
+      "passed": true
+    },
+    {
+      "name": "Python syntax validation (invalid code)",
+      "code_snippet": "User model with syntax error",
+      "status": "FAILED",
+      "passed": true
+    },
+    {
+      "name": "Import validation (all valid)",
+      "code_snippet": "FastAPI app with Pydantic",
+      "status": "PASSED",
+      "passed": true
+    },
+    {
+      "name": "Framework compliance (FastAPI patterns)",
+      "code_snippet": "FastAPI with Pydantic models",
+      "status": "PASSED",
+      "passed": true
+    }
+  ],
+  "overall": "PASSED"
+}

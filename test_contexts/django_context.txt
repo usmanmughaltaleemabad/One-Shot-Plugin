@@ -1,0 +1,131 @@
+## CODEBASE ANALYSIS REPORT
+
+**Project Root:** /home/dev/django-project
+**Analysis Time:** 2026-05-06T10:35:00
+
+---
+
+## PROJECT METADATA
+
+| Field | Value |
+|-------|-------|
+| **Language** | Python |
+| **Framework** | Django |
+| **Python Version** | 3.11 |
+| **Django Version** | 4.2 |
+| **Build Tool** | pip |
+| **Package Manager** | pip |
+
+---
+
+## FRAMEWORK DETECTION
+
+| Framework | Found | Confidence | Evidence |
+|-----------|-------|------------|----------|
+| **Django** | ✅ YES | 99% | Import: `import django` + `manage.py` found |
+| **Sync** | ✅ YES | 95% | Pattern: `def ` handlers (all synchronous, no async) |
+| **Django ORM** | ✅ YES | 99% | Import: `from django.db import models` (models.py) |
+| **DRF** | ✅ YES | 95% | Import: `from rest_framework` (serializers.py, views.py) |
+| **pytest-django** | ✅ YES | 95% | Config: `pytest.ini` found + fixtures use Django test client |
+| **structlog** | ✅ YES | 85% | Import: `import structlog` (config/logging.py) |
+
+---
+
+## KEY DEPENDENCIES
+
+```
+Django==4.2.0
+djangorestframework==3.14.0
+djangorestframework-simplejwt==5.3.2
+psycopg2-binary==2.9.9
+pytest==7.4.3
+pytest-django==4.7.0
+structlog==23.2.0
+celery==5.3.4
+gunicorn==21.2.0
+```
+
+---
+
+## CODEBASE PATTERNS
+
+### Synchronous Views (Django)
+```
+from django.views import View
+from django.shortcuts import render
+
+class UserDetailView(View):
+    def get(self, request, user_id):
+        user = User.objects.get(id=user_id)
+        return render(request, 'user_detail.html', {'user': user})
+```
+**Pattern:** Synchronous Django views (traditional class-based views).
+
+### Django ORM
+```
+from django.db import models
+
+class User(models.Model):
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'auth_user'
+```
+**Pattern:** Django ORM models with standard conventions.
+
+### DRF Serializers
+```
+from rest_framework import serializers
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'created_at']
+```
+**Pattern:** DRF serializers for API responses.
+
+### Testing (pytest-django)
+```
+import pytest
+from django.test import Client
+
+@pytest.mark.django_db
+def test_user_creation(client):
+    response = client.post('/api/users/', {'email': 'test@example.com'})
+    assert response.status_code == 201
+```
+**Pattern:** pytest-django with @pytest.mark.django_db decorator.
+
+### Error Handling
+```
+try:
+    user = User.objects.create(email=email)
+except IntegrityError as e:
+    logger.exception("User creation failed", email=email)
+    raise ValidationError(f"Email {email} already exists")
+```
+**Pattern:** try/except with Django IntegrityError handling.
+
+### Logging (structlog)
+```
+import structlog
+logger = structlog.get_logger()
+logger.info("user_created", user_id=user.id, email=user.email)
+```
+**Pattern:** structlog for consistent logging.
+
+---
+
+## STATISTICS
+
+| Metric | Value |
+|--------|-------|
+| Python Files | 45 |
+| async functions | 0 |
+| sync functions | 67 |
+| Django models | 12 |
+| DRF views | 18 |
+| Test files | 12 |
+| Test coverage | 85% |
+| Lines of code | 4,230 |
