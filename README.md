@@ -126,23 +126,6 @@ If an assumption is wrong, you rerun with a specific override ("use sliding wind
 
 This is deliberately different from spec-first tools (like parts of Superpowers), which gate output behind an approval phase. Spec-first is safer for high-stakes work. One-shot is faster for flow work where you'd rather read code than read a plan.
 
-## Who this is for
-
-Developers who:
-- Work on event-driven projects (bots, game servers, real-time systems, event-sourced apps)
-- Want flow, not collaboration — you'd rather regenerate than negotiate
-- Write clear task sentences and can spot wrong assumptions by reading them
-- Are comfortable discarding output and rerunning when Claude guesses wrong
-
-## Who this is NOT for
-
-- Projects without an event bus (use normal Claude for those)
-- CRUD apps, UI components, data science notebooks
-- High-stakes features where you want review-before-code (use a spec-first tool instead)
-- Teams where every feature needs alignment before implementation
-
-If the plugin generates something wrong, you rerun. That's the design. If you hate regenerating, this isn't the right tool for you — you want spec-first.
-
 ## Installation
 
 ### From the Claude Code marketplace (once approved)
