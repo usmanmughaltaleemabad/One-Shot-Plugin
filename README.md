@@ -275,16 +275,6 @@ Some requests can't be one-shot and the plugin refuses narrowly:
 
 Refusals are final responses, not invitations to discuss. Rerun with a narrower request.
 
-## Honest limitations
-
-**Does not guarantee working code.** Claude's first guess is often right, sometimes wrong. You regenerate when wrong. If you hate that workflow, use a spec-first tool.
-
-**Generated code assumes a generic async bus.** If your project uses Django signals, NestJS EventEmitter, specific Rust channels, etc., you adapt using the "adaptation notes" in the generated README. The plugin doesn't know your specific bus API.
-
-**No catalog awareness.** If your project has a strict SKILLS.md event catalog, the plugin proposes new events it thinks are reasonable. You rerun with catalog constraints if they don't match.
-
-**Not tested on every language.** The approach is language-agnostic in principle. In practice, verify Claude generates idiomatic code in your stack before committing.
-
 ## Comparison to spec-first plugins
 
 | | One-shot (this plugin) | Spec-first (Superpowers, etc.) |
