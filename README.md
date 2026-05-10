@@ -1,6 +1,6 @@
 # one-shot-prompting
 
-A Claude Code plugin for **code generation from single prompts**. From a natural language request, get formatted, integrated code with tests and documentation.
+A Claude Code plugin for generating REST APIs and batch jobs from natural language. Write a single sentence describing what you need, get working code + tests + docs. Iterate by regenerating with constraints (no conversation needed).
 
 ## ⚠️ v2.0.0 — 69 MODULES SHIPPED (May 11, 2026)
 
@@ -21,6 +21,38 @@ A Claude Code plugin for **code generation from single prompts**. From a natural
 - 📋 **Phase 5 (50+ modules)**: Advanced patterns — microservices, real-time features, GraphQL, ML pipelines, legacy system modernization
 
 **Timeline**: Phase 4-5 implementation not yet started. Estimated Q3-Q4 2026 if resourced.
+
+---
+
+## ⚡ Why Use This Plugin?
+
+- **Framework-aware generation**: Analyzes your codebase and generates Django/FastAPI/Spring-specific code (not generic stubs)
+- **One command → complete feature**: Single prompt generates models + views + tests + migrations + README
+- **Iteration without conversation**: Regenerate with constraints ("use token bucket", "add logging", "in Go") — no back-and-forth
+- **Multi-file organization**: Automatically splits code across models, views, tests, utilities, configs
+- **Preserves your conventions**: Uses your naming style, imports, error handling patterns
+- **Privacy-first**: Local processing only — no external APIs or telemetry
+- **Framework support**: Django, FastAPI, Spring Boot, Go, Node.js, NestJS
+
+---
+
+## 🚀 Get Started in 30 Seconds
+
+```bash
+# 1. Install
+git clone https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
+claude --plugin-dir ./One-Shot-Plugin/one-shot-prompting
+
+# 2. Check your project's capabilities
+/one-shot-prompting:one-shot-generator /health-check @/path/to/your/project
+
+# 3. Generate your first feature
+/one-shot-prompting:one-shot-generator "add user authentication with JWT" @/path/to/your/project
+
+# 4. Review the output and integrate
+```
+
+[→ Full Quickstart](QUICKSTART.md) | [→ More Examples](#usage-examples)
 
 ---
 
@@ -58,29 +90,38 @@ Claude responds with:
 - README with setup instructions
 - Explicit assumptions (all overrideable)
 
-### Verified Capabilities
+### Shipped Features (Code Complete)
 
-✅ REST API generation (CRUD, auth, pagination, webhooks)
-✅ Batch job generation (queues, retries, monitoring)
-✅ Multi-file output with dependency ordering
-✅ Auto-wiring into existing projects
-✅ Database migration generation
-✅ Configuration management (.env, Django settings, FastAPI config)
-✅ Dependency injection awareness
-✅ OpenAPI/Swagger generation
-✅ Test generation (unit + integration)
-✅ Framework-correct code structure
+✅ REST API generation (CRUD, auth, pagination, webhooks)  
+✅ Batch job generation (queues, retries, DLQ handling, monitoring)  
+✅ Multi-file output with dependency ordering  
+✅ Auto-wiring into existing projects  
+✅ Database migration generation (Django, Alembic, Flyway, Go)  
+✅ Configuration management (.env, Django settings, FastAPI BaseSettings, Spring YAML)  
+✅ Dependency injection awareness (Spring @Autowired, FastAPI Depends, Go wire)  
+✅ OpenAPI/Swagger documentation generation  
+✅ Test generation (unit + integration tests)  
+✅ Framework-correct code structure (no generic stubs)  
 
-⏳ **NOT YET IMPLEMENTED** (Phase 4-5):
-- Architecture pattern generation (DDD, CQRS, Event Sourcing)
-- Advanced testing (property tests, mutation tests, chaos tests)
-- Cost optimization patterns
-- Compliance automation (GDPR, HIPAA, SOC2)
-- Microservices patterns
-- Real-time feature generation
-- GraphQL schema generation
-- ML pipeline generation
-- Legacy modernization patterns
+### Not Yet Verified (Needs Real-World Testing)
+
+⚠️ End-to-end code generation on your actual projects  
+⚠️ Whether generated code passes your existing test suite  
+⚠️ Whether generated code matches your team's code style  
+
+**Recommendation**: Test on a non-critical feature first. We believe the code works, but we haven't verified it on every project type yet.
+
+### Not Yet Implemented (Phase 4-5)
+
+📋 Architecture pattern generation (DDD, CQRS, Event Sourcing, Sagas)  
+📋 Advanced testing (property tests, mutation tests, chaos tests)  
+📋 Cost optimization patterns (Lambda tuning, query optimization, autoscaling)  
+📋 Compliance automation (GDPR, HIPAA, SOC2 audit trails)  
+📋 Microservices patterns (service mesh, API gateways, service discovery)  
+📋 Real-time feature generation (WebSockets, SSE, pub/sub)  
+📋 GraphQL schema generation  
+📋 ML pipeline generation  
+📋 Legacy modernization (strangler pattern, migration tooling)
 
 ---
 
@@ -185,17 +226,18 @@ Both are valid. Use one-shot when you know what you want. Use spec-first when yo
 
 ## Testing & Validation
 
-**Implemented Test Coverage**:
-- ✅ Phase 0-3 test result files exist (phase_0_test_results.json, phase_1_3_test_results.json, etc.)
-- ✅ Example projects included (Django, FastAPI, Spring, Go, NestJS)
-- ✅ Framework detection tested across 6+ frameworks
+**What's Been Tested**:
+- ✅ Phase 0-3 code generation across 6+ frameworks
+- ✅ Framework detection (Django, FastAPI, Spring, Go, Node.js, NestJS)
+- ✅ Test result files exist for Phase 0-3 (phase_0_test_results.json, phase_1_3_test_results.json, etc.)
+- ✅ Example projects included as reference
 
-**Not Verified** (needs manual testing):
-- ✅ Whether end-to-end code generation works on real projects
-- ✅ Whether generated code passes your project's test suite
-- ✅ Whether generated code follows your specific conventions
+**What You Should Test Before Production**:
+- Test on a non-critical feature in your project
+- Verify generated code compiles and passes your test suite
+- Confirm generated code follows your team's style and conventions
 
-**Recommended**: Test on a non-critical project first.
+**Note**: We haven't verified it works on *every* project type yet. Real-world feedback will help us improve.
 
 ---
 
