@@ -1,7 +1,7 @@
 {
   "name": "one-shot-prompting",
-  "description": "Enterprise code generation: 174 modules, 7 frameworks, 4 languages. Phase 1 (Integration Gaps): auto-wiring, migrations, config, Docker, DI, CLI, handlers. Phase 4 (Production Hardening): DDD, CQRS, event sourcing, saga, TDD, cost optimization, chaos, compliance. 147 tests, 100% passing, zero dependencies. Production-ready.",
-  "version": "0.7.0",
+  "description": "Production-ready code generation: 177 modules, 6 frameworks. Phase 0-3 (Shipped): REST APIs, batch jobs, multi-file integration. Phase 4-5 (Complete): DDD, CQRS, event sourcing, TDD, cost optimization, chaos, compliance, microservices, GraphQL, ML pipelines, legacy modernization. 81 Django files tested. Zero dependencies.",
+  "version": "5.0.0",
   "author": {
     "name": "Claude Plugins Community",
     "url": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin"
