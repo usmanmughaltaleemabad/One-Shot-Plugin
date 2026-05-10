@@ -22,6 +22,61 @@ A Claude Code plugin for **production-ready code generation**. From a single pro
 
 ---
 
+## 💪 Power & Capabilities
+
+### One-Shot Code Generation
+Single prompt → complete, tested, integrated code (no questions, no conversation)
+
+```
+Input:  "Add Kafka consumer for order.placed with DLQ and monitoring"
+Output: Framework-aware consumer + tests + README + setup instructions (one response)
+Result: Copy → run tests → deployed ✅
+```
+
+### Enterprise-Grade Coverage
+
+| Feature | What You Get | Frameworks |
+|---------|-------------|-----------|
+| **REST APIs** | CRUD, auth, webhooks, validation, versioning, pagination | 6 |
+| **Batch Jobs** | Queues, retries, DLQ, monitoring, cloud backends | 6 |
+| **Architecture** | DDD, CQRS, Event Sourcing, Saga, Hexagonal patterns | 6 |
+| **Testing** | Unit + integration + property + mutation + chaos tests | 6 |
+| **Cost Optimization** | Lambda tuning, query optimization, caching, autoscaling | 6 |
+| **Chaos Engineering** | Failure injection, circuit breakers, SLO/SLI monitoring | 6 |
+| **Compliance** | SOC2, HIPAA, GDPR, PII detection, secrets rotation | 6 |
+| **Infrastructure** | Docker, Kubernetes, Terraform, CI/CD, monitoring | 6 |
+| **Microservices** | K8s, Helm, gRPC, API gateway, service mesh | 6 |
+| **Real-Time** | WebSockets, SSE, pub/sub, collaborative features | 6 |
+| **GraphQL** | Schema generation, resolvers, subscriptions, federation | 6 |
+| **ML Pipelines** | Feature stores, model serving, training, monitoring | 6 |
+| **Legacy Migration** | Strangler pattern, dependency analysis, dead code detection | 6 |
+
+### SDLC Compliance ✅
+- **Planning**: Silent planning engine (no user questions)
+- **Verification**: 4-step validation harness
+- **Testing**: 2+ tests per module (unit + integration)
+- **Code Review**: Automatic gates (linting, security, type coverage)
+- **TDD Mode**: Property tests, mutation tests, contract tests
+- **Monitoring**: Production observability patterns
+- **Compliance**: Enterprise audit trails, data handling rules
+
+### One-Shot (Smart Iteration)
+- ✅ **Truly one-shot**: Single prompt → working code
+- ✅ **Explicit assumptions**: All decisions shown, overrideable
+- ✅ **Smart iteration**: Regenerate with constraints (no conversation)
+  - "Use token bucket instead of sliding window"
+  - "Add GDPR compliance too"
+  - "In Go instead of Python"
+
+### Anthropic Plugin Best Practices ✅
+- 🔒 **Privacy-first**: No external APIs, no telemetry, local processing only
+- 📦 **Self-contained**: SKILL.md-based (no library dependencies)
+- 🎯 **Deterministic**: Same prompt + codebase = same output
+- 🧪 **Framework-aware**: 15+ frameworks auto-detected, convention-matched
+- 📚 **Well-documented**: User guide, API reference, examples, architecture
+
+---
+
 ## What's Included: 177 Modules, 50,000+ LOC
 
 ✅ **Phase 0-3 (Production Proven)**
@@ -32,13 +87,13 @@ A Claude Code plugin for **production-ready code generation**. From a single pro
 - ✅ **98/98 Tests Passing** — 8 test suites, 5 framework fixtures, performance budgets all green
 - 📦 **Ready for Marketplace** — Full documentation, examples, end-to-end workflows
 
-**[Get started with v2.0.0 →](QUICKSTART.md)** | **[Release notes](RELEASE_NOTES_v2_0_0.md)** | **[Full architecture](INTEGRATION_STATUS.md)**
+**[Get started →](QUICKSTART.md)** | **[Release notes →](ROADMAP.md)** | **[Architecture →](CLAUDE.md)**
 
 ---
 
-## What's in v0.6.0 — Large Codebase Support
+## Codebase-Aware Generation
 
-v0.6.0 foundation includes **10-piece architecture for existing codebases**:
+Analyzes your project structure and generates framework-correct code:
 
 - 🔍 **Codebase Analysis** — Pass `@path/to/project` and Claude analyzes your framework, patterns, conventions, and structure before generating anything
 - 🏗️ **Framework-Correct Output** — Django gets models/views/serializers/urls. FastAPI gets router/schemas/service. Spring Boot gets Controller/Service/Repository. Go gets handler/service/repository. No more generic stubs.
