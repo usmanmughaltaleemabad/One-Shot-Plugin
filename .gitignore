@@ -41,5 +41,10 @@ venv/
 # Logs
 *.log
 
+# Text Files (exclude test data, keep requirements.txt)
+*.txt
+!requirements.txt
+!package.json.txt
+
 # OS
 Thumbs.db
