@@ -1675,3 +1675,23 @@ the relevant flag in the Assumptions block whenever the user opts in.
 
 When a flag is set, surface the module's output in its own section after
 the main code, and list any blocking findings in the Assumptions block.
+
+---
+
+## Context Engineering Harness
+
+**Phase Status** (Updated 2026-05-16):
+- ✅ **Phase 0-3**: 69 modules shipped (v2.0.0) — All working
+  - Phase 0: Silent planning, verification harness, slash commands
+  - Phase 1: Multi-file formatting, auto-wiring, migrations, DI, config
+  - Phase 2: REST APIs (CRUD, auth, webhooks, tests)
+  - Phase 3: Batch jobs (queues, retries, monitoring)
+- ❌ **Phase 4-5**: 110 module stubs (not implemented) — See `docs/phase-status.md`
+  - Phase 4 planned: DDD, CQRS, Event Sourcing, TDD, cost, compliance
+  - Phase 5 planned: Microservices, real-time, GraphQL, ML, legacy
+
+**For Developers**:
+- Read: `docs/skill-authoring.md` (how to edit SKILL.md)
+- Test: `bash .claude/scripts/smoke-test.sh`
+- Validate: `/skill-validator "skills/one-shot-generator/SKILL.md"`
+- Check beads: `.beads/status.jsonl` (active work tracking)
