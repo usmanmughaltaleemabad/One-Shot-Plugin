@@ -1,21 +1,112 @@
-# Example Projects
+---
+type: reference
+last_verified: 2026-05-16
+owner: claude
+---
 
-Five hand-curated projects that demonstrate one-shot-prompting end-to-end.
-Each example shows the *generation journey* (the exact prompt that produced
-the code, the assumptions block, what was changed afterwards) — not just
-the final output.
+# Example Projects for one-shot-prompting Plugin
 
-| Example | Stack | What it shows |
-|---------|-------|---------------|
-| `django-order-service/` | Django 4.2 + Celery + Postgres | Order lifecycle, Celery tasks, structlog, GitHub Actions, k8s. |
-| `fastapi-rate-limiter/` | FastAPI + Redis + Kafka | Sliding-window rate limiter, async handlers, OTel + Prometheus. |
-| `spring-payment-service/` | Spring Boot 3 + Kafka + Postgres | Saga pattern, JPA, Flyway, Bean Validation. |
-| `go-trading-bot/` | Go 1.20 + NATS | Low-latency trade executor, channels, structured logging. |
-| `nestjs-realtime-api/` | NestJS 10 + WebSocket + Redis | GraphQL subscriptions, RxJS, Jest, dependency injection. |
+Three minimal but complete example projects to test the plugin's code generation capabilities.
 
-Each example has its own `README.md` with:
-- Original prompt
-- Generated assumptions block
-- File list and approximate LOC
-- Diff vs. the generated output (typically <5%)
-- How to run locally
+---
+
+## Django REST API (`django-rest-api/`)
+
+**Framework:** Django 4.2 + Django REST Framework  
+**Database:** SQLite  
+**Models:** Post, Comment
+
+### Setup
+```bash
+cd examples/django-rest-api
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+### Test Generation
+```bash
+/one-shot-prompting:one-shot-generator "add JWT authentication endpoints" @examples/django-rest-api
+```
+
+### Tests
+- ✅ CRUD API generation
+- ✅ Authentication integration
+- ✅ Serializer detection
+- ✅ Pagination + filtering
+- ✅ Endpoint routing
+
+---
+
+## FastAPI Async API (`fastapi-async-api/`)
+
+**Framework:** FastAPI 0.104 + SQLAlchemy  
+**Database:** SQLite  
+**Models:** Post (async endpoints)
+
+### Setup
+```bash
+cd examples/fastapi-async-api
+pip install -r requirements.txt
+python main.py
+# API at http://localhost:8000
+# Docs at http://localhost:8000/docs
+```
+
+### Test Generation
+```bash
+/one-shot-prompting:one-shot-generator "add user profiles with relationships" @examples/fastapi-async-api
+```
+
+### Tests
+- ✅ Async/await detection
+- ✅ Pydantic model generation
+- ✅ SQLAlchemy async support
+- ✅ OpenAPI docs generation
+- ✅ Dependency injection
+
+---
+
+## Go Trading Bot (`go-trading-bot/`)
+
+**Language:** Go 1.21  
+**Framework:** stdlib (http)  
+**Storage:** In-memory (sync.RWMutex)
+
+### Setup
+```bash
+cd examples/go-trading-bot
+go run main.go
+# API at http://localhost:8080
+```
+
+### Test Generation
+```bash
+/one-shot-prompting:one-shot-generator "add database persistence with PostgreSQL" @examples/go-trading-bot
+```
+
+### Tests
+- ✅ Go concurrency patterns
+- ✅ HTTP handler detection
+- ✅ Struct generation
+- ✅ JSON marshaling
+- ✅ Error handling
+
+---
+
+## How to Use
+
+### Test Code Generation
+```bash
+# Each example can be used as a test context
+/one-shot-prompting:one-shot-generator "[feature description]" @examples/django-rest-api
+```
+
+### Test Framework Detection
+```bash
+python skills/one-shot-generator/scripts/analyze_codebase.py "test" @examples/django-rest-api
+```
+
+---
+
+**Last Updated:** 2026-05-16
