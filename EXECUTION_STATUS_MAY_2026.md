@@ -75,20 +75,34 @@ ONE SHOT PLUGIN (Claude Code Studio) has completed Phase 1-2 planning and docume
 
 ---
 
-### Phase 3: Marketplace & Ecosystem 🚧 PLANNED
+### Phase 3: Marketplace & Ecosystem 🚧 IN PROGRESS
 
 **Period**: Months 6-12 (June-Dec 2026)
 
-**Deliverables Planned**:
-- FastAPI backend with agent discovery, publishing, subscriptions
-- Next.js frontend for marketplace discovery & creator dashboard
-- CLI commands (search, install, publish, analytics)
-- Stripe payment processing & revenue sharing
-- Agent registry & versioning system
-- Analytics dashboard for creators
+**Deliverables Progress**:
+- ✅ FastAPI backend with agent discovery, publishing, subscriptions (PHASE 3a COMPLETE)
+  - Complete API implementation (agents, auth, subscriptions, payments)
+  - SQLAlchemy async ORM with 8 models (User, Agent, Subscription, Rating, Transaction, Payout)
+  - Pydantic v2 validation schemas
+  - Stripe Billing integration
+  - Alembic migrations with initial schema
+- 🚧 Next.js frontend for marketplace discovery & creator dashboard (IN PROGRESS)
+- 🚧 CLI commands (search, install, publish, analytics) (PLANNED)
+- 🚧 Agent registry & versioning system (PLANNED)
+- 🚧 Analytics dashboard for creators (PLANNED)
 
-**Architecture Committed**:
-- ✅ Backend API specification (marketplace/backend/README.md)
+**Architecture Implemented**:
+- ✅ Backend API with complete endpoints (marketplace/backend/)
+  - GET /api/v1/agents - List with search/filters
+  - GET/POST /api/v1/agents/{id} - Detail/Create
+  - POST /api/v1/agents/{id}/ratings - Submit ratings
+  - POST /api/v1/auth/signup, login, me
+  - POST/DELETE /api/v1/subscriptions - Manage subscriptions
+  - POST /api/v1/payments/webhooks/stripe - Process Stripe events
+  - GET /api/v1/payments/creators/{id}/analytics - Creator metrics
+- ✅ Database schema with 7 core tables + indexes
+- ✅ Environment configuration (.env.example)
+- ✅ Full API documentation (README.md)
 - ✅ Frontend design document (marketplace/frontend/README.md)
 - ✅ CLI integration specification (marketplace/cli-integration/README.md)
 - ✅ Payment processing design (marketplace/payment-processing/README.md)
@@ -219,15 +233,32 @@ examples/nodejs-realtime-api-harness/
 
 ### Marketplace Platform (Phase 3)
 ```
-marketplace/backend/
-  ├── README.md
-  └── main.py
-marketplace/frontend/
-  └── README.md
-marketplace/cli-integration/
-  └── README.md
-marketplace/payment-processing/
-  └── README.md
+marketplace/backend/                   ✅ PHASE 3a COMPLETE
+  ├── app/
+  │   ├── api_agents.py               ← Agent discovery & publishing
+  │   ├── api_auth.py                 ← User authentication (JWT)
+  │   ├── api_subscriptions.py         ← Subscription management
+  │   ├── api_payments.py              ← Stripe webhooks & analytics
+  │   ├── models.py                    ← SQLAlchemy 8 models
+  │   ├── schemas.py                   ← Pydantic v2 validation
+  │   └── database.py                  ← AsyncSession setup
+  ├── alembic/
+  │   ├── env.py
+  │   └── versions/001_initial_schema.py
+  ├── main.py                          ← FastAPI app entry
+  ├── requirements.txt                 ← Dependencies
+  ├── alembic.ini
+  ├── .env.example
+  └── README.md                        ← Complete API docs
+
+marketplace/frontend/                  🚧 IN PROGRESS
+  └── README.md                        ← Design & specifications
+
+marketplace/cli-integration/           🚧 PLANNED
+  └── README.md                        ← Design & specifications
+
+marketplace/payment-processing/        ✅ COMPLETE (in backend)
+  └── README.md                        ← Design documentation
 ```
 
 ### Core Plugin Code (Phases 0-2)
