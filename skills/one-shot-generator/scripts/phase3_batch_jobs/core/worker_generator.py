@@ -195,33 +195,33 @@ export class BullWorker {
             queue.process(
                 WorkerConfig.WORKER_CONCURRENCY,
                 async (job) => {
-                    console.log(\`Processing job \${job.id} from \${queueName}\`);
+                    console.log(`Processing job ${job.id} from ${queueName}`);
                     try {
                         return await this.executeJob(job);
                     } catch (error) {
-                        console.error(\`Job \${job.id} failed: \${error.message}\`);
+                        console.error(`Job ${job.id} failed: ${error.message}`);
                         throw error;
                     }
                 }
             );
 
             queue.on('completed', (job) => {
-                console.log(\`Job \${job.id} completed\`);
+                console.log(`Job ${job.id} completed`);
             });
 
             queue.on('failed', (job, err) => {
-                console.error(\`Job \${job.id} failed: \${err.message}\`);
+                console.error(`Job ${job.id} failed: ${err.message}`);
             });
 
             queue.on('error', (error) => {
-                console.error(\`Queue error: \${error.message}\`);
+                console.error(`Queue error: ${error.message}`);
             });
 
             this.queues[queueName] = queue;
         }
 
         this.isRunning = true;
-        console.log(\`Worker started with \${this.queueNames.length} queues\`);
+        console.log(`Worker started with ${this.queueNames.length} queues`);
     }
 
     async executeJob(job) {

@@ -226,11 +226,11 @@ jobQueue.process(async (job) => {
 
         if (strategy.shouldRetry(error) && job.attemptsMade < strategy.maxRetries) {
             const delay = strategy.calculateDelay(job.attemptsMade);
-            console.log(\`Retrying job \${job.id} in \${delay}ms\`);
+            console.log(`Retrying job ${job.id} in ${delay}ms`);
             throw error; // Bull will handle retry
         }
 
-        console.error(\`Job \${job.id} failed after \${job.attemptsMade} attempts\`);
+        console.error(`Job ${job.id} failed after ${job.attemptsMade} attempts`);
         throw error;
     }
 });
@@ -250,9 +250,9 @@ jobQueue.on('failed', async (job, err) => {
             attempts: job.opts.attempts
         });
 
-        console.log(\`Job rescheduled with ID \${newJob.id}\`);
+        console.log(`Job rescheduled with ID ${newJob.id}`);
     } else {
-        console.error(\`Job \${job.id} abandoned after \${maxRetries} retries\`);
+        console.error(`Job ${job.id} abandoned after ${maxRetries} retries`);
     }
 });
 

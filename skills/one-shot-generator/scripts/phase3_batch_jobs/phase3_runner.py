@@ -11,6 +11,14 @@ import argparse
 import sys
 import json
 from pathlib import Path
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except (AttributeError, OSError):
+        pass
+
 from orchestrator_phase3 import orchestrate_phase3, orchestrate_phase3_enhanced
 
 
@@ -299,10 +307,61 @@ services:
         print(f"\n✓ Generated {len(files)} files to {output_dir}")
 
 
+def _normalize_freeform_args(argv):
+    """Translate SKILL.md free-form invocation to argparse flags.
+
+    SKILL.md invokes `phase3_runner.py "$ARGUMENTS"` where $ARGUMENTS is
+    a single string like 'add email notification job @/path --celery'.
+    Convert that into the explicit --framework/--language/--job-name flags
+    that argparse expects.
+    """
+    if not argv or any(a.startswith("--") for a in argv):
+        return argv
+
+    raw = " ".join(argv)
+    tokens = raw.split()
+
+    project_path = None
+    description_words = []
+    for tok in tokens:
+        if tok.startswith("@"):
+            project_path = tok[1:]
+        elif not tok.startswith("--"):
+            description_words.append(tok)
+
+    framework = "fastapi"
+    language = "python"
+    if project_path:
+        from pathlib import Path as _P
+        p = _P(project_path)
+        if (p / "manage.py").exists():
+            framework, language = "django", "python"
+        elif (p / "go.mod").exists():
+            framework, language = "go", "go"
+        elif (p / "pom.xml").exists() or (p / "build.gradle").exists():
+            framework, language = "spring", "java"
+
+    skip = {"add", "create", "generate", "build", "setup",
+            "batch", "job", "jobs", "task", "tasks", "worker", "background", "processor"}
+    job_name = "process_batch"
+    for w in description_words:
+        if w.lower() not in skip:
+            job_name = w.lower()
+            break
+
+    return [
+        "--framework", framework,
+        "--language", language,
+        "--job-name", job_name,
+        "--format", "json",
+    ]
+
+
 def main():
     """Main entry point"""
     runner = Phase3Runner()
-    sys.exit(runner.run())
+    args = _normalize_freeform_args(sys.argv[1:])
+    sys.exit(runner.run(args))
 
 
 if __name__ == "__main__":

@@ -71,7 +71,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class {model_name}(models.Model):
-    \"\"\"{{resource}} model\"\"\"
+    \"\"\"{resource} model\"\"\"
     # Replace with actual fields
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -92,7 +92,7 @@ class {model_name}(models.Model):
 
 
 class {model_name}Serializer(serializers.ModelSerializer):
-    \"\"\"Serializer for {{resource}}\"\"\"
+    \"\"\"Serializer for {resource}\"\"\"
     user_id = serializers.IntegerField(source='user.id', read_only=True)
 
     class Meta:
@@ -102,7 +102,7 @@ class {model_name}Serializer(serializers.ModelSerializer):
 
 
 class {model_name}CreateSerializer(serializers.ModelSerializer):
-    \"\"\"Serializer for creating {{resource}}\"\"\"
+    \"\"\"Serializer for creating {resource}\"\"\"
 
     class Meta:
         model = {model_name}
@@ -115,7 +115,7 @@ class {model_name}CreateSerializer(serializers.ModelSerializer):
 
 
 class {model_name}UpdateSerializer(serializers.ModelSerializer):
-    \"\"\"Serializer for updating {{resource}}\"\"\"
+    \"\"\"Serializer for updating {resource}\"\"\"
 
     class Meta:
         model = {model_name}
@@ -174,12 +174,12 @@ class {model_name}ViewSet(viewsets.ModelViewSet):
         return {model_name}Serializer
 
     def perform_create(self, serializer):
-        \"\"\"Set user when creating{{resource}}\"\"\"
+        \"\"\"Set user when creating{resource}\"\"\"
         serializer.save(user=self.request.user)
 
     @action(detail=True, methods=['post'])
     def clone(self, request, pk=None):
-        \"\"\"Clone a {{resource}}\"\"\"
+        \"\"\"Clone a {resource}\"\"\"
         obj = self.get_object()
         obj.pk = None
         obj.save()
@@ -216,33 +216,33 @@ class {model_name}APITestCase(TestCase):
         self.url = '/api/v1/{plural}/'
 
     def test_list_{plural}(self):
-        \"\"\"Test listing {{plural}}\"\"\"
+        \"\"\"Test listing {plural}\"\"\"
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('results', response.data)
 
     def test_create_{resource}(self):
-        \"\"\"Test creating {{resource}}\"\"\"
-        data = {{'name': 'Test {{resource}}', 'description': 'Test'}}
+        \"\"\"Test creating {resource}\"\"\"
+        data = {{'name': 'Test {resource}', 'description': 'Test'}}
         response = self.client.post(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual({model_name}.objects.count(), 1)
 
     def test_retrieve_{resource}(self):
-        \"\"\"Test retrieving single {{resource}}\"\"\"
+        \"\"\"Test retrieving single {resource}\"\"\"
         obj = {model_name}.objects.create(name='Test', user=self.user)
         response = self.client.get(f'{{self.url}}{{obj.id}}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_{resource}(self):
-        \"\"\"Test updating {{resource}}\"\"\"
+        \"\"\"Test updating {resource}\"\"\"
         obj = {model_name}.objects.create(name='Test', user=self.user)
         data = {{'name': 'Updated'}}
         response = self.client.patch(f'{{self.url}}{{obj.id}}/', data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete_{resource}(self):
-        \"\"\"Test deleting {{resource}}\"\"\"
+        \"\"\"Test deleting {resource}\"\"\"
         obj = {model_name}.objects.create(name='Test', user=self.user)
         response = self.client.delete(f'{{self.url}}{{obj.id}}/')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -308,7 +308,7 @@ async def list_{plural}(
     search: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
-    \"\"\"List all {{plural}} with pagination and filtering\"\"\"
+    \"\"\"List all {plural} with pagination and filtering\"\"\"
     query = db.query({resource.capitalize()})
     if search:
         query = query.filter({resource.capitalize()}.name.ilike(f"%{{search}}%"))
@@ -319,7 +319,7 @@ async def create_{resource}(
     data: {resource.capitalize()}CreateSchema,
     db: Session = Depends(get_db)
 ):
-    \"\"\"Create new {{resource}}\"\"\"
+    \"\"\"Create new {resource}\"\"\"
     obj = {resource.capitalize()}(**data.dict())
     db.add(obj)
     db.commit()
@@ -328,7 +328,7 @@ async def create_{resource}(
 
 @router.get("/{{id}}", response_model={resource.capitalize()}Schema)
 async def retrieve_{resource}(id: int, db: Session = Depends(get_db)):
-    \"\"\"Retrieve single {{resource}}\"\"\"
+    \"\"\"Retrieve single {resource}\"\"\"
     obj = db.query({resource.capitalize()}).filter({resource.capitalize()}.id == id).first()
     if not obj:
         raise HTTPException(status_code=404, detail="Not found")
@@ -340,7 +340,7 @@ async def update_{resource}(
     data: {resource.capitalize()}CreateSchema,
     db: Session = Depends(get_db)
 ):
-    \"\"\"Update {{resource}}\"\"\"
+    \"\"\"Update {resource}\"\"\"
     obj = db.query({resource.capitalize()}).filter({resource.capitalize()}.id == id).first()
     if not obj:
         raise HTTPException(status_code=404, detail="Not found")
@@ -352,7 +352,7 @@ async def update_{resource}(
 
 @router.delete("/{{id}}", status_code=204)
 async def delete_{resource}(id: int, db: Session = Depends(get_db)):
-    \"\"\"Delete {{resource}}\"\"\"
+    \"\"\"Delete {resource}\"\"\"
     obj = db.query({resource.capitalize()}).filter({resource.capitalize()}.id == id).first()
     if not obj:
         raise HTTPException(status_code=404, detail="Not found")

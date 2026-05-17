@@ -245,7 +245,7 @@ class DLQManager {
             }
         });
 
-        console.error(\`Job \${jobId} sent to DLQ\`);
+        console.error(`Job ${jobId} sent to DLQ`);
         return job;
     }
 }
@@ -253,10 +253,10 @@ class DLQManager {
 dlqQueue.process(async (job) => {
     const dlqJob = job.data;
 
-    console.log(\`Processing DLQ job \${dlqJob.originalJobId}\`);
+    console.log(`Processing DLQ job ${dlqJob.originalJobId}`);
 
     if (dlqJob.retryCount >= DLQManager.MAX_RETRY_ATTEMPTS) {
-        console.error(\`Job \${dlqJob.originalJobId} exceeded max retries\`);
+        console.error(`Job ${dlqJob.originalJobId} exceeded max retries`);
         await storeFailedJob(dlqJob);
         return;
     }
@@ -266,20 +266,20 @@ dlqQueue.process(async (job) => {
     try {
         await analyzeFailure(dlqJob);
     } catch (error) {
-        console.error(\`Error processing DLQ job: \${error.message}\`);
+        console.error(`Error processing DLQ job: ${error.message}`);
         throw error;
     }
 });
 
 async function analyzeFailure(dlqJob) {
-    console.warn(\`Analyzing failure: \${dlqJob.exceptionType} - \${dlqJob.exception}\`);
+    console.warn(`Analyzing failure: ${dlqJob.exceptionType} - ${dlqJob.exception}`);
     // Analysis logic here
 }
 
 async function storeFailedJob(dlqJob) {
-    const archiveKey = \`failed_job:\${dlqJob.originalJobId}\`;
+    const archiveKey = `failed_job:${dlqJob.originalJobId}`;
     await redis.setex(archiveKey, 2592000, JSON.stringify(dlqJob)); // 30 days
-    console.error(\`Failed job \${dlqJob.originalJobId} archived\`);
+    console.error(`Failed job ${dlqJob.originalJobId} archived`);
 }
 
 export async function getDLQStats() {

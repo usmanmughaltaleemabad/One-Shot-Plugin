@@ -15,15 +15,16 @@ Generates:
 import json
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
-from core.crud_generator import CRUDGenerator, CRUDConfig
-from validators.api_validator import APIValidator
-from generators.openapi_generator import OpenAPIGenerator
-from handlers.pagination_handler import (
+from .core.crud_generator import CRUDGenerator, CRUDConfig
+from .validators.api_validator import APIValidator
+from .generators.openapi_generator import OpenAPIGenerator
+from .handlers.pagination_handler import (
     PaginationGenerator,
+    PaginationConfig,
     FilteringGenerator,
     SortingGenerator
 )
-from handlers.request_validator import RequestValidatorGenerator
+from .handlers.request_validator import RequestValidatorGenerator
 
 
 @dataclass
@@ -121,7 +122,7 @@ class Phase2Orchestrator:
         """Generate pagination, filtering, sorting code"""
         pagination_gen = PaginationGenerator(
             self.config.framework,
-            {"style": self.config.pagination_style, "default_limit": 20, "max_limit": 100}
+            PaginationConfig(style=self.config.pagination_style, default_limit=20, max_limit=100)
         )
 
         if self.config.framework == "django":
@@ -140,7 +141,7 @@ class Phase2Orchestrator:
 
     def _dict_to_validation_rule(self, rule_dict: Dict) -> Any:
         """Convert dict to ValidationRule"""
-        from handlers.request_validator import ValidationRule
+        from .handlers.request_validator import ValidationRule
         return ValidationRule(**rule_dict)
 
     def _generate_openapi_docs(self):

@@ -58,7 +58,7 @@ class {vo}:
         return hash(self._value)
 
     def __repr__(self):
-        return f"{vo}({self._value!r})"
+        return f"{vo}({{self._value!r}})"
 """
         for vo in value_objects
     ])
@@ -211,7 +211,7 @@ class {aggregate_name}Aggregate:
         }}
 
     def __repr__(self):
-        return f"{aggregate_name}(id={self._id!r}, version={{self._version}})"
+        return f"{aggregate_name}(id={{self._id!r}}, version={{self._version}})"
 """
 
     # Generate Repository interface

@@ -257,7 +257,7 @@ class JobRouter {
         const queue = new Queue(bestQueue, { redis });
         const job = await queue.add(taskName, data);
 
-        console.log(\`Task routed to \${bestQueue} (load: \${loads[bestQueue]})\`);
+        console.log(`Task routed to ${bestQueue} (load: ${loads[bestQueue]})`);
         return job;
     }
 }
@@ -275,7 +275,7 @@ export async function enqueueTask(taskName, data, options = {}) {
         attempts: options.attempts || 3
     });
 
-    console.log(\`Task \${taskName} enqueued to \${queueName}\`);
+    console.log(`Task ${taskName} enqueued to ${queueName}`);
     return job;
 }
 

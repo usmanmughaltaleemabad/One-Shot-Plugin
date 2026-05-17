@@ -32,13 +32,13 @@ The 6 Claude Code skills that make up the one-shot-prompting plugin.
 **For reference:**
 - All SKILL.md files are < 2000 lines (readable in one sitting)
 - Each skill has a `scripts/` subdirectory with Python helpers
-- Phase 0-3 skills are production-ready; Phase 4-5 have stub scripts only
+- All phases (0–5) shipped in v2.0.0; see `docs/phase-status.md`
 
 ---
 
 ## The Main Skill: one-shot-generator
 
-**Status:** ✅ Production ready (Phases 0-3)
+**Status:** ✅ Production ready (Phases 0–5, v2.0.0)
 
 1,677 lines. Orchestrates: planning → multi-file formatting → framework-specific code generation → testing.
 
@@ -46,7 +46,8 @@ Scripts: `one-shot-generator/scripts/`
 - analyze_codebase.py (framework detection)
 - phase2_rest_api/ (44 generators)
 - phase3_batch_jobs/ (13 generators)
-- phase4_*, phase5_* (stubs only — see `docs/phase-status.md`)
+- phase4_*.py (49 modules — DDD, CQRS, event sourcing, compliance)
+- phase5_*.py (59 modules — microservices, real-time, GraphQL, ML)
 
 **Invocation:**
 ```bash
@@ -127,8 +128,8 @@ skills/one-shot-generator/scripts/
 ├── phase1_*.py (8)                  ← Phase 1 generators
 ├── phase2_rest_api/ (44)            ← Phase 2 REST API generators
 ├── phase3_batch_jobs/ (13)          ← Phase 3 batch job generators
-├── phase4_*.py (60)                 ← Phase 4 stubs (not implemented)
-└── phase5_*.py (50+)                ← Phase 5 stubs (not implemented)
+├── phase4_*.py (49)                 ← Phase 4 modules (DDD, CQRS, compliance)
+└── phase5_*.py (59)                 ← Phase 5 modules (microservices, GraphQL, ML)
 
 skills/write-plan/scripts/
 └── plan_writer.py
@@ -171,9 +172,9 @@ python RUN_INTEGRATION_TESTS.py
    - Run: smoke-test.sh + RUN_INTEGRATION_TESTS.py before commit
 
 3. **Phase 4-5 scripts:**
-   - DO NOT edit/invoke without opening a .beads bead first
-   - These are stubs, not working code
-   - See `docs/phase-status.md` for reality
+   - Shipped in v2.0.0 (49 + 59 modules)
+   - Each module has its own CLI; see `docs/scripts-index.md`
+   - Open a bead for non-trivial changes
 
 ---
 

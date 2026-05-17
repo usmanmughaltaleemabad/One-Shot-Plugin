@@ -283,7 +283,7 @@ class StructuredLogger {
 
         const logFile = path.join(
             this.logDir,
-            \`\${this.name}-\${new Date().toISOString().split('T')[0]}.log\`
+            `${this.name}-${new Date().toISOString().split('T')[0]}.log`
         );
 
         fs.appendFileSync(
