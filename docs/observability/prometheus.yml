@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'osp-jaeger'
+    static_configs:
+      - targets: ['jaeger:14269']
+
+  # Plugin scripts emit OTLP only; this is for any future metrics exporter
+  - job_name: 'osp-plugin'
+    static_configs:
+      - targets: ['host.docker.internal:9464']
