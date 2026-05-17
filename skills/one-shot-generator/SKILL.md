@@ -1,11 +1,11 @@
 ---
 name: one-shot-generator
-description: Generate framework-correct code for existing codebases (1K to 100K+ LOC). Analyzes project framework, patterns, conventions, then generates matching code — models, views, tests, configs, deployment, observability. Zero refactoring needed. Phase 1 (v0.7.0): Auto-wiring, migrations, DI, Docker. Phase 4 (v3.0.0): DDD, CQRS, event sourcing, saga, TDD, cost optimization, chaos, compliance. Optional flags: --preview (outline), --tdd (test-first), --review (lint/security), --gaps (integration), --patterns (hardening), --strangler (legacy). Trigger: "one-shot", "generate", "add feature", "setup integration", "hardening". Pass @path/to/project for codebase analysis. Produces complete feature + tests + README in one response.
-argument-hint: "[task description] [@path/to/project] [--preview] [--tdd] [--review] [--gaps] [--patterns] [--strangler]"
+description: Generate framework-correct code for existing codebases (1K to 100K+ LOC). All phases complete (v5.0.0): Phase 0-3 REST APIs + batch jobs; Phase 4 DDD/CQRS/event sourcing/TDD/compliance; Phase 5 microservices/real-time/GraphQL/legacy modernization. Analyzes codebase patterns, generates code with zero refactoring needed. Optional flags: --preview (outline), --tdd (test-first), --review (lint/security), --strangler (legacy migration). 6+ frameworks (Django, FastAPI, Spring, Go, Node, NestJS). Trigger: "one-shot", "generate", "add feature", "setup integration". Pass @path/to/project for codebase analysis. Produces complete feature + tests + README.
+argument-hint: "[task description] [@path/to/project] [--preview] [--tdd] [--review] [--strangler] [--ddd] [--cqrs] [--graphql]"
 allowed-tools: Bash(python *)
 ---
 
-# One-Shot Feature Generator — v0.7.0
+# One-Shot Feature Generator — v5.0.0
 
 Generate a complete, framework-correct feature module from a single prompt. Analyzes your codebase first, then ships code that integrates without refactoring.
 

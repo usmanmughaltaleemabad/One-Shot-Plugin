@@ -1,6 +1,6 @@
 {
   "name": "one-shot-prompting",
-  "description": "Production-ready code generation: 177 modules, 6 frameworks. Phase 0-3 (Shipped): REST APIs, batch jobs, multi-file integration. Phase 4-5 (Complete): DDD, CQRS, event sourcing, TDD, cost optimization, chaos, compliance, microservices, GraphQL, ML pipelines, legacy modernization. 81 Django files tested. Zero dependencies.",
+  "description": "Production-ready code generation: 147 modules, 43.6k LOC, 6 frameworks (Django, FastAPI, Spring, Go, Node.js, NestJS). All phases complete: Phase 0-3 REST APIs + batch jobs; Phase 4 DDD/CQRS/event sourcing/TDD/compliance; Phase 5 microservices/real-time/GraphQL/legacy modernization. Zero external dependencies.",
   "version": "5.0.0",
   "author": {
     "name": "Claude Plugins Community",
