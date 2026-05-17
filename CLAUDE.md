@@ -12,12 +12,17 @@ Plugin for generating REST APIs and batch jobs from natural language.
 
 | For... | See... |
 |---|---|
+| Tier 1 pipeline (new) | `docs/tier1-pipeline.md` |
+| One-shot orchestrator | `skills/one-shot-generator/scripts/one_shot_orchestrator.py` |
+| Multi-agent definitions | `.claude/agents/{architect,implementer,test-author,reviewer,wirer,critic}.md` |
+| Validation findings | `VALIDATION_REPORT.md` |
 | Writing a skill | `docs/skill-authoring.md` |
 | Real vs stub modules | `docs/phase-status.md` |
 | Testing locally | `docs/testing.md` |
 | Publishing | `docs/publish.md` |
-| All 170 scripts | `docs/scripts-index.md` |
+| All scripts | `docs/scripts-index.md` |
 | Active work | `.beads/status.jsonl` |
+| Failure beads | `.beads/failures.jsonl` |
 
 ## Structure
 
@@ -55,10 +60,16 @@ PLAN → AUTHOR → TEST → VERIFY → PUBLISH → CLOSE
 ## Quick Commands
 
 ```bash
+# Tier-1: closed-loop, codebase-aware, multi-entity one-shot
+python skills/one-shot-generator/scripts/one_shot_orchestrator.py \
+    "shopping cart with line items, discounts, inventory holds" \
+    --project ./my-project
+
+# Legacy single-resource path
 /one-shot-prompting:one-shot-generator "request" @/project
 bash .claude/scripts/smoke-test.sh
+python -m pytest tests/test_tier1_pipeline.py -v
 python RUN_INTEGRATION_TESTS.py
-cat docs/phase-status.md
 ```
 
 ---

@@ -18,12 +18,40 @@ Usage:
 """
 
 import os
+import sys
 import logging
 import time
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Optional, Dict
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
+
+
+def bootstrap_runtime() -> None:
+    """Standard runtime bootstrap every entry-point script should call first.
+
+    - Reconfigures stdout/stderr to UTF-8 on Windows so emoji + non-ASCII
+      output works under cp1252 default code page.
+    - Adds scripts/ directory to sys.path so sibling top-level scripts
+      can be imported without manual path manipulation.
+
+    Safe to call multiple times.
+    """
+    if sys.platform == "win32":
+        for stream in (sys.stdout, sys.stderr):
+            try:
+                stream.reconfigure(encoding="utf-8")
+            except (AttributeError, OSError):
+                pass
+
+    scripts_dir = Path(__file__).resolve().parent.parent
+    scripts_dir_str = str(scripts_dir)
+    if scripts_dir_str not in sys.path:
+        sys.path.insert(0, scripts_dir_str)
+
+
+bootstrap_runtime()
 
 # Performance budgets (milliseconds) — from benchmark_suite.py consolidated here
 PERFORMANCE_BUDGETS: Dict[str, int] = {
