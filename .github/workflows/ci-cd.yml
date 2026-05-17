@@ -2,9 +2,9 @@ name: CI/CD Pipeline — one-shot-prompting
 
 on:
   push:
-    branches: [ main, develop, release/* ]
+    branches: [ master, main, develop, release/* ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ master, main, develop ]
   schedule:
     - cron: '0 0 * * *'  # Daily at midnight UTC
 
