@@ -61,14 +61,17 @@ def test_agentic_evals_plan_mode_runs():
 
 # ─── body_hints ─────────────────────────────────────────────────────────────
 
-def test_body_hints_lists_29_pairs():
-    """The hint catalogue should cover all 5 frameworks × their kinds."""
+def test_body_hints_lists_at_least_25_pairs():
+    """The hint catalogue should cover all 5 frameworks. Tier 8 added
+    5 more hints (service_layer, auth, background, events, exceptions);
+    catalogue keeps growing — anything ≥ 25 is healthy."""
     proc = _run("body_hints.py", "--list", "--json")
     assert proc.returncode == 0, proc.stderr
     data = json.loads(proc.stdout)
-    assert len(data) >= 25, f"expected ~29 hints, got {len(data)}"
+    assert len(data) >= 25, f"expected ≥25 hints, got {len(data)}"
     frameworks_covered = {entry["framework"] for entry in data}
-    assert frameworks_covered == {"fastapi", "django", "spring", "go", "nestjs"}
+    expected = {"fastapi", "django", "spring", "go", "nestjs"}
+    assert expected.issubset(frameworks_covered)
 
 
 def test_body_hints_returns_structured_hint_for_fastapi_router():

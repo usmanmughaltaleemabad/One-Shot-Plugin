@@ -259,6 +259,38 @@ If the user did not pass `--review`, skip this stage entirely.
 
 ---
 
+## Stage 2.7 — Service-author agent (when business logic exists)
+
+If `spec.entities[*].invariants` is non-empty OR `spec.intent` is `auth`,
+spawn the **service-author** agent BEFORE the implementer fan-out.
+The service layer is where business logic lives — without this stage,
+generated code is bare CRUD scaffolding.
+
+```text
+Agent({
+  description: "Service-author: write business logic per spec invariants",
+  subagent_type: "general-purpose",
+  prompt: """
+    Read .claude/agents/service-author.md.
+    Spec.json: <paste>
+    Codebase graph imports: <paste>
+
+    Produce {entity}/service.py for every entity with action='create'.
+    Also produce common/events.py + common/exceptions.py if absent.
+    Enforce every invariant from spec.entities[*].invariants in the
+    service layer (NOT the router, NOT the model).
+  """
+})
+```
+
+This stage turns scaffolding into a production feature. The implementer
+in Stage 3 builds routers that DELEGATE to the service.
+
+If `spec.entities[*].invariants` is empty AND `spec.intent` is not
+`auth`, skip this stage.
+
+---
+
 ## Stage 3 — Implementer + test-author agents (PARALLEL)
 
 For every entity in `spec.json` with `action: "create"`, spawn one
@@ -354,6 +386,23 @@ For SQLAlchemy/Django projects, optionally run migrations:
 - Alembic: `alembic revision --autogenerate -m "<feature>"`
 
 Ask the user before running migrations — they're high-side-effect.
+
+### Stage 6.5 — Auto-generate Alembic revision
+
+Instead of "ask the user before running migrations", emit a concrete
+revision file the user can inspect and apply:
+
+```!
+python "./scripts/migration_generator.py" \
+    --spec /tmp/osp-spec.json \
+    --out <project>/alembic/versions/
+```
+
+This produces `<timestamp>_<slug>.py` with `upgrade()` + `downgrade()`
+bodies derived from spec.json's entities and relationships. The user
+runs `alembic upgrade head` when ready. For Django projects, the
+script emits `MIGRATION_RUNBOOK.md` (Django generates migrations via
+introspection).
 
 ---
 

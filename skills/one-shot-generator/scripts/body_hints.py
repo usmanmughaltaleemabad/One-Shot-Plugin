@@ -109,6 +109,93 @@ HINTS: Dict[tuple, Dict] = {
         "language": "python",
         "guidance": "Empty file (Python package marker)",
     },
+    ("fastapi", "service_layer"): {
+        "language": "python",
+        "imports_must_include": [
+            "from sqlalchemy.orm import Session",
+            "from fastapi import HTTPException, status",
+            "from .models import {Pascal}",
+            "from common.events import emit",
+            "from common.exceptions import DomainError",
+        ],
+        "class_decl": "class {Pascal}Service:",
+        "must_emit_methods": [
+            "__init__(self, db: Session)",
+            "list(self, *, skip=0, limit=100)",
+            "get_or_404(self, item_id)",
+            "create(self, payload, *, actor_id)",
+            "update(self, item_id, payload, *, actor_id)",
+            "delete(self, item_id, *, actor_id)",
+        ],
+        "must_enforce_invariants_from_spec": True,
+        "must_use_transactions": True,
+        "must_emit_events_on_state_transitions": True,
+        "anti_patterns": [
+            "Don't put HTTPException(401/403) — that's router-level",
+            "Don't import from router.py — service is the lower layer",
+            "Don't write raw SQL — use SQLAlchemy session",
+        ],
+    },
+    ("fastapi", "auth_endpoints"): {
+        "language": "python",
+        "imports_must_include": [
+            "from passlib.context import CryptContext",
+            "from jose import JWTError, jwt",
+        ],
+        "must_emit_helpers": [
+            "pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')",
+            "hash_password(plain) -> str",
+            "verify_password(plain, hashed) -> bool",
+            "create_access_token(subject, expires_in_minutes=60) -> str",
+            "decode_access_token(token) -> dict",
+        ],
+        "must_use_bcrypt_not_plain_hash": True,
+        "must_schedule_email_via_background_task": True,
+        "anti_patterns": [
+            "Never store plain passwords",
+            "Never put JWT secret in source — read from env",
+            "Never accept verification tokens older than 24h",
+        ],
+    },
+    ("fastapi", "background_task"): {
+        "language": "python",
+        "imports_must_include": ["from fastapi import BackgroundTasks"],
+        "guidance": (
+            "FastAPI BackgroundTasks for fire-and-forget. Celery (detected "
+            "via codebase_graph) for retryable / scheduled work. Pass IDs, "
+            "not models."
+        ),
+        "anti_patterns": [
+            "Don't block the request handler on external IO",
+            "Don't store sensitive data in BackgroundTasks payload",
+        ],
+    },
+    ("common", "events_emitter"): {
+        "language": "python",
+        "file": "common/events.py",
+        "must_emit": [
+            "_subscribers: dict[str, list] = {}",
+            "def emit(event_name: str, **payload) -> None",
+            "def subscribe(event_name: str, handler) -> None",
+        ],
+        "guidance": (
+            "Stub pub/sub. Default logs to stderr; production swaps for "
+            "Kafka / SNS / Redis Streams. Serialise payload to JSON-compatible "
+            "before emit."
+        ),
+    },
+    ("common", "domain_exceptions"): {
+        "language": "python",
+        "file": "common/exceptions.py",
+        "must_emit_classes": [
+            "class DomainError(Exception)",
+            "class NotFoundError(DomainError)",
+            "class ConflictError(DomainError)",
+            "class ForbiddenError(DomainError)",
+            "class ValidationError(DomainError)",
+        ],
+        "guidance": "Each carries a `code: str` field for machine handling",
+    },
 
     # ─── Django ──────────────────────────────────────────────────────────
     ("django", "django_appconfig"): {
@@ -351,7 +438,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="Return idiomatic-code hints for a (framework, file_kind) pair"
     )
-    parser.add_argument("--framework", choices=["fastapi", "django", "spring", "go", "nestjs"])
+    parser.add_argument("--framework", choices=["fastapi", "django", "spring", "go", "nestjs", "common"],
+                        help="'common' for cross-cutting hints (events_emitter, domain_exceptions)")
     parser.add_argument("--kind", help="File kind from scaffold_planner")
     parser.add_argument("--list", action="store_true", help="List all available (framework, kind) pairs")
     parser.add_argument("--json", action="store_true")

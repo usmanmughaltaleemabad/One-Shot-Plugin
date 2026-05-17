@@ -165,8 +165,10 @@ def _files_fastapi(snake: str) -> List[Tuple[str, str]]:
         (f"{snake}/__init__.py",  "python_init"),
         (f"{snake}/models.py",    "sqlalchemy_model"),
         (f"{snake}/schemas.py",   "pydantic_schema"),
+        (f"{snake}/service.py",   "service_layer"),       # Tier 8
         (f"{snake}/router.py",    "fastapi_router"),
-        (f"tests/test_{snake}_api.py", "pytest_module"),
+        (f"tests/test_{snake}_api.py",     "pytest_module"),
+        (f"tests/test_{snake}_service.py", "pytest_module"),  # Tier 8
     ]
 
 
