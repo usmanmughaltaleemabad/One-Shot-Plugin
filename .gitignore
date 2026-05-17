@@ -29,8 +29,8 @@ setup.bat
 test-output/
 .claude-local/
 
-# Strategic planning (local only, not committed)
-FUTURE_PLAN.md
+# Strategic planning (archived, see .archive/FUTURE_PLAN.md)
+# FUTURE_PLAN.md — archived to .archive/
 
 # Dependencies
 node_modules/
