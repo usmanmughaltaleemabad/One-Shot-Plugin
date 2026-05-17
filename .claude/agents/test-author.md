@@ -9,6 +9,7 @@ description: |
 
   Use in parallel with the implementer agents; never serially after them.
 tools: Read, Grep, Write, Bash
+model: sonnet
 ---
 
 # Test-Author Agent

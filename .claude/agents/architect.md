@@ -10,7 +10,8 @@ description: |
   Use proactively at the start of every multi-entity feature request, before
   any code is generated. The spec serves as a single source of truth for the
   test-author and implementer agents so they don't drift.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Write
+model: sonnet
 ---
 
 # Architect Agent

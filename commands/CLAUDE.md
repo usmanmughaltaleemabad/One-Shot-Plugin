@@ -6,7 +6,7 @@ owner: claude
 
 # Commands Directory
 
-Metadata for 14 slash command overrides.
+Metadata for 15 slash command overrides.
 
 ---
 
@@ -16,7 +16,8 @@ Command metadata files (no code, just descriptions).
 
 | Command | File | Purpose |
 |---------|------|---------|
-| one-shot-generator | one-shot-prompting.md | Main skill invocation + flags |
+| **one-shot** ⭐ | **one-shot.md** | **Primary agentic pipeline (Tier 3.5)** |
+| one-shot-generator | one-shot-prompting.md | Legacy single-resource skill invocation |
 | help | help.md | General help and getting started |
 | health-check | health-check.md | Verify plugin installation |
 | debug | debug.md | Diagnostic commands |

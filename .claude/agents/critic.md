@@ -8,6 +8,7 @@ description: |
   This is the closed loop: generate → review → wire → critic → (loop if red).
   The critic is the only agent that actually executes code.
 tools: Read, Bash
+model: sonnet
 ---
 
 # Critic Agent

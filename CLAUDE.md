@@ -16,6 +16,7 @@ Plugin for generating REST APIs and batch jobs from natural language.
 | Tier 2 (closed loop + agents) | `docs/tier2-pipeline.md` |
 | Tier 2.5 (spec-driven, FKs, loop) | `docs/tier25-pipeline.md` |
 | Tier 3 (curriculum, drift, gates) | `docs/tier3-pipeline.md` |
+| Tier 3.5 (**agentic restructure**) | `docs/tier35-agentic.md` |
 | One-shot orchestrator | `skills/one-shot-generator/scripts/one_shot_orchestrator.py` |
 | Multi-agent definitions | `.claude/agents/{architect,implementer,test-author,reviewer,wirer,critic}.md` |
 | Validation findings | `VALIDATION_REPORT.md` |
@@ -63,16 +64,19 @@ PLAN → AUTHOR → TEST → VERIFY → PUBLISH → CLOSE
 ## Quick Commands
 
 ```bash
-# Tier-1: closed-loop, codebase-aware, multi-entity one-shot
-python skills/one-shot-generator/scripts/one_shot_orchestrator.py \
-    "shopping cart with line items, discounts, inventory holds" \
-    --project ./my-project
+# Primary path — agentic (Claude reasons, scripts execute)
+/one-shot "shopping cart with line items, discounts" @./my-project
+/one-shot "..." @./my-project --apply              # mutate main.py
+/one-shot "..." @./my-project --budget=0.30        # halt if cost exceeds
+/one-shot "..." @./my-project --templated          # free fallback (no Claude tokens)
 
-# Legacy single-resource path
-/one-shot-prompting:one-shot-generator "request" @/project
+# Headless / CI mode
+python skills/one-shot-generator/scripts/one_shot_orchestrator.py \
+    "shopping cart with line items" --project ./my-project
+
+# Tests
 bash .claude/scripts/smoke-test.sh
-python -m pytest tests/test_tier1_pipeline.py -v
-python RUN_INTEGRATION_TESTS.py
+python -m pytest tests/
 ```
 
 ---

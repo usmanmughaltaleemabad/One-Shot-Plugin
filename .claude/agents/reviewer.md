@@ -9,6 +9,7 @@ description: |
   Mandatory gate: code does not advance to wiring until reviewer returns
   PASS or the architect overrides with explicit justification.
 tools: Read, Grep, Bash
+model: sonnet
 ---
 
 # Reviewer Agent

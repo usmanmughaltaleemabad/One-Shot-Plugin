@@ -6,6 +6,7 @@ description: |
   urls.py, runs migrations, and updates DI. Idempotent — re-running on a
   partially wired project completes the wiring without duplicating it.
 tools: Read, Edit, Bash
+model: haiku
 ---
 
 # Wirer Agent

@@ -9,6 +9,7 @@ description: |
   file in `spec.api_surface` or `spec.entities[*].module` to enable parallel
   generation.
 tools: Read, Grep, Edit, Write, Bash
+model: haiku
 ---
 
 # Implementer Agent
