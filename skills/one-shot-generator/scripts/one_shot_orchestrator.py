@@ -47,6 +47,8 @@ from generate_and_verify import (
 )
 from auto_wirer import wire as run_wire, WireReport
 from beads_writer import record_failure
+from beads_curriculum import consult as consult_curriculum, CurriculumReport
+from cross_feature_consistency import check as check_consistency, ConsistencyReport
 
 logger = setup_logging(__name__)
 
@@ -80,6 +82,9 @@ class OrchestratorReport:
     overall_succeeded: bool
     notes: List[str]
     bead_id: Optional[str] = None
+    curriculum: Optional[Dict] = None
+    consistency: Optional[Dict] = None
+    clarifying_question: Optional[str] = None
 
     def to_dict(self) -> Dict:
         return {
@@ -95,6 +100,9 @@ class OrchestratorReport:
             "overall_succeeded": self.overall_succeeded,
             "notes": self.notes,
             "bead_id": self.bead_id,
+            "curriculum": self.curriculum,
+            "consistency": self.consistency,
+            "clarifying_question": self.clarifying_question,
         }
 
 
@@ -143,15 +151,86 @@ def choose_phase(intent: str) -> str:
 
 # ─── Orchestrator ────────────────────────────────────────────────────────────
 
+CLARIFICATION_THRESHOLD = 0.55
+
+
 def orchestrate(*, task: str, project: Optional[str], apply: bool = False,
                 max_iterations: int = 2,
-                repo_root: Optional[Path] = None) -> OrchestratorReport:
-    notes: List[str] = []
+                repo_root: Optional[Path] = None,
+                allow_low_confidence: bool = False,
+                quiet: bool = False) -> OrchestratorReport:
+    """Run the full pipeline.
 
+    ``quiet=True`` redirects underlying generator stdout chatter to stderr so
+    the CLI's --json mode can emit clean parsable JSON to stdout.
+    """
+    notes: List[str] = []
+    if quiet:
+        # Redirect all child print() output to stderr so stdout stays clean.
+        import contextlib
+        _redirect = contextlib.redirect_stdout(sys.stderr)
+    else:
+        import contextlib
+        _redirect = contextlib.nullcontext()
+
+    _stack = _redirect
+    _stack.__enter__()
+    try:
+        return _orchestrate_inner(task=task, project=project, apply=apply,
+                                  max_iterations=max_iterations,
+                                  repo_root=repo_root,
+                                  allow_low_confidence=allow_low_confidence,
+                                  notes=notes)
+    finally:
+        _stack.__exit__(None, None, None)
+
+
+def _orchestrate_inner(*, task: str, project: Optional[str], apply: bool,
+                       max_iterations: int,
+                       repo_root: Optional[Path],
+                       allow_low_confidence: bool,
+                       notes: List[str]) -> OrchestratorReport:
     # 1. Understand
     model = extract_domain_model(task)
     notes.append(f"extracted {len(model.entities)} entities "
                  f"(confidence {model.confidence:.2f})")
+
+    # 1a. Clarification gate — when confidence is below threshold, halt and
+    # ask for one targeted clarification before doing anything expensive.
+    if not allow_low_confidence and model.confidence < CLARIFICATION_THRESHOLD:
+        primary = model.entities[0].pascal if model.entities else "<no entity>"
+        question = (
+            f"Confidence {model.confidence:.2f} below {CLARIFICATION_THRESHOLD}. "
+            f"I extracted {len(model.entities)} entit"
+            f"{'y' if len(model.entities) == 1 else 'ies'} (primary: {primary}). "
+            "Is that the right scope, or should I re-interpret? "
+            "Re-run with --force to proceed anyway."
+        )
+        return OrchestratorReport(
+            task=task, project=project, intent=model.intent,
+            confidence=model.confidence,
+            domain_entities=[e.to_dict() for e in model.entities],
+            reconciled_entities=[],
+            codebase_summary={},
+            generation=[], wire=None, overall_succeeded=False,
+            notes=notes + ["clarification required — halted before generation"],
+            clarifying_question=question,
+        )
+
+    # 1b. Curriculum lookup — surface any past failures matching this task
+    curriculum: Optional[CurriculumReport] = None
+    if repo_root:
+        failures_path = repo_root / ".beads" / "failures.jsonl"
+        try:
+            curriculum = consult_curriculum(
+                task=task,
+                phase=None,  # set after phase routing below
+                failures_path=failures_path,
+            )
+            if curriculum.hits:
+                notes.append(f"curriculum: {len(curriculum.hits)} similar past failure(s)")
+        except Exception as exc:
+            logger.warning("curriculum lookup failed: %s", exc)
 
     # 2. Scan
     if project:
@@ -177,6 +256,7 @@ def orchestrate(*, task: str, project: Optional[str], apply: bool = False,
     generation_reports: List[Dict] = []
     overall_succeeded = True
     new_entities = [r for r in reconciled if r.status == "new"]
+    codebase_imports = {k: v.to_dict() for k, v in graph.imports.items()} if graph.imports else None
     for ent in new_entities:
         entity_task = f"add {ent.entity_name} CRUD API"
         reports = run_verify_loop(
@@ -184,6 +264,7 @@ def orchestrate(*, task: str, project: Optional[str], apply: bool = False,
             project=project or "",
             phase=phase,
             max_iterations=max_iterations,
+            codebase_imports=codebase_imports,
         )
         for r in reports:
             payload = r.to_dict()
@@ -230,6 +311,18 @@ def orchestrate(*, task: str, project: Optional[str], apply: bool = False,
         bead_id = bead["id"]
         notes.append(f"recorded bead {bead_id}")
 
+    # 6b. Cross-feature consistency: compare generated output to existing project
+    consistency_report: Optional[Dict] = None
+    if project and generation_reports:
+        last_sandbox = Path(generation_reports[-1]["sandbox"])
+        try:
+            consistency = check_consistency(project, last_sandbox)
+            consistency_report = consistency.to_dict()
+            if consistency.issues:
+                notes.append(f"consistency: {len(consistency.issues)} drift issue(s)")
+        except Exception as exc:
+            logger.warning("consistency check failed: %s", exc)
+
     return OrchestratorReport(
         task=task,
         project=project,
@@ -243,12 +336,15 @@ def orchestrate(*, task: str, project: Optional[str], apply: bool = False,
             "router_style": graph.router_style,
             "existing_entities": len(graph.entities),
             "imports": {k: v.to_dict() for k, v in graph.imports.items()},
+            "conventions": graph.conventions,
         },
         generation=generation_reports,
         wire=wire_report,
         overall_succeeded=overall_succeeded,
         notes=notes,
         bead_id=bead_id,
+        curriculum=curriculum.to_dict() if curriculum else None,
+        consistency=consistency_report,
     )
 
 
@@ -260,7 +356,18 @@ def _print_human(report: OrchestratorReport) -> None:
     print(f"  Task:       {report.task}")
     print(f"  Project:    {report.project or '—'}")
     print(f"  Intent:     {report.intent}  (confidence {report.confidence:.2f})")
+    if report.clarifying_question:
+        print()
+        print("CLARIFICATION REQUIRED")
+        print(f"  {report.clarifying_question}")
+        return
     print()
+    if report.curriculum and report.curriculum.get("hits"):
+        print(f"CURRICULUM ({len(report.curriculum['hits'])} similar past failures)")
+        for h in report.curriculum["hits"]:
+            print(f"  • [{h['similarity']:.2f}] {h['bead_id']}")
+            print(f"      advice: {h['advice']}")
+        print()
     print("UNDERSTOOD ENTITIES")
     for ent in report.domain_entities:
         print(f"  • {ent['pascal']:<22} ({ent['name']})")
@@ -292,6 +399,11 @@ def _print_human(report: OrchestratorReport) -> None:
         for skip in report.wire["skipped"]:
             print(f"  - {skip}")
         print()
+    if report.consistency and report.consistency.get("issues"):
+        print(f"CONSISTENCY ({len(report.consistency['issues'])} drift issue(s))")
+        for issue in report.consistency["issues"]:
+            print(f"  [{issue['severity']}] {issue['file']}  {issue['rule']}: {issue['message']}")
+        print()
     if report.notes:
         print("NOTES")
         for note in report.notes:
@@ -314,6 +426,8 @@ def main():
                         help="Emit machine-readable JSON only")
     parser.add_argument("--repo-root", default=None,
                         help="Plugin repo root (for bead recording)")
+    parser.add_argument("--force", action="store_true",
+                        help="Skip the low-confidence clarification gate")
     args = parser.parse_args()
 
     task = " ".join(args.task)
@@ -328,7 +442,9 @@ def main():
     repo_root = Path(args.repo_root).resolve() if args.repo_root else None
     report = orchestrate(task=task, project=project, apply=args.apply,
                          max_iterations=args.max_iterations,
-                         repo_root=repo_root)
+                         repo_root=repo_root,
+                         allow_low_confidence=args.force,
+                         quiet=args.json)
     if args.json:
         print(json.dumps(report.to_dict(), indent=2, default=str))
     else:

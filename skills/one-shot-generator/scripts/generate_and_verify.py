@@ -280,7 +280,15 @@ GENERATORS: Dict[str, Callable[[str, str], Dict[str, str]]] = {
 
 def run_loop(*, task: str, project: str, phase: str,
              max_iterations: int = 3,
-             sandbox_base: Optional[Path] = None) -> List[VerificationReport]:
+             sandbox_base: Optional[Path] = None,
+             codebase_imports: Optional[Dict[str, Dict]] = None,
+             auto_patch: bool = True) -> List[VerificationReport]:
+    """Closed-loop generate → verify → patch → re-verify.
+
+    ``codebase_imports`` is the ``CodebaseGraph.imports`` map; when present
+    the auto-patcher rewrites the default ``from database import get_db``
+    style imports to point at the project's actual module path.
+    """
     if phase not in GENERATORS:
         raise ValueError(f"unknown phase: {phase}. options: {list(GENERATORS)}")
     generator = GENERATORS[phase]
@@ -309,6 +317,45 @@ def run_loop(*, task: str, project: str, phase: str,
             break
         written = write_to_sandbox(files, sandbox)
         diags = verify_directory(sandbox, files)
+
+        # ── auto-patch attempt ────────────────────────────────────────
+        # If there are any diagnostics (errors OR warnings) and auto_patch
+        # is enabled, try to fix them deterministically before declaring
+        # this iteration done.
+        patched = False
+        if auto_patch and diags:
+            try:
+                from auto_patch import patch as _patch
+                hint = _resource_hint_from_task(task)
+                patch_report = _patch(
+                    sandbox=sandbox,
+                    diagnostics=[d.to_dict() for d in diags],
+                    codebase_imports=codebase_imports,
+                    resource_hint=hint,
+                )
+                if patch_report.actions:
+                    patched = True
+                    # Re-read files from the sandbox after patching
+                    refreshed: Dict[str, str] = {}
+                    for path in sandbox.rglob("*"):
+                        if path.is_file():
+                            rel = str(path.relative_to(sandbox)).replace("\\", "/")
+                            try:
+                                refreshed[rel] = path.read_text(encoding="utf-8")
+                            except Exception:
+                                continue
+                    files = refreshed
+                    # Re-verify against the patched files
+                    diags = verify_directory(sandbox, files)
+                    for action in patch_report.actions:
+                        diags.append(Diagnostic(
+                            file=action.file, line=action.line,
+                            severity="info", code="auto_patched",
+                            message=f"{action.rule}: {action.description}",
+                        ))
+            except Exception as exc:
+                logger.warning("auto-patch attempt failed: %s", exc)
+
         succeeded = not any(d.severity == "error" for d in diags)
         reports.append(VerificationReport(
             sandbox=str(sandbox),
@@ -320,13 +367,30 @@ def run_loop(*, task: str, project: str, phase: str,
         last_files = files
         if succeeded:
             break
-        # Currently we have no auto-patcher; the loop is a no-op repeat. The
-        # value is in the structured diagnostics handed back to the caller
-        # (Claude or a human) who CAN fix the upstream generator and rerun.
-        logger.info("iteration %d failed with %d diagnostics — rerunning",
-                    iteration, len(diags))
+        logger.info(
+            "iteration %d %s with %d diagnostics — looping",
+            iteration,
+            "patched" if patched else "failed",
+            len(diags),
+        )
 
     return reports
+
+
+_RESOURCE_HINT_STOPWORDS = {
+    "add", "create", "build", "generate", "make", "develop", "implement",
+    "scaffold", "design", "draft", "ship", "extend", "expand",
+    "a", "an", "the", "with", "for", "to", "of", "in", "on", "and", "or",
+    "api", "crud", "rest", "endpoint", "endpoints",
+}
+
+
+def _resource_hint_from_task(task: str) -> Optional[str]:
+    """Best-effort guess for the resource word the auto-patcher should use."""
+    for token in re.findall(r"[a-zA-Z_]+", task.lower()):
+        if token not in _RESOURCE_HINT_STOPWORDS:
+            return token
+    return None
 
 
 # ─── CLI ─────────────────────────────────────────────────────────────────────
