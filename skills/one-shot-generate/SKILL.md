@@ -23,15 +23,35 @@ The arguments are: `$ARGUMENTS`
 
 ---
 
-## Flag handling (read this first)
+## Flag handling — DO THIS FIRST, BEFORE ANY OTHER WORK
 
-Parse `$ARGUMENTS` for these flags:
+Parse `$ARGUMENTS` and look for these flags:
 
-- `--templated` — skip the agentic path entirely. Just run
-  ``one_shot_orchestrator.py "$ARGUMENTS"`` and return its report. Stop.
-- `--apply` — at the wire stage, actually mutate the user's project files.
-  Default is dry-run.
-- `--budget=USD` — if estimated cost exceeds this, halt and ask the user.
+- `--templated` / `--legacy` / `--free` — route to the deterministic Python
+  pipeline. Do this **immediately** as the very first branch — do not run
+  the scanner, do not consult curriculum, do not spawn agents. Just:
+
+  ```!
+  python "./scripts/one_shot_orchestrator.py" "$ARGUMENTS"
+  ```
+
+  Then summarise the output for the user (which files were generated,
+  what's in the wire plan, any warnings). Stop. The templated path is
+  the legacy `one-shot-generator` skill's behaviour wrapped in this
+  command for backward compatibility — it costs zero Claude tokens but
+  produces lower-quality code than the agentic path.
+
+- `--apply` — at the wire stage (Stage 6), actually mutate the user's
+  project files. Default is dry-run.
+
+- `--budget=USD` — if the cost estimate from Stage 1.5 exceeds this,
+  halt and ask the user. Default: no budget gate.
+
+- `--force` — bypass the clarification gate even when extraction
+  confidence is below 0.55.
+
+If none of `--templated` / `--legacy` / `--free` are present, proceed
+with the agentic pipeline below.
 
 ---
 
@@ -69,6 +89,25 @@ Read `/tmp/osp-domain.json`. Note:
 For the codebase graph, the `--summary` output shows existing entities and
 imports. Hold both outputs in working memory; you'll pass them to the
 architect.
+
+---
+
+## Stage 1.5 — Cost budget gate
+
+If the user passed `--budget=USD`, generate a tentative `plan.json` and
+check the cost estimate before spawning any agents:
+
+```!
+python "./scripts/compile_spec.py" --orchestrator-json /tmp/osp-orch.json --out /tmp/osp-spec.json && \
+python "./scripts/scaffold_planner.py" --spec /tmp/osp-spec.json --out /tmp/osp-plan.json && \
+python "./scripts/cost_budget.py" --plan /tmp/osp-plan.json --budget <USD> --json
+```
+
+If `within_budget` is `false`, **halt**. Present the estimate to the user
+and ask whether to proceed anyway, raise the budget, or fall back to
+`--templated`. Do not spawn agents on an over-budget run.
+
+If no `--budget` flag was passed, continue without the gate.
 
 ---
 

@@ -1,13 +1,42 @@
 ---
 name: one-shot-generator
-description: Generate framework-correct code for existing codebases (1K to 100K+ LOC). All phases complete (v5.0.0): Phase 0-3 REST APIs + batch jobs; Phase 4 DDD/CQRS/event sourcing/TDD/compliance; Phase 5 microservices/real-time/GraphQL/legacy modernization. Analyzes codebase patterns, generates code with zero refactoring needed. Optional flags: --preview (outline), --tdd (test-first), --review (lint/security), --strangler (legacy migration). 6+ frameworks (Django, FastAPI, Spring, Go, Node, NestJS). Trigger: "one-shot", "generate", "add feature", "setup integration". Pass @path/to/project for codebase analysis. Produces complete feature + tests + README.
+description: |
+  LEGACY (templated) one-shot generator. Kept as the deterministic, zero-token
+  fallback path. For new work, prefer the agentic /one-shot command which
+  routes to the one-shot-generate skill — that path produces higher-quality
+  code by having Claude reason about your project instead of filling in
+  Python f-string templates.
+
+  Generates framework-correct scaffolding for existing codebases. Phase 0-3
+  is production quality; Phase 4-5 contains specialised pattern generators
+  (DDD, CQRS, microservices, GraphQL) most useful as references. Trigger
+  words: "one-shot-generator", "templated generate", "add feature
+  --templated". Pass @path/to/project for codebase analysis.
 argument-hint: "[task description] [@path/to/project] [--preview] [--tdd] [--review] [--strangler] [--ddd] [--cqrs] [--graphql]"
 allowed-tools: Bash(python *)
 ---
 
-# One-Shot Feature Generator — v5.0.0
+> [!IMPORTANT]
+> # ⚠️ Legacy skill (deprecated for new work)
+>
+> Tier 3.5 moved code generation into Claude (the model) via the agentic
+> [one-shot-generate](../one-shot-generate/SKILL.md) skill. The new path is
+> the one to recommend for all new work.
+>
+> | Use the new path when… | Use this skill when… |
+> |---|---|
+> | You want best-quality code that adapts to the user's project | You explicitly need zero-token, deterministic generation |
+> | You can spend ~$0.30–0.80 per generation | Free / CI / sandboxed environments |
+> | Multi-entity intent with relationships matters | Single-entity scaffolds are fine |
+>
+> The new command: `/one-shot "<task>" @./project`
+> The new skill:   `skills/one-shot-generate/SKILL.md`
 
-Generate a complete, framework-correct feature module from a single prompt. Analyzes your codebase first, then ships code that integrates without refactoring.
+# One-Shot Feature Generator — Legacy / Templated Path
+
+Generate a complete, framework-correct feature module from a single prompt by
+running the Python template generators. Analyzes your codebase first, then
+ships code from the phase 0-5 scripts under `scripts/`.
 
 ---
 
