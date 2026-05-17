@@ -3,7 +3,7 @@
   "description": "Tier 2: Professional governance + code generation. 177 enterprise-grade modules (100% complete), 75k+ LOC, 6 frameworks, zero dependencies. Harness: repo governance, multi-agent orchestration, hooks, standards. One-Shot: context-aware code generation. Phase 0-5 complete: REST APIs, batch jobs, DDD, CQRS, microservices, real-time, GraphQL, compliance.",
   "version": "2.0.0",
   "author": {
-    "name": "Claude Plugins Community",
+    "name": "Usman Mughal",
     "url": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin"
   },
   "homepage": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin",
