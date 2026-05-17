@@ -17,6 +17,8 @@ Plugin for generating REST APIs and batch jobs from natural language.
 | Tier 2.5 (spec-driven, FKs, loop) | `docs/tier25-pipeline.md` |
 | Tier 3 (curriculum, drift, gates) | `docs/tier3-pipeline.md` |
 | Tier 3.5 (**agentic restructure**) | `docs/tier35-agentic.md` |
+| Tier 4 (self-extending plugin) | `docs/tier4-self-extending.md` |
+| Plugin scorecard | `docs/scorecard.md` |
 | One-shot orchestrator | `skills/one-shot-generator/scripts/one_shot_orchestrator.py` |
 | Multi-agent definitions | `.claude/agents/{architect,implementer,test-author,reviewer,wirer,critic}.md` |
 | Validation findings | `VALIDATION_REPORT.md` |

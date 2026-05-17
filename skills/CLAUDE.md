@@ -15,6 +15,7 @@ The 6 Claude Code skills that make up the one-shot-prompting plugin.
 | Skill | SKILL.md | Purpose | Lines |
 |-------|----------|---------|-------|
 | **one-shot-generate** ⭐ | [SKILL.md](one-shot-generate/SKILL.md) | **Tier 3.5 agentic pipeline (PRIMARY)** | 230 |
+| **curator** | [SKILL.md](curator/SKILL.md) | **Tier 4: discover external agents/skills/MCP, add to registry** | 150 |
 | one-shot-generator | [SKILL.md](one-shot-generator/SKILL.md) | Legacy template-based generator | 1,677 |
 | **write-plan** | [SKILL.md](write-plan/SKILL.md) | Generate plan before code | 78 |
 | **execute-plan** | [SKILL.md](execute-plan/SKILL.md) | Execute generated steps | 84 |

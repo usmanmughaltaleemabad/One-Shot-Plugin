@@ -1,0 +1,92 @@
+{
+  "$schema": "https://one-shot-plugin.dev/schemas/agent-registry/v1.json",
+  "version": 1,
+  "updated": "2026-05-18",
+  "comment": "Curated registry of known-good external agents the one-shot-prompting plugin can discover and route work to. Entries are READ-ONLY pointers; the curator skill adds new entries with user approval.",
+  "agents": [
+    {
+      "id": "claude-code/code-reviewer",
+      "source": "builtin",
+      "subagent_type": "pr-review-toolkit:code-reviewer",
+      "description": "Reviews code for adherence to project guidelines, style guides, best practices. Use proactively after writing or modifying code, before commit. Reads CLAUDE.md and project conventions; outputs findings list.",
+      "triggers": ["code review", "style check", "before commit", "pr review"],
+      "specialty": ["code-quality", "style", "conventions"],
+      "preferred_over_local": null,
+      "added_at": "2026-05-18"
+    },
+    {
+      "id": "claude-code/silent-failure-hunter",
+      "source": "builtin",
+      "subagent_type": "pr-review-toolkit:silent-failure-hunter",
+      "description": "Hunts silent failures, inadequate error handling, and inappropriate fallback behavior in code changes. Use after writing try/catch or fallback logic.",
+      "triggers": ["error handling", "exception", "silent failure", "fallback", "catch"],
+      "specialty": ["error-handling", "robustness"],
+      "preferred_over_local": null,
+      "added_at": "2026-05-18"
+    },
+    {
+      "id": "claude-code/type-design-analyzer",
+      "source": "builtin",
+      "subagent_type": "pr-review-toolkit:type-design-analyzer",
+      "description": "Analyzes type design — encapsulation, invariant expression, usefulness, enforcement. Use when introducing new types or during PR review.",
+      "triggers": ["type design", "data class", "dataclass", "interface design", "schema"],
+      "specialty": ["type-design", "domain-modeling"],
+      "preferred_over_local": null,
+      "added_at": "2026-05-18"
+    },
+    {
+      "id": "claude-code/comment-analyzer",
+      "source": "builtin",
+      "subagent_type": "pr-review-toolkit:comment-analyzer",
+      "description": "Analyzes code comments for accuracy, completeness, and long-term maintainability. Catches comment rot, incorrect statements, missing why-this-matters notes.",
+      "triggers": ["comments", "docstrings", "documentation review"],
+      "specialty": ["documentation", "comment-quality"],
+      "preferred_over_local": null,
+      "added_at": "2026-05-18"
+    },
+    {
+      "id": "claude-code/pr-test-analyzer",
+      "source": "builtin",
+      "subagent_type": "pr-review-toolkit:pr-test-analyzer",
+      "description": "Reviews PRs for test coverage quality and completeness. Use after a PR is created/updated to ensure tests adequately cover new functionality and edge cases.",
+      "triggers": ["test coverage", "test review", "pr tests"],
+      "specialty": ["testing", "coverage-analysis"],
+      "preferred_over_local": "critic",
+      "added_at": "2026-05-18",
+      "notes": "May replace our critic agent for PR-style test review. Critic runs pytest; this analyzes COVERAGE of the tests themselves."
+    },
+    {
+      "id": "claude-code/code-simplifier",
+      "source": "builtin",
+      "subagent_type": "pr-review-toolkit:code-simplifier",
+      "description": "Simplifies code for clarity and maintainability while preserving functionality. Use after the implementer produces working code that could be more idiomatic.",
+      "triggers": ["simplify", "refactor", "clean up", "make idiomatic"],
+      "specialty": ["refactoring", "simplification"],
+      "preferred_over_local": null,
+      "added_at": "2026-05-18",
+      "notes": "Optional post-implementer pass for non-time-critical generations."
+    },
+    {
+      "id": "claude-code/explore",
+      "source": "builtin",
+      "subagent_type": "Explore",
+      "description": "Fast read-only search agent for locating code. Use to find files by pattern, grep for symbols, or answer 'where is X defined / which files reference Y.'",
+      "triggers": ["find code", "where is", "locate", "search codebase"],
+      "specialty": ["code-search", "navigation"],
+      "preferred_over_local": "codebase_graph",
+      "added_at": "2026-05-18",
+      "notes": "Use for ad-hoc 'where does this live?' questions. Our codebase_graph is for systematic pre-generation scans."
+    },
+    {
+      "id": "claude-code/plan",
+      "source": "builtin",
+      "subagent_type": "Plan",
+      "description": "Software architect agent for designing implementation plans. Returns step-by-step plans, identifies critical files, considers architectural trade-offs.",
+      "triggers": ["plan", "design", "architecture", "approach"],
+      "specialty": ["planning", "architecture"],
+      "preferred_over_local": "architect",
+      "added_at": "2026-05-18",
+      "notes": "Native Claude Code planning agent. Lighter weight than our architect for pre-spec scoping conversations."
+    }
+  ]
+}

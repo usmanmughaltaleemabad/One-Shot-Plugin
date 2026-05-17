@@ -1,0 +1,17 @@
+{
+  "$schema": "https://one-shot-plugin.dev/schemas/skill-registry/v1.json",
+  "version": 1,
+  "updated": "2026-05-18",
+  "comment": "Registry of external skills the one-shot-prompting plugin can suggest invoking. Entries are pointers — the curator skill grows this list with user approval.",
+  "skills": [
+    {
+      "id": "claude-code-guide",
+      "source": "builtin",
+      "subagent_type": "claude-code-guide",
+      "description": "Answers 'Can Claude / How do I' questions about Claude Code, the Agent SDK, and the Anthropic API. Has read access to documentation.",
+      "triggers": ["how do i", "can claude", "does claude support", "claude code feature"],
+      "specialty": ["documentation-lookup", "feature-discovery"],
+      "added_at": "2026-05-18"
+    }
+  ]
+}

@@ -77,6 +77,40 @@ the curriculum hits *inform* the architect agent, they don't block.
 
 ---
 
+## Stage 0.5 — External resource discovery (Tier 4)
+
+Before committing to the local agent lineup, see whether any external
+agents / skills / MCP servers in the registry would do better on this
+task:
+
+```!
+python "./scripts/agent_discovery.py" "$ARGUMENTS" --json
+```
+
+The output includes a `recommendations` array. Two kinds matter:
+
+  - **`route-override`**: the registry marks an external agent as
+    `preferred_over_local: <local-name>`. When the route fires for that
+    `<local-name>` later in the pipeline, **substitute** the external
+    agent. Tell the user "I'm using <external> instead of <local> for
+    this task because the registry says it fits better."
+
+  - **`consider-using`**: an external resource has a strong score but
+    doesn't replace a local agent. Surface it to the user as "you might
+    also want to invoke X for this — say yes/skip." Default is skip so
+    the pipeline doesn't fan out unnecessarily.
+
+If discovery finds NO matches above threshold, log a curator suggestion:
+"no strong match for this task in the registry — consider running
+`/curate <task>` to find external agents that could help." Continue with
+the local pipeline.
+
+If discovery raises an exception (registry malformed, etc.), skip this
+stage and proceed without it. Discovery is an enrichment, not a
+blocker.
+
+---
+
 ## Stage 1 — Deterministic scan + extraction
 
 Run the scanner and the domain extractor. Both are pure-Python and produce

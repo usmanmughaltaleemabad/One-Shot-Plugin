@@ -1,0 +1,54 @@
+{
+  "$schema": "https://one-shot-plugin.dev/schemas/mcp-registry/v1.json",
+  "version": 1,
+  "updated": "2026-05-18",
+  "comment": "Registry of external MCP servers the plugin knows about. Activation requires explicit user opt-in (Claude Code must have the MCP server connected). The curator skill adds new entries; the plugin never installs MCP servers automatically.",
+  "servers": [
+    {
+      "id": "anthropic/chrome-devtools",
+      "name": "Chrome DevTools",
+      "description": "Drives Chrome via DevTools Protocol — page navigation, screenshots, console messages, network requests, Lighthouse audits, performance traces.",
+      "triggers": ["browser test", "lighthouse", "ui test", "screenshot", "page load"],
+      "specialty": ["browser-automation", "performance-audit", "e2e-testing"],
+      "tools_exposed": [
+        "mcp__chrome-devtools__navigate_page",
+        "mcp__chrome-devtools__take_screenshot",
+        "mcp__chrome-devtools__lighthouse_audit",
+        "mcp__chrome-devtools__performance_start_trace",
+        "mcp__chrome-devtools__list_console_messages"
+      ],
+      "use_case_in_pipeline": "Stage 7 critic for UI features — run lighthouse + smoke screenshots after the wirer fires.",
+      "added_at": "2026-05-18"
+    },
+    {
+      "id": "anthropic/gmail",
+      "name": "Gmail",
+      "description": "Read and search Gmail. Useful for features that need email-style data (notifications, templated emails, communication flows).",
+      "triggers": ["email", "gmail", "notification", "mailing"],
+      "specialty": ["email-integration"],
+      "tools_exposed": ["mcp__claude_ai_Gmail__authenticate"],
+      "use_case_in_pipeline": "Reference reading only — when generating email-sending features, look at real Gmail message structure as ground truth.",
+      "added_at": "2026-05-18"
+    },
+    {
+      "id": "anthropic/supabase",
+      "name": "Supabase",
+      "description": "Read schema / query data from Supabase projects. Useful when the user's target is a Supabase-backed app and we need to know the actual schema.",
+      "triggers": ["supabase", "postgres-as-a-service", "row-level security"],
+      "specialty": ["supabase-schema-discovery"],
+      "tools_exposed": ["mcp__claude_ai_Supabase__authenticate"],
+      "use_case_in_pipeline": "Stage 1 scanner extension — when codebase_graph detects a Supabase client, consult the actual schema via MCP instead of guessing from migrations.",
+      "added_at": "2026-05-18"
+    },
+    {
+      "id": "anthropic/vercel",
+      "name": "Vercel",
+      "description": "Read Vercel project state — deployments, env vars, logs. Useful when wiring features into a Vercel-hosted app.",
+      "triggers": ["vercel", "next.js deploy", "edge function"],
+      "specialty": ["vercel-deployment-state"],
+      "tools_exposed": ["mcp__claude_ai_Vercel__authenticate"],
+      "use_case_in_pipeline": "Stage 6 wirer extension — verify the generated routes don't clash with existing edge functions before mutating the project.",
+      "added_at": "2026-05-18"
+    }
+  ]
+}
