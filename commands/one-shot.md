@@ -1,6 +1,6 @@
 ---
 description: End-to-end agentic one-shot. Understands multi-entity intent, scans the existing codebase, spawns architect → implementer → test-author → reviewer → wirer → critic agents, verifies + auto-patches, and ships working code. Use --templated for the legacy script-only fallback.
-argument-hint: "[feature description] [@path/to/project] [--apply] [--templated] [--budget=USD]"
+argument-hint: "[feature description] [@path/to/project] [--apply] [--templated] [--budget=USD] [--review] [--force]"
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Task
 ---
 

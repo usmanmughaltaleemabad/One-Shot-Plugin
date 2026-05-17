@@ -154,10 +154,145 @@ def _attribute_names_for(spec: Dict, snake_name: str,
     return names
 
 
+# ─── Per-framework file-layout dispatchers ──────────────────────────────────
+
+# Each dispatcher returns the list of (relative_path, file_kind) tuples a
+# new entity needs in that framework. The implementer agent reads the
+# `kind` to know which body template / pattern to apply.
+
+def _files_fastapi(snake: str) -> List[Tuple[str, str]]:
+    return [
+        (f"{snake}/__init__.py",  "python_init"),
+        (f"{snake}/models.py",    "sqlalchemy_model"),
+        (f"{snake}/schemas.py",   "pydantic_schema"),
+        (f"{snake}/router.py",    "fastapi_router"),
+        (f"tests/test_{snake}_api.py", "pytest_module"),
+    ]
+
+
+def _files_django(snake: str) -> List[Tuple[str, str]]:
+    # Django convention: each entity is its own app (with models.py /
+    # views.py / urls.py / serializers.py / tests.py / admin.py + migrations dir).
+    return [
+        (f"{snake}/__init__.py",        "python_init"),
+        (f"{snake}/apps.py",            "django_appconfig"),
+        (f"{snake}/models.py",          "django_model"),
+        (f"{snake}/serializers.py",     "drf_serializer"),
+        (f"{snake}/views.py",           "drf_viewset"),
+        (f"{snake}/urls.py",            "django_urls"),
+        (f"{snake}/admin.py",           "django_admin"),
+        (f"{snake}/tests.py",           "django_tests"),
+        (f"{snake}/migrations/__init__.py", "python_init"),
+    ]
+
+
+def _files_spring(snake: str) -> List[Tuple[str, str]]:
+    # Spring Boot Java layout: domain / repository / service / controller / dto.
+    pkg = snake.replace("_", "")
+    cap = "".join(p.capitalize() for p in snake.split("_"))
+    base = f"src/main/java/com/example/{pkg}"
+    test_base = f"src/test/java/com/example/{pkg}"
+    return [
+        (f"{base}/{cap}.java",             "spring_entity"),
+        (f"{base}/{cap}Repository.java",   "spring_repository"),
+        (f"{base}/{cap}Service.java",      "spring_service"),
+        (f"{base}/{cap}Controller.java",   "spring_controller"),
+        (f"{base}/{cap}Dto.java",          "spring_dto"),
+        (f"{test_base}/{cap}ControllerTest.java", "spring_test"),
+    ]
+
+
+def _files_go(snake: str) -> List[Tuple[str, str]]:
+    # Go layout: each entity is a package directory; handler/model/repo/test files.
+    return [
+        (f"internal/{snake}/{snake}.go",         "go_model"),
+        (f"internal/{snake}/repository.go",      "go_repository"),
+        (f"internal/{snake}/handler.go",         "go_handler"),
+        (f"internal/{snake}/{snake}_test.go",    "go_test"),
+    ]
+
+
+def _files_nestjs(snake: str) -> List[Tuple[str, str]]:
+    # NestJS layout: module / controller / service / dto / entity, plus spec.
+    kebab = snake.replace("_", "-")
+    return [
+        (f"src/{kebab}/{kebab}.module.ts",          "nestjs_module"),
+        (f"src/{kebab}/{kebab}.controller.ts",      "nestjs_controller"),
+        (f"src/{kebab}/{kebab}.service.ts",         "nestjs_service"),
+        (f"src/{kebab}/dto/create-{kebab}.dto.ts",  "nestjs_dto"),
+        (f"src/{kebab}/dto/update-{kebab}.dto.ts",  "nestjs_dto"),
+        (f"src/{kebab}/entities/{kebab}.entity.ts", "nestjs_entity"),
+        (f"src/{kebab}/{kebab}.controller.spec.ts", "nestjs_spec"),
+    ]
+
+
+_FILE_DISPATCHERS = {
+    "fastapi": _files_fastapi,
+    "django":  _files_django,
+    "spring":  _files_spring,
+    "go":      _files_go,
+    "nestjs":  _files_nestjs,
+}
+
+
+def _stubs_for_framework(framework: str, graph_imports: Dict,
+                         has_new_entities: bool) -> List[str]:
+    """Project-level stubs the implementer should also write when the host
+    project lacks them.
+    """
+    if not has_new_entities:
+        return []
+    out: List[str] = []
+    if framework == "fastapi":
+        if "db_session_getter" not in graph_imports:
+            out.append("database.py")
+        if "model_base" not in graph_imports:
+            out.append("models.py")
+    elif framework == "django":
+        # Django's settings.py needs new apps registered, but that's a
+        # wiring action (handled by auto_wirer), not a stub file.
+        pass
+    elif framework == "spring":
+        # Application class is typically already present; nothing to stub.
+        pass
+    elif framework == "go":
+        if "db_session_getter" not in graph_imports:
+            out.append("internal/db/db.go")
+    elif framework == "nestjs":
+        # AppModule already exists; nothing to stub.
+        pass
+    return out
+
+
+def _wiring_targets_for(framework: str) -> List[str]:
+    return {
+        "fastapi": ["main.py"],
+        "django":  ["urls.py", "settings.py"],
+        "spring":  [],   # autowiring via @SpringBootApplication scanning
+        "go":      ["cmd/server/main.go"],
+        "nestjs":  ["src/app.module.ts"],
+    }.get(framework, ["main"])
+
+
+def _migrations_for(framework: str) -> List[str]:
+    return {
+        "fastapi": ["alembic_revision"],
+        "django":  ["python manage.py makemigrations && python manage.py migrate"],
+        "spring":  ["flyway_or_liquibase"],
+        "go":      ["golang-migrate_revision"],
+        "nestjs":  ["typeorm_migration_generate"],
+    }.get(framework, [])
+
+
 # ─── Public entry ────────────────────────────────────────────────────────────
 
 def plan(spec: Dict[str, Any]) -> ScaffoldPlan:
     framework = spec.get("framework", "fastapi")
+    if framework not in _FILE_DISPATCHERS:
+        raise ValueError(
+            f"scaffold_planner does not yet support framework '{framework}'. "
+            f"Supported: {sorted(_FILE_DISPATCHERS)}"
+        )
     relationships = spec.get("relationships", [])
     graph_imports = spec.get("graph_imports", {}) or {}
     db = graph_imports.get("db_session_getter") or {}
@@ -171,6 +306,7 @@ def plan(spec: Dict[str, Any]) -> ScaffoldPlan:
     files: List[FileSpec] = []
     new_entities = [e for e in spec.get("entities", [])
                     if e.get("action") == "create"]
+    dispatcher = _FILE_DISPATCHERS[framework]
 
     for ent in new_entities:
         pascal = ent["name"]
@@ -189,25 +325,19 @@ def plan(spec: Dict[str, Any]) -> ScaffoldPlan:
             "attribute_names": attr_names,
             "test_contract": test_contract,
         }
-        files.append(FileSpec(path=f"{snake}/__init__.py", kind="python_init", **common))
-        files.append(FileSpec(path=f"{snake}/models.py", kind="sqlalchemy_model", **common))
-        files.append(FileSpec(path=f"{snake}/schemas.py", kind="pydantic_schema", **common))
-        files.append(FileSpec(path=f"{snake}/router.py", kind="fastapi_router", **common))
-        files.append(FileSpec(path=f"tests/test_{snake}_api.py", kind="pytest_module", **common))
+        for path, kind in dispatcher(snake):
+            files.append(FileSpec(path=path, kind=kind, **common))
 
-    stubs: List[str] = []
-    if "db_session_getter" not in graph_imports and new_entities:
-        stubs.append("database.py")
-    if "model_base" not in graph_imports and new_entities:
-        stubs.append("models.py")
+    stubs: List[str] = _stubs_for_framework(framework, graph_imports,
+                                             has_new_entities=bool(new_entities))
 
     return ScaffoldPlan(
         feature=spec.get("feature", ""),
         framework=framework,
         files_to_create=files,
         stubs_needed=stubs,
-        wiring_targets=["main.py"] if framework == "fastapi" else ["urls.py"],
-        migrations=["alembic_revision"] if framework == "fastapi" else ["django_makemigrations"],
+        wiring_targets=_wiring_targets_for(framework),
+        migrations=_migrations_for(framework),
         relationships=relationships,
     )
 

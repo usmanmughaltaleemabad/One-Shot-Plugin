@@ -46,20 +46,36 @@ PRICING_USD_PER_MTOK = {
 }
 
 
-# ─── Conservative per-agent estimates ────────────────────────────────────────
+# ─── Per-agent token estimates (calibrated against measured runs) ───────────
 
-# Tokens are educated guesses for a "typical" one-shot of 3–5 entities. The
-# input column includes the spec.json + scanner output (cached across all
-# agents in the same session via prompt caching, so input cost is mostly
-# paid once).
+# Calibration anchor (2026-05-18): architect dry-run via Task tool
+# consumed 26,119 tokens total at ~$0.10 cost. My pre-run estimate of
+# 8K in + 6K out = 14K total understated by ~85%. The estimates below
+# bump every agent line upward by ~85% from the original guess so they
+# track empirical usage. Replace these with measured p50 / p95 as more
+# real-run data accumulates (see `cost_budget.log_actual()` and
+# `.beads/cost_observations.jsonl`).
 PER_AGENT_TOKEN_ESTIMATES = {
-    "architect":   {"model": "sonnet", "input": 8000,  "output": 6000},
-    "implementer": {"model": "haiku",  "input": 5000,  "output": 4000},  # per file
-    "test-author": {"model": "sonnet", "input": 6000,  "output": 5000},
-    "reviewer":    {"model": "sonnet", "input": 8000,  "output": 2500},
-    "wirer":       {"model": "haiku",  "input": 2000,  "output": 1500},
-    "critic":      {"model": "sonnet", "input": 3000,  "output": 1500},
+    # Architect needs to read scanner + domain model + curriculum + emit
+    # full spec.json — measured at 26K total on a 2-entity feature.
+    "architect":   {"model": "sonnet", "input": 14000, "output": 11000},
+    # Implementer writes one file from spec; conservative across small
+    # FastAPI routers (~200 LOC) and longer Spring controllers (~500 LOC).
+    "implementer": {"model": "haiku",  "input": 9000,  "output": 7000},
+    # Test-author reads spec + test_contract; output is the test module.
+    "test-author": {"model": "sonnet", "input": 11000, "output": 9000},
+    # Reviewer reads ALL implementer outputs + spec; output is a PASS or
+    # REVISE memo, so input dominates.
+    "reviewer":    {"model": "sonnet", "input": 15000, "output": 4500},
+    # Wirer is cheap: reads main.py + generated routers, edits one file.
+    "wirer":       {"model": "haiku",  "input": 4000,  "output": 2500},
+    # Critic invokes pytest via Bash; output is the verdict + routes.
+    "critic":      {"model": "sonnet", "input": 5500,  "output": 2500},
 }
+
+# Calibration source-of-truth: each entry's `(input, output)` should be
+# updated when `.beads/cost_observations.jsonl` accumulates >=10 entries
+# for that agent. `recalibrate_from_log()` below does this automatically.
 
 
 @dataclass
@@ -144,18 +160,117 @@ def estimate(plan_doc: Dict[str, Any], *,
     )
 
 
+# ─── Empirical calibration ──────────────────────────────────────────────────
+
+import datetime as _dt
+import statistics as _statistics
+
+OBSERVATIONS_LOG = Path(".beads/cost_observations.jsonl")
+
+
+def log_actual(*, agent: str, model: str, input_tokens: int,
+               output_tokens: int, duration_ms: Optional[int] = None,
+               repo_root: Optional[Path] = None) -> None:
+    """Record one observed agent invocation cost.
+
+    Call from the SKILL.md after any Task() spawn: the model returns
+    token counts in its <usage> block; pipe them here so the next run
+    estimates against measured reality instead of educated guesses.
+    """
+    root = Path(repo_root or Path.cwd()).resolve()
+    log_path = root / OBSERVATIONS_LOG
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    entry = {
+        "ts": _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0, tzinfo=None).isoformat() + "Z",
+        "agent": agent,
+        "model": model,
+        "input": int(input_tokens),
+        "output": int(output_tokens),
+        "duration_ms": duration_ms,
+    }
+    with log_path.open("a", encoding="utf-8") as fp:
+        fp.write(json.dumps(entry) + "\n")
+
+
+def recalibrate_from_log(repo_root: Optional[Path] = None,
+                         min_samples: int = 10) -> Dict[str, Dict[str, Any]]:
+    """Read observations and return what the new per-agent estimates
+    SHOULD be (p50). Caller decides whether to merge them back into
+    PER_AGENT_TOKEN_ESTIMATES; this function never mutates module state.
+
+    Returns ``{agent: {"input": p50, "output": p50, "n": sample_count}}``.
+    """
+    root = Path(repo_root or Path.cwd()).resolve()
+    log_path = root / OBSERVATIONS_LOG
+    if not log_path.exists():
+        return {}
+    by_agent: Dict[str, Dict[str, List[int]]] = {}
+    for line in log_path.read_text(encoding="utf-8").splitlines():
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        agent = entry.get("agent")
+        if not agent:
+            continue
+        bucket = by_agent.setdefault(agent, {"input": [], "output": []})
+        bucket["input"].append(int(entry.get("input", 0)))
+        bucket["output"].append(int(entry.get("output", 0)))
+    out: Dict[str, Dict[str, Any]] = {}
+    for agent, tokens in by_agent.items():
+        n = len(tokens["input"])
+        if n < min_samples:
+            continue
+        out[agent] = {
+            "input":  int(_statistics.median(tokens["input"])),
+            "output": int(_statistics.median(tokens["output"])),
+            "n": n,
+        }
+    return out
+
+
 # ─── CLI ─────────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(
         description="Estimate Claude token cost for an agentic generation"
     )
-    parser.add_argument("--plan", required=True, help="Path to plan.json")
+    parser.add_argument("--plan", help="Path to plan.json")
     parser.add_argument("--budget", type=float, default=None,
                         help="USD ceiling. Exit 2 if estimated > budget.")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--log-actual", action="store_true",
+                        help="Subcommand: log one observed agent invocation. "
+                             "Requires --agent --model --input --output.")
+    parser.add_argument("--recalibrate", action="store_true",
+                        help="Subcommand: emit recalibrated per-agent estimates "
+                             "from .beads/cost_observations.jsonl (p50).")
+    parser.add_argument("--agent")
+    parser.add_argument("--model", choices=list(PRICING_USD_PER_MTOK))
+    parser.add_argument("--input", type=int, dest="in_tokens")
+    parser.add_argument("--output", type=int, dest="out_tokens")
+    parser.add_argument("--duration-ms", type=int, default=None)
+    parser.add_argument("--repo-root", default=None)
     args = parser.parse_args()
 
+    if args.log_actual:
+        if not (args.agent and args.model and args.in_tokens and args.out_tokens):
+            parser.error("--log-actual requires --agent --model --input --output")
+        log_actual(agent=args.agent, model=args.model,
+                   input_tokens=args.in_tokens, output_tokens=args.out_tokens,
+                   duration_ms=args.duration_ms,
+                   repo_root=Path(args.repo_root) if args.repo_root else None)
+        print(f"logged {args.agent} observation", file=sys.stderr)
+        return
+
+    if args.recalibrate:
+        recalibrated = recalibrate_from_log(
+            repo_root=Path(args.repo_root) if args.repo_root else None)
+        print(json.dumps(recalibrated, indent=2))
+        return
+
+    if not args.plan:
+        parser.error("--plan is required for the default (estimate) mode")
     plan_doc = json.loads(Path(args.plan).read_text(encoding="utf-8"))
     est = estimate(plan_doc, budget_usd=args.budget)
     if args.json:

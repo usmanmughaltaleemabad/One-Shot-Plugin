@@ -50,6 +50,13 @@ Parse `$ARGUMENTS` and look for these flags:
 - `--force` — bypass the clarification gate even when extraction
   confidence is below 0.55.
 
+- `--review` — after the architect produces spec.json, **STOP** and
+  show the user the spec (entities, relationships, API surface, test
+  contract). Ask whether to proceed, edit, or abort. Only after they
+  approve do the implementer/test-author agents fire. This protects
+  against committing to an expensive multi-agent run that's
+  misaligned with what the user actually wanted. See Stage 2.5 below.
+
 If none of `--templated` / `--legacy` / `--free` are present, proceed
 with the agentic pipeline below.
 
@@ -152,6 +159,44 @@ error message.
 
 ---
 
+## Stage 2.5 — Spec review gate (only if `--review` was passed)
+
+If the user passed `--review`, stop here and emit the spec.json
+back to them in a human-readable summary:
+
+```
+SPEC REVIEW — <feature name>
+─────────────────────────────────────────────────
+ENTITIES TO CREATE
+  • <pascal> (snake_name)
+    fields: <list>
+    invariants: <list>
+RELATIONSHIPS
+  • <from> ── <kind> ──▶ <to>
+API SURFACE
+  • <METHOD> <path>  ← <handler>
+TEST CONTRACT
+  auth: <value>     pagination: <value>     errors: <value>
+WIRING
+  • <target file>: <action>
+COST ESTIMATE (from cost_budget.py)
+  $<usd> across <n> agent invocations
+─────────────────────────────────────────────────
+Proceed?  [y]es / [e]dit / [a]bort
+```
+
+If the user replies:
+  - **y / yes**: continue to Stage 3.
+  - **e / edit** + their description of changes: re-spawn the architect
+    with the original inputs PLUS their edits as additional context.
+    Re-emit the spec for another review pass (max 3 review rounds).
+  - **a / abort**: stop. Record a bead noting that a spec was reviewed
+    and rejected pre-implementation so the curriculum can warn next time.
+
+If the user did not pass `--review`, skip this stage entirely.
+
+---
+
 ## Stage 3 — Implementer + test-author agents (PARALLEL)
 
 For every entity in `spec.json` with `action: "create"`, spawn one
@@ -250,7 +295,7 @@ Ask the user before running migrations — they're high-side-effect.
 
 ---
 
-## Stage 7 — Critic agent
+## Stage 7 — Critic agent + multi-iteration loop
 
 Spawn the critic to actually run the generated tests:
 
@@ -269,14 +314,101 @@ Agent({
 })
 ```
 
-If LOOP, route the failures back to the responsible agents (the critic's
-output names them). Loop max 3 times total. After 3 reds, escalate.
+### Loop iteration protocol
 
-If SHIPPED, record success and present a summary to the user:
-- Files created
-- Files modified (wire)
-- Test results
-- Token cost estimate (if --budget was set)
+The critic's response is either `SHIPPED` (done) or `LOOP` with structured
+routes per failing test. When you get a `LOOP` verdict, do the following:
+
+**Step A — Parse routes.** The critic emits a JSON-ish block like:
+```json
+{
+  "verdict": "LOOP",
+  "iteration": 1,
+  "routes": [
+    {"nodeid": "tests/test_cart.py::test_create",
+     "route_to": "implementer", "reason": "missing validate_cart() method",
+     "file": "cart/router.py", "traceback": "..."},
+    {"nodeid": "tests/test_cart.py::test_unauthorized",
+     "route_to": "test-author", "reason": "test asserts 401 but spec says auth: none"}
+  ]
+}
+```
+
+**Step B — Group routes by agent.** Bucket the failures by `route_to`.
+Each bucket becomes ONE re-spawn (NOT one per failure).
+
+**Step C — Re-spawn the right agent with the route as context.**
+
+  - For **implementer** routes: pass the original spec.json, the file
+    they need to fix, and the failure list. The implementer rewrites
+    just that file. Critical: include the diagnostic text verbatim so
+    the implementer knows WHY it's being re-run.
+
+    ```text
+    Agent({
+      description: "Implementer: regenerate cart/router.py to fix critic findings",
+      subagent_type: "general-purpose",
+      prompt: """
+        Read .claude/agents/implementer.md.
+        You are regenerating ONE file: cart/router.py
+        Spec.json: <paste>
+        Codebase imports: <paste>
+
+        The critic just rejected your previous output. Here is why:
+        Failure 1: <route 1 reason + traceback>
+        Failure 2: <route 2 reason + traceback>
+        ...
+
+        Produce the corrected file content. Do NOT touch other files.
+      """
+    })
+    ```
+
+  - For **test-author** routes: pass the spec.json (with any contract
+    adjustments the critic requested), the failing test list, and the
+    rule "regenerate test_X.py to match the spec only." The
+    test-author still does NOT read the implementer's output.
+
+  - For **architect** routes: the spec itself was wrong. Re-spawn the
+    architect with the critic's reasoning to produce a v2 of spec.json.
+    Then restart from Stage 3 (re-run implementers + test-author against
+    the new spec).
+
+  - For **reviewer** routes: a security/perf finding slipped past. The
+    reviewer's output identifies the file; route it to the implementer
+    with the reviewer's note as the "why."
+
+**Step D — Re-verify after re-spawn.** Re-run Stage 4 (verify +
+auto-patch) on the changed files, then jump back into the critic at
+Stage 7 with the updated sandbox.
+
+**Step E — Stop conditions.** Hard caps:
+  - **Max 3 critic iterations total.** Count each LOOP→re-spawn→re-verify
+    cycle as one iteration. On iteration 4 entry, do not re-spawn —
+    escalate.
+  - **Max 5 minutes per iteration.** If the implementer takes longer,
+    abort the iteration and escalate.
+  - **No new failure classes.** If iteration N introduces failure types
+    that iteration N-1 didn't have, that's regression — escalate
+    immediately rather than continuing to loop.
+
+**Step F — Escalation.** When stopping without SHIPPED:
+  1. Write a structured failure bead via `beads_writer.py` with the full
+     route history.
+  2. Present to the user: which tests still fail, which agent owns the
+     remaining failure, the sandbox path so they can inspect.
+  3. Do NOT silently patch over a failure by deleting tests or skipping
+     them. That's a separate explicit user action.
+
+### Successful SHIPPED path
+
+If the critic returns SHIPPED, present a summary to the user:
+- Files created (count + paths)
+- Files modified (wire actions)
+- Test results (passed / total)
+- Iterations consumed (1 = clean shot; 2-3 = needed loops)
+- Token cost estimate (if `--budget` was set) vs actual if tracked
+- Any auto-patches applied (info diagnostics from Stage 4)
 
 ---
 
