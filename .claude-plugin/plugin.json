@@ -1,7 +1,7 @@
 {
   "name": "one-shot-prompting",
-  "description": "Generate a complete sidecar feature module from a single prompt. No approval gates, no back-and-forth. Claude makes decisions, states assumptions, ships the code — you rerun with constraints if you disagree.",
-  "version": "0.4.1",
+  "description": "Production-ready code generation: 147 modules, 43.6k LOC, 6 frameworks (Django, FastAPI, Spring, Go, Node.js, NestJS). All phases complete: Phase 0-3 REST APIs + batch jobs; Phase 4 DDD/CQRS/event sourcing/TDD/compliance; Phase 5 microservices/real-time/GraphQL/legacy modernization. Zero external dependencies.",
+  "version": "5.0.0",
   "author": {
     "name": "Claude Plugins Community",
     "url": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin"
@@ -14,6 +14,35 @@
     "feature-generation",
     "event-driven",
     "sidecar",
-    "single-prompt"
+    "single-prompt",
+    "large-codebase",
+    "framework-detection",
+    "existing-projects",
+    "enterprise",
+    "message-queue",
+    "kafka",
+    "rabbitmq",
+    "sqs",
+    "pubsub",
+    "harness",
+    "verification",
+    "auto-wiring",
+    "code-review",
+    "tdd",
+    "strangler-pattern",
+    "consistency-checker",
+    "cost-management",
+    "architecture-design",
+    "ddd",
+    "domain-driven-design",
+    "cqrs",
+    "event-sourcing",
+    "saga-pattern",
+    "chaos-engineering",
+    "compliance",
+    "production-hardening",
+    "microservices",
+    "graphql",
+    "legacy-modernization"
   ]
 }
