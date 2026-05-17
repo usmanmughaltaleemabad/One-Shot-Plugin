@@ -392,34 +392,42 @@ def infer_relationships(text: str, entities: List[Entity]) -> List[Relationship]
 
 def extract(text: str) -> DomainModel:
     """Public entry point: text → DomainModel."""
-    intent, intent_confidence = detect_intent(text)
+    from lib.telemetry import span
+    with span("extract_domain_model",
+              attrs={"text_length": len(text)}) as tspan:
+        intent, intent_confidence = detect_intent(text)
 
-    phrases = _candidate_noun_phrases(text)
-    entities: List[Entity] = []
-    seen_names = set()
-    for phrase in phrases:
-        ent = _phrase_to_entity(phrase)
-        if ent is None or ent.name in seen_names:
-            continue
-        entities.append(ent)
-        seen_names.add(ent.name)
+        phrases = _candidate_noun_phrases(text)
+        entities: List[Entity] = []
+        seen_names = set()
+        for phrase in phrases:
+            ent = _phrase_to_entity(phrase)
+            if ent is None or ent.name in seen_names:
+                continue
+            entities.append(ent)
+            seen_names.add(ent.name)
 
-    primary = entities[0].name if entities else None
-    relationships = infer_relationships(text, entities)
+        primary = entities[0].name if entities else None
+        relationships = infer_relationships(text, entities)
 
-    # Confidence: high when we found multiple entities + a clear intent.
-    entity_factor = min(len(entities) / 3.0, 1.0)
-    confidence = round(0.4 + 0.4 * entity_factor + 0.2 * (intent_confidence - 0.4),
-                       3)
-    confidence = max(0.1, min(confidence, 0.97))
+        # Confidence: high when we found multiple entities + a clear intent.
+        entity_factor = min(len(entities) / 3.0, 1.0)
+        confidence = round(0.4 + 0.4 * entity_factor + 0.2 * (intent_confidence - 0.4),
+                           3)
+        confidence = max(0.1, min(confidence, 0.97))
 
-    return DomainModel(
-        raw=text,
-        intent=intent,
-        primary_entity=primary,
-        entities=entities,
-        relationships=relationships,
-        confidence=confidence,
+        tspan.set_attr("entities_count", len(entities))
+        tspan.set_attr("relationships_count", len(relationships))
+        tspan.set_attr("confidence", confidence)
+        tspan.set_attr("intent", intent)
+
+        return DomainModel(
+            raw=text,
+            intent=intent,
+            primary_entity=primary,
+            entities=entities,
+            relationships=relationships,
+            confidence=confidence,
     )
 
 

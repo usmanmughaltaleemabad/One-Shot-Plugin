@@ -1,0 +1,297 @@
+{
+  "extraction": {
+    "raw": "Add a category API with reviews",
+    "intent": "api",
+    "primary_entity": "category",
+    "entities": [
+      {
+        "name": "category",
+        "plural": "categories",
+        "pascal": "Category",
+        "attributes": [
+          {
+            "name": "id",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type_hint": "str",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type_hint": "Optional[str]",
+            "required": false
+          },
+          {
+            "name": "created_at",
+            "type_hint": "datetime",
+            "required": true
+          },
+          {
+            "name": "updated_at",
+            "type_hint": "datetime",
+            "required": true
+          }
+        ]
+      },
+      {
+        "name": "review",
+        "plural": "reviews",
+        "pascal": "Review",
+        "attributes": [
+          {
+            "name": "id",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type_hint": "str",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type_hint": "Optional[str]",
+            "required": false
+          },
+          {
+            "name": "created_at",
+            "type_hint": "datetime",
+            "required": true
+          },
+          {
+            "name": "updated_at",
+            "type_hint": "datetime",
+            "required": true
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "from": "category",
+        "to": "review",
+        "kind": "has_many"
+      }
+    ],
+    "confidence": 0.727
+  },
+  "files_to_create": [
+    {
+      "path": "category/__init__.py",
+      "kind": "python_init",
+      "entity": "Category",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "category/models.py",
+      "kind": "sqlalchemy_model",
+      "entity": "Category",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "category/schemas.py",
+      "kind": "pydantic_schema",
+      "entity": "Category",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "category/router.py",
+      "kind": "fastapi_router",
+      "entity": "Category",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "tests/test_category_api.py",
+      "kind": "pytest_module",
+      "entity": "Category",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "review/__init__.py",
+      "kind": "python_init",
+      "entity": "Review",
+      "fk_columns": [
+        {
+          "col": "category_id",
+          "references": "categorys.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "category_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "review/models.py",
+      "kind": "sqlalchemy_model",
+      "entity": "Review",
+      "fk_columns": [
+        {
+          "col": "category_id",
+          "references": "categorys.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "category_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "review/schemas.py",
+      "kind": "pydantic_schema",
+      "entity": "Review",
+      "fk_columns": [
+        {
+          "col": "category_id",
+          "references": "categorys.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "category_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "review/router.py",
+      "kind": "fastapi_router",
+      "entity": "Review",
+      "fk_columns": [
+        {
+          "col": "category_id",
+          "references": "categorys.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "category_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "tests/test_review_api.py",
+      "kind": "pytest_module",
+      "entity": "Review",
+      "fk_columns": [
+        {
+          "col": "category_id",
+          "references": "categorys.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "category_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    }
+  ],
+  "stubs_needed": [
+    "database.py"
+  ],
+  "total_usd": 0.7659
+}

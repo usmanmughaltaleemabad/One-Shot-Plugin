@@ -1,0 +1,13 @@
+{
+  "name": "product-catalog-existing-base",
+  "task": "Add a category API with reviews",
+  "framework": "fastapi",
+  "expected_entities": ["Category", "Review"],
+  "expected_relationships": [
+    ["category", "review", "has_many"]
+  ],
+  "graph_imports": {
+    "model_base": {"name": "Base", "module": "models"}
+  },
+  "comment": "Project already has a model_base import. Tests that the planner reuses it (no models.py stub needed) and only emits database.py stub."
+}

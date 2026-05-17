@@ -1,0 +1,455 @@
+{
+  "extraction": {
+    "raw": "Add user signup with email verification and password reset tokens",
+    "intent": "auth",
+    "primary_entity": "user_signup",
+    "entities": [
+      {
+        "name": "user_signup",
+        "plural": "user_signups",
+        "pascal": "UserSignup",
+        "attributes": [
+          {
+            "name": "id",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type_hint": "str",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type_hint": "Optional[str]",
+            "required": false
+          },
+          {
+            "name": "created_at",
+            "type_hint": "datetime",
+            "required": true
+          },
+          {
+            "name": "updated_at",
+            "type_hint": "datetime",
+            "required": true
+          }
+        ]
+      },
+      {
+        "name": "email_verification",
+        "plural": "email_verifications",
+        "pascal": "EmailVerification",
+        "attributes": [
+          {
+            "name": "id",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type_hint": "str",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type_hint": "Optional[str]",
+            "required": false
+          },
+          {
+            "name": "created_at",
+            "type_hint": "datetime",
+            "required": true
+          },
+          {
+            "name": "updated_at",
+            "type_hint": "datetime",
+            "required": true
+          }
+        ]
+      },
+      {
+        "name": "password_reset_token",
+        "plural": "password_reset_tokens",
+        "pascal": "PasswordResetToken",
+        "attributes": [
+          {
+            "name": "id",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type_hint": "str",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type_hint": "Optional[str]",
+            "required": false
+          },
+          {
+            "name": "created_at",
+            "type_hint": "datetime",
+            "required": true
+          },
+          {
+            "name": "updated_at",
+            "type_hint": "datetime",
+            "required": true
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "from": "user_signup",
+        "to": "email_verification",
+        "kind": "has_many"
+      },
+      {
+        "from": "user_signup",
+        "to": "password_reset_token",
+        "kind": "has_many"
+      }
+    ],
+    "confidence": 0.86
+  },
+  "files_to_create": [
+    {
+      "path": "user_signup/__init__.py",
+      "kind": "python_init",
+      "entity": "UserSignup",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "user_signup/models.py",
+      "kind": "sqlalchemy_model",
+      "entity": "UserSignup",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "user_signup/schemas.py",
+      "kind": "pydantic_schema",
+      "entity": "UserSignup",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "user_signup/router.py",
+      "kind": "fastapi_router",
+      "entity": "UserSignup",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "tests/test_user_signup_api.py",
+      "kind": "pytest_module",
+      "entity": "UserSignup",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "email_verification/__init__.py",
+      "kind": "python_init",
+      "entity": "EmailVerification",
+      "fk_columns": [
+        {
+          "col": "user_signup_id",
+          "references": "user_signups.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "user_signup_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "email_verification/models.py",
+      "kind": "sqlalchemy_model",
+      "entity": "EmailVerification",
+      "fk_columns": [
+        {
+          "col": "user_signup_id",
+          "references": "user_signups.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "user_signup_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "email_verification/schemas.py",
+      "kind": "pydantic_schema",
+      "entity": "EmailVerification",
+      "fk_columns": [
+        {
+          "col": "user_signup_id",
+          "references": "user_signups.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "user_signup_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "email_verification/router.py",
+      "kind": "fastapi_router",
+      "entity": "EmailVerification",
+      "fk_columns": [
+        {
+          "col": "user_signup_id",
+          "references": "user_signups.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "user_signup_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "tests/test_email_verification_api.py",
+      "kind": "pytest_module",
+      "entity": "EmailVerification",
+      "fk_columns": [
+        {
+          "col": "user_signup_id",
+          "references": "user_signups.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "user_signup_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "password_reset_token/__init__.py",
+      "kind": "python_init",
+      "entity": "PasswordResetToken",
+      "fk_columns": [
+        {
+          "col": "user_signup_id",
+          "references": "user_signups.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "user_signup_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "password_reset_token/models.py",
+      "kind": "sqlalchemy_model",
+      "entity": "PasswordResetToken",
+      "fk_columns": [
+        {
+          "col": "user_signup_id",
+          "references": "user_signups.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "user_signup_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "password_reset_token/schemas.py",
+      "kind": "pydantic_schema",
+      "entity": "PasswordResetToken",
+      "fk_columns": [
+        {
+          "col": "user_signup_id",
+          "references": "user_signups.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "user_signup_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "password_reset_token/router.py",
+      "kind": "fastapi_router",
+      "entity": "PasswordResetToken",
+      "fk_columns": [
+        {
+          "col": "user_signup_id",
+          "references": "user_signups.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "user_signup_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "tests/test_password_reset_token_api.py",
+      "kind": "pytest_module",
+      "entity": "PasswordResetToken",
+      "fk_columns": [
+        {
+          "col": "user_signup_id",
+          "references": "user_signups.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "user_signup_id",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    }
+  ],
+  "stubs_needed": [
+    "database.py",
+    "models.py"
+  ],
+  "total_usd": 0.8715
+}

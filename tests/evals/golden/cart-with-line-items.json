@@ -1,0 +1,530 @@
+{
+  "extraction": {
+    "raw": "Build a shopping cart with line items and discounts",
+    "intent": "feature",
+    "primary_entity": "shopping_cart",
+    "entities": [
+      {
+        "name": "shopping_cart",
+        "plural": "shopping_carts",
+        "pascal": "ShoppingCart",
+        "attributes": [
+          {
+            "name": "id",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type_hint": "str",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type_hint": "Optional[str]",
+            "required": false
+          },
+          {
+            "name": "created_at",
+            "type_hint": "datetime",
+            "required": true
+          },
+          {
+            "name": "updated_at",
+            "type_hint": "datetime",
+            "required": true
+          }
+        ]
+      },
+      {
+        "name": "line_item",
+        "plural": "line_items",
+        "pascal": "LineItem",
+        "attributes": [
+          {
+            "name": "cart_id",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "product_id",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "quantity",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "unit_price",
+            "type_hint": "Decimal",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type_hint": "str",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type_hint": "Optional[str]",
+            "required": false
+          },
+          {
+            "name": "created_at",
+            "type_hint": "datetime",
+            "required": true
+          },
+          {
+            "name": "updated_at",
+            "type_hint": "datetime",
+            "required": true
+          }
+        ]
+      },
+      {
+        "name": "discount",
+        "plural": "discounts",
+        "pascal": "Discount",
+        "attributes": [
+          {
+            "name": "code",
+            "type_hint": "str",
+            "required": true
+          },
+          {
+            "name": "percent_off",
+            "type_hint": "Decimal",
+            "required": false
+          },
+          {
+            "name": "amount_off",
+            "type_hint": "Decimal",
+            "required": false
+          },
+          {
+            "name": "valid_until",
+            "type_hint": "Optional[datetime]",
+            "required": false
+          },
+          {
+            "name": "id",
+            "type_hint": "int",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type_hint": "str",
+            "required": true
+          },
+          {
+            "name": "description",
+            "type_hint": "Optional[str]",
+            "required": false
+          },
+          {
+            "name": "created_at",
+            "type_hint": "datetime",
+            "required": true
+          },
+          {
+            "name": "updated_at",
+            "type_hint": "datetime",
+            "required": true
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "from": "shopping_cart",
+        "to": "line_item",
+        "kind": "has_many"
+      },
+      {
+        "from": "shopping_cart",
+        "to": "discount",
+        "kind": "has_many"
+      }
+    ],
+    "confidence": 0.8
+  },
+  "files_to_create": [
+    {
+      "path": "shopping_cart/__init__.py",
+      "kind": "python_init",
+      "entity": "ShoppingCart",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "shopping_cart/models.py",
+      "kind": "sqlalchemy_model",
+      "entity": "ShoppingCart",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "shopping_cart/schemas.py",
+      "kind": "pydantic_schema",
+      "entity": "ShoppingCart",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "shopping_cart/router.py",
+      "kind": "fastapi_router",
+      "entity": "ShoppingCart",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "tests/test_shopping_cart_api.py",
+      "kind": "pytest_module",
+      "entity": "ShoppingCart",
+      "fk_columns": [],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "line_item/__init__.py",
+      "kind": "python_init",
+      "entity": "LineItem",
+      "fk_columns": [
+        {
+          "col": "shopping_cart_id",
+          "references": "shopping_carts.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "shopping_cart_id",
+        "product_id",
+        "quantity",
+        "unit_price",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "line_item/models.py",
+      "kind": "sqlalchemy_model",
+      "entity": "LineItem",
+      "fk_columns": [
+        {
+          "col": "shopping_cart_id",
+          "references": "shopping_carts.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "shopping_cart_id",
+        "product_id",
+        "quantity",
+        "unit_price",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "line_item/schemas.py",
+      "kind": "pydantic_schema",
+      "entity": "LineItem",
+      "fk_columns": [
+        {
+          "col": "shopping_cart_id",
+          "references": "shopping_carts.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "shopping_cart_id",
+        "product_id",
+        "quantity",
+        "unit_price",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "line_item/router.py",
+      "kind": "fastapi_router",
+      "entity": "LineItem",
+      "fk_columns": [
+        {
+          "col": "shopping_cart_id",
+          "references": "shopping_carts.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "shopping_cart_id",
+        "product_id",
+        "quantity",
+        "unit_price",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "tests/test_line_item_api.py",
+      "kind": "pytest_module",
+      "entity": "LineItem",
+      "fk_columns": [
+        {
+          "col": "shopping_cart_id",
+          "references": "shopping_carts.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "shopping_cart_id",
+        "product_id",
+        "quantity",
+        "unit_price",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "discount/__init__.py",
+      "kind": "python_init",
+      "entity": "Discount",
+      "fk_columns": [
+        {
+          "col": "shopping_cart_id",
+          "references": "shopping_carts.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "shopping_cart_id",
+        "code",
+        "percent_off",
+        "amount_off",
+        "valid_until",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "discount/models.py",
+      "kind": "sqlalchemy_model",
+      "entity": "Discount",
+      "fk_columns": [
+        {
+          "col": "shopping_cart_id",
+          "references": "shopping_carts.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "shopping_cart_id",
+        "code",
+        "percent_off",
+        "amount_off",
+        "valid_until",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "discount/schemas.py",
+      "kind": "pydantic_schema",
+      "entity": "Discount",
+      "fk_columns": [
+        {
+          "col": "shopping_cart_id",
+          "references": "shopping_carts.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "shopping_cart_id",
+        "code",
+        "percent_off",
+        "amount_off",
+        "valid_until",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "discount/router.py",
+      "kind": "fastapi_router",
+      "entity": "Discount",
+      "fk_columns": [
+        {
+          "col": "shopping_cart_id",
+          "references": "shopping_carts.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "shopping_cart_id",
+        "code",
+        "percent_off",
+        "amount_off",
+        "valid_until",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    },
+    {
+      "path": "tests/test_discount_api.py",
+      "kind": "pytest_module",
+      "entity": "Discount",
+      "fk_columns": [
+        {
+          "col": "shopping_cart_id",
+          "references": "shopping_carts.id"
+        }
+      ],
+      "base_module": "models",
+      "base_name": "Base",
+      "db_module": "database",
+      "db_func": "get_db",
+      "attribute_names": [
+        "shopping_cart_id",
+        "code",
+        "percent_off",
+        "amount_off",
+        "valid_until",
+        "name",
+        "description"
+      ],
+      "test_contract": {
+        "auth": "none",
+        "pagination": "list"
+      }
+    }
+  ],
+  "stubs_needed": [
+    "database.py",
+    "models.py"
+  ],
+  "total_usd": 0.8715
+}

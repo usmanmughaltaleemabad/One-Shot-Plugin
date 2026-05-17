@@ -1,0 +1,12 @@
+{
+  "name": "cart-with-line-items",
+  "task": "Build a shopping cart with line items and discounts",
+  "framework": "fastapi",
+  "expected_entities": ["ShoppingCart", "LineItem", "Discount"],
+  "expected_relationships": [
+    ["shopping_cart", "line_item", "has_many"],
+    ["shopping_cart", "discount", "has_many"]
+  ],
+  "graph_imports": {},
+  "comment": "Three-entity feature with has_many relationships. Catches FK derivation, plural inference, and entity-name PascalCase normalization."
+}

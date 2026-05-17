@@ -122,6 +122,30 @@ def run_pytest(tests_dir: Path, pattern: Optional[str] = None,
         counts[bucket] = counts.get(bucket, 0) + 1
         outcomes.append(TestOutcome(nodeid=m.group("nodeid"), outcome=bucket))
 
+    # Collection errors: pytest exits non-zero with no per-test verbose
+    # lines when tests fail to import (ModuleNotFoundError, syntax error
+    # in test file, etc.). Synthesize an "errored" outcome so the loop
+    # can route these to the implementer.
+    if proc.returncode != 0 and not outcomes:
+        for line in (proc.stdout or "").splitlines():
+            if line.startswith("ERROR "):
+                summary = line.split(" - ", 1)
+                node_part = summary[0].split(" ", 1)[1].strip()
+                tb = summary[1].strip() if len(summary) == 2 else ""
+                outcomes.append(TestOutcome(
+                    nodeid=f"{node_part}::<collection>",
+                    outcome="errored",
+                    short_traceback=tb,
+                ))
+                counts["errored"] += 1
+        # Walk for "ModuleNotFoundError: No module named ..." anywhere in
+        # output and attach to the first errored outcome
+        for line in (proc.stdout or "").splitlines():
+            if "ModuleNotFoundError" in line or "ImportError" in line:
+                if outcomes and not outcomes[0].short_traceback:
+                    outcomes[0].short_traceback = line.strip()
+                break
+
     # Best-effort short tracebacks for failures. pytest produces them in two
     # places depending on --tb=line vs --tb=short; we accept either.
     #

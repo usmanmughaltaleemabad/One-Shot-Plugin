@@ -1,0 +1,9 @@
+{
+  "name": "user-auth-flow",
+  "task": "Add user signup with email verification and password reset tokens",
+  "framework": "fastapi",
+  "expected_entities": ["UserSignup", "EmailVerification", "PasswordResetToken"],
+  "expected_relationships": [],
+  "graph_imports": {},
+  "comment": "Auth intent detection. Three nominal entities with no automatic relationship inference between them (auth flows are typically not has_many)."
+}
