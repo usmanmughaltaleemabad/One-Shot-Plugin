@@ -1,38 +1,77 @@
 # ONE SHOT PLUGIN (Claude Code Studio)
 
-Enterprise-grade development orchestration platform combining Harness (multi-agent governance) + One-Shot-Prompting (context-aware code generation). Generate complete, production-ready features from natural language with full framework support and zero external dependencies.
+**Agentic one-shot code generation for existing codebases.** Claude conducts a 7-stage pipeline of deterministic scanners + specialist agents (architect, implementer, test-author, reviewer, wirer, critic) to take a natural-language feature request and ship verified, FK-aware, cost-gated code into your project. Multi-entity, relationship-aware, with a free templated fallback for CI use.
 
-## ✅ v2.0.0 — ONE SHOT PLUGIN (CLAUDE CODE STUDIO)
+## ⭐ v3.5.0 — Agentic Restructure (Tier 3.5)
 
-**Status**: Tier 2 (Harness + One-Shot) production-ready. 177 modules, 75k+ LOC, 6+ frameworks.  
-**Phase 3**: Marketplace backend infrastructure complete. Frontend & launch in progress.  
-**Timeline**: Path to $300-600M acquisition in 24 months. See [EXECUTION_STATUS_MAY_2026.md](EXECUTION_STATUS_MAY_2026.md).
+**Status**: Architecture pivoted from Python regex templates → Claude (the model) for code generation. Deterministic muscles stay in Python; reasoning moves to the agentic layer.
 
-### **What's Actually Working (All Phases: 177 modules, 75k+ LOC)**
+```bash
+# Primary entry point (agentic) — Claude reasons, scripts execute
+/one-shot "shopping cart with line items and discounts" @./my-project
 
-- ✅ **Phase 0 (4 modules, 2.1k LOC)**: Silent planning engine, verification harness, slash command framework, zero-friction UX
-- ✅ **Phase 1 (8 modules, 3.2k LOC)**: Multi-file output formatting, auto-wiring to projects, migration generation, config generation, DI awareness, multi-handler orchestration, OpenAPI generation
-- ✅ **Phase 2 (44 modules, 7.8k LOC)**: REST API generation (CRUD, auth, pagination, versioning), webhooks, request validation, error handling, tests
-- ✅ **Phase 3 (13 modules, 3.4k LOC)**: Batch job systems (queues, retries, DLQ), monitoring, observability logging
-- ✅ **Phase 3 Marketplace (43 modules)**: Agent discovery API, creator dashboard, subscription billing, Stripe integration, analytics
-- ✅ **Phase 4 (49 modules, 18.7k LOC)**: Production hardening — DDD/CQRS/Event Sourcing, TDD cycle, cost optimization, enterprise compliance (SOC2/HIPAA/GDPR), resilience patterns
-- ✅ **Phase 5 (16 modules, 8.4k LOC)**: Microservices, real-time (WebSockets), GraphQL, strangler pattern, legacy modernization
+# With cost gate
+/one-shot "..." @./my-project --budget=0.30
 
-**Framework Support** (tested): Django 4.2, FastAPI 0.104, Spring Boot 3.2, Go 1.21, Node.js 18, NestJS 10
+# Actually mutate the project (default is dry-run)
+/one-shot "..." @./my-project --apply
 
-**See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for complete phase breakdown with all modules listed.**
+# Free fallback (zero Claude tokens, deterministic templates)
+/one-shot "..." @./my-project --templated
+```
+
+### What you get for `/one-shot "shopping cart with line items and discounts"`
+
+- Multi-entity extraction: 3 entities + relationships (`has_many`)
+- Codebase scan: detects FastAPI, existing models, import contracts
+- Architect agent: produces `spec.json` (entities, FKs, API surface, test contract)
+- Implementer agents (parallel, one per file, **Haiku** for cost): write models / schemas / routers
+- Test-author agent (independent, reads only spec): writes tests that match the contract
+- Reviewer agent: security / perf / style gate
+- Static verifier + auto-patch: catches and fixes 4 deterministic bug classes (401-drift, pagination-drift, placeholder-leak, broken-imports)
+- Wirer: adds `app.include_router(...)` to your `main.py` (dry-run by default)
+- Critic agent: runs `pytest` against generated code; verdicts ship-or-loop
+- All recorded as a bead in `.beads/failures.jsonl` so future sessions learn
+
+**Cost: ~$0.30–0.80 per generation on the Sonnet-for-reasoners + Haiku-for-file-writers mix.** Free if you pass `--templated`.
+
+### Framework support
+
+Agentic path: **FastAPI** (full). **Django, Spring, Go, Node, NestJS** route through the spec but use the templated fallback for code emission (cross-language scaffold variants queued).
+
+Templated fallback path: all 6 frameworks, 99 phase generators.
 
 ---
 
-## ⚡ Why Use This Plugin?
+## 🏗️ Architecture
 
-- **Framework-aware generation**: Analyzes your codebase and generates Django/FastAPI/Spring-specific code (not generic stubs)
-- **One command → complete feature**: Single prompt generates models + views + tests + migrations + README
-- **Iteration without conversation**: Regenerate with constraints ("use token bucket", "add logging", "in Go") — no back-and-forth
-- **Multi-file organization**: Automatically splits code across models, views, tests, utilities, configs
-- **Preserves your conventions**: Uses your naming style, imports, error handling patterns
-- **Privacy-first**: Local processing only — no external APIs or telemetry
-- **Framework support**: Django, FastAPI, Spring Boot, Go, Node.js, NestJS
+The plugin is a **Claude Code plugin proper** — skills, commands, and agents as first-class units; scripts as deterministic helpers the agents call.
+
+```
+commands/                            ← User entry points
+  one-shot.md                          ⭐ /one-shot — primary agentic
+  (14 legacy commands)                  generate, plan, tdd, debug, ...
+
+skills/                              ← Claude reads SKILL.md and acts
+  one-shot-generate/SKILL.md           ⭐ Tier 3.5 agentic playbook
+  one-shot-generator/SKILL.md          legacy templated fallback
+  write-plan, execute-plan, tdd-cycle, systematic-debug, verify-before-complete
+
+.claude/agents/                      ← Specialists invoked via Task
+  architect.md       (sonnet) — designs spec.json
+  implementer.md     (haiku)  — writes ONE file per spawn
+  test-author.md     (sonnet) — independent of implementer
+  reviewer.md        (sonnet) — security/perf/style gate
+  wirer.md           (haiku)  — integrates into main.py
+  critic.md          (sonnet) — runs pytest, verdicts
+
+skills/one-shot-generator/scripts/   ← Deterministic tools
+  scan, graph, diff, verify, auto-patch, auto-wire,
+  critic-runner, live-critic, beads, curriculum,
+  cross-feature-consistency, self-improvement, scaffold_planner, cost_budget
+```
+
+See [docs/tier35-agentic.md](docs/tier35-agentic.md) for the full architectural narrative; the other tier docs (`tier1`, `tier2`, `tier25`, `tier3`) cover the foundations.
 
 ---
 
@@ -43,16 +82,12 @@ Enterprise-grade development orchestration platform combining Harness (multi-age
 git clone https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
 claude --plugin-dir ./One-Shot-Plugin/one-shot-prompting
 
-# 2. Check your project's capabilities
-/one-shot-prompting:one-shot-generator /health-check @/path/to/your/project
+# 2. Generate your first feature
+/one-shot "add a shopping cart with line items and discounts" @./your-project
 
-# 3. Generate your first feature
-/one-shot-prompting:one-shot-generator "add user authentication with JWT" @/path/to/your/project
-
-# 4. Review the output and integrate
+# 3. Review the dry-run wire plan, then ship
+/one-shot "..." @./your-project --apply
 ```
-
-See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for complete module reference.
 
 ---
 
