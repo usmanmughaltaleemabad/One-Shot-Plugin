@@ -2,18 +2,21 @@
 
 Enterprise-grade development orchestration platform combining Harness (multi-agent governance) + One-Shot-Prompting (context-aware code generation). Generate complete, production-ready features from natural language with full framework support and zero external dependencies.
 
-## ✅ v2.0.0 — 177 MODULES COMPLETE (May 17, 2026)
+## ✅ v2.0.0 — ONE SHOT PLUGIN (CLAUDE CODE STUDIO)
 
-**Status**: All phases (0-5) COMPLETE. Production-ready, 75k+ LOC, 6+ frameworks, enterprise-grade patterns.
+**Status**: Tier 2 (Harness + One-Shot) production-ready. 177 modules, 75k+ LOC, 6+ frameworks.  
+**Phase 3**: Marketplace backend infrastructure complete. Frontend & launch in progress.  
+**Timeline**: Path to $300-600M acquisition in 24 months. See [EXECUTION_STATUS_MAY_2026.md](EXECUTION_STATUS_MAY_2026.md).
 
-### **What's Actually Working (All Phases: 177 modules)**
+### **What's Actually Working (All Phases: 177 modules, 75k+ LOC)**
 
 - ✅ **Phase 0 (4 modules, 2.1k LOC)**: Silent planning engine, verification harness, slash command framework, zero-friction UX
 - ✅ **Phase 1 (8 modules, 3.2k LOC)**: Multi-file output formatting, auto-wiring to projects, migration generation, config generation, DI awareness, multi-handler orchestration, OpenAPI generation
 - ✅ **Phase 2 (44 modules, 7.8k LOC)**: REST API generation (CRUD, auth, pagination, versioning), webhooks, request validation, error handling, tests
 - ✅ **Phase 3 (13 modules, 3.4k LOC)**: Batch job systems (queues, retries, DLQ), monitoring, observability logging
+- ✅ **Phase 3 Marketplace (43 modules)**: Agent discovery API, creator dashboard, subscription billing, Stripe integration, analytics
 - ✅ **Phase 4 (49 modules, 18.7k LOC)**: Production hardening — DDD/CQRS/Event Sourcing, TDD cycle, cost optimization, enterprise compliance (SOC2/HIPAA/GDPR), resilience patterns
-- ✅ **Phase 5 (59 modules, 26.9k LOC)**: Microservices, real-time (WebSockets, streams), GraphQL federation, ML/AI pipelines, Kubernetes orchestration, database replication, multi-tenancy, advanced security (mTLS, distributed locking), blockchain consensus, edge computing, IoT patterns
+- ✅ **Phase 5 (16 modules, 8.4k LOC)**: Microservices, real-time (WebSockets), GraphQL, strangler pattern, legacy modernization
 
 **Framework Support** (tested): Django 4.2, FastAPI 0.104, Spring Boot 3.2, Go 1.21, Node.js 18, NestJS 10
 
@@ -241,11 +244,25 @@ Both are valid. Use one-shot when you know what you want. Use spec-first when yo
 
 ## Documentation
 
-- **[Implementation Status](IMPLEMENTATION_STATUS.md)** — Complete phase breakdown, all 147 modules
+**Strategic Docs**:
+- **[Execution Status](EXECUTION_STATUS_MAY_2026.md)** — Phase 3a complete, Phases 3b-5 roadmap, $300-600M acquisition strategy
+- **[Tier 2 Master Roadmap](TIER2_MASTER_ROADMAP.md)** — 24-month vision, market analysis, defensibility moat
+- **[Tier 2 Execution Plan](TIER2_EXECUTION_PLAN.md)** — How to execute from launch to acquisition
+
+**Technical Docs**:
+- **[Implementation Status](IMPLEMENTATION_STATUS.md)** — Complete breakdown of 177 modules across all phases
+- **[Phase 3a Backend Complete](PHASE3A_BACKEND_COMPLETE.md)** — Marketplace platform launch status
 - **[Architecture & Design](CLAUDE.md)** — How the plugin works internally
-- **[Getting Started](QUICKSTART.md)** — Step-by-step first use
-- **[Roadmap](ROADMAP.md)** — Future enhancements
+
+**Getting Started**:
+- **[Quickstart](QUICKSTART.md)** — 30-second setup
+- **[START_HERE.md](START_HERE.md)** — New user guide
+
+**Reference**:
+- **[Roadmap](ROADMAP.md)** — Long-term vision
 - **[Privacy](PRIVACY.md)** — Data handling & security
+- **[Security](SECURITY.md)** — Vulnerability reporting
+- **[Support](SUPPORT.md)** — Getting help
 - **[Changelog](CHANGELOG.md)** — Version history
 
 ---
@@ -302,5 +319,6 @@ MIT. See LICENSE file.
 ---
 
 **Last updated**: May 17, 2026  
-**Current version**: v5.0.0  
-**Status**: All phases (0-5) complete, production-ready, 147 modules, 43.6k LOC
+**Current version**: v2.0.0 (Tier 2 - Harness + One-Shot)  
+**Status**: Phase 3a complete (backend), Phases 3b-3d in progress, 177 modules, 75k+ LOC  
+**Next Milestone**: Phase 3 marketplace launch (June 2026), $2-5M ARR target
