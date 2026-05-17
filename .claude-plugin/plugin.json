@@ -1,5 +1,5 @@
 {
-  "name": "Claude Code Studio",
+  "name": "ONE SHOT PLUGIN (CLAUDE CODE STUDIO)",
   "description": "Tier 2: Professional development orchestration + code generation. 177 enterprise-grade modules (100% complete), 75k+ LOC, 6 frameworks, zero dependencies. Harness: repo governance, multi-agent orchestration, hooks, standards. One-Shot: context-aware code generation from specs. Phase 0-5 complete: REST APIs, batch jobs, DDD, CQRS, event sourcing, microservices, real-time, GraphQL, multi-tenancy, Kubernetes, CI/CD, compliance, security. Built for Claude Code teams at scale.",
   "version": "2.0.0",
   "author": {

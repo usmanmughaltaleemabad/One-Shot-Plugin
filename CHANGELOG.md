@@ -1,4 +1,4 @@
-# Changelog — Claude Code Studio (one-shot-prompting Plugin)
+# Changelog — ONE SHOT PLUGIN (Claude Code Studio)
 
 All notable changes to this project are documented here.
 

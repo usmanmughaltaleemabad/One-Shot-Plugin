@@ -94,7 +94,7 @@ Claude Code Studio v2.0.0 is ready for submission to the Anthropic Software Dire
 ## Marketplace Listing
 
 ### Title
-**Claude Code Studio** — Enterprise Development Orchestration Platform
+**ONE SHOT PLUGIN (Claude Code Studio)** — Enterprise Development Orchestration Platform
 
 ### Subtitle
 Harness + One-Shot-Prompting: Multi-agent governance + context-aware code generation

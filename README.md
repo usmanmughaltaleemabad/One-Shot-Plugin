@@ -1,4 +1,4 @@
-# Claude Code Studio
+# ONE SHOT PLUGIN (Claude Code Studio)
 
 Enterprise-grade development orchestration platform combining Harness (multi-agent governance) + One-Shot-Prompting (context-aware code generation). Generate complete, production-ready features from natural language with full framework support and zero external dependencies.
 
