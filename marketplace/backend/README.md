@@ -34,40 +34,49 @@ pytest --cov=app
 
 ## API Endpoints
 
-### Agents
+### Agents (marketplace-catalog)
 
 ```
-GET    /api/v1/agents                    # List with filters
-GET    /api/v1/agents/{id}               # Get details
-POST   /api/v1/agents/publish            # Publish new agent
-PUT    /api/v1/agents/{id}               # Update agent metadata
-GET    /api/v1/agents/{id}/versions      # Version history
-POST   /api/v1/agents/{id}/rate          # Submit rating/review
+GET    /api/v1/agents                      # List with search/filters
+GET    /api/v1/agents/{agent_id}           # Get agent details
+POST   /api/v1/agents                      # Create agent (creator)
+PUT    /api/v1/agents/{agent_id}           # Update agent metadata
+POST   /api/v1/agents/{agent_id}/ratings   # Submit rating (1-5 stars)
+GET    /api/v1/agents/{agent_id}/ratings   # Get agent ratings
+```
+
+Query parameters for listing:
+- `search` - text search on name/description/keywords
+- `category` - filter by category
+- `min_rating` - minimum rating 0-5 (default: 0)
+- `max_price` - maximum price in cents
+- `sort_by` - rating, newest, popular, price (default: rating)
+- `page` - page number (default: 1)
+- `page_size` - results per page 1-100 (default: 20)
+
+### Authentication
+
+```
+POST   /api/v1/auth/signup                # Register new user
+POST   /api/v1/auth/login                 # Login (returns JWT)
+GET    /api/v1/auth/me                    # Get current user profile
 ```
 
 ### Subscriptions
 
 ```
-POST   /api/v1/subscribe                 # Start subscription
-DELETE /api/v1/subscriptions/{id}        # Cancel subscription
-GET    /api/v1/subscriptions/{id}        # Get subscription status
+POST   /api/v1/subscriptions              # Create subscription
+DELETE /api/v1/subscriptions/{id}         # Cancel subscription
+GET    /api/v1/subscriptions/{id}         # Get subscription status
+GET    /api/v1/subscriptions              # List user's subscriptions
 ```
 
-### Users & Authentication
+### Payments & Analytics
 
 ```
-POST   /api/v1/auth/signup               # Register
-POST   /api/v1/auth/login                # Login
-GET    /api/v1/me                        # Current user profile
-POST   /api/v1/me/agents                 # Creator dashboard
-```
-
-### Payments & Revenue
-
-```
-GET    /api/v1/creators/{id}/analytics   # Creator metrics
-GET    /api/v1/creators/{id}/payouts     # Payout history
-POST   /api/v1/webhooks/stripe           # Stripe webhook
+POST   /api/v1/payments/webhooks/stripe   # Stripe webhook (events)
+GET    /api/v1/payments/creators/{id}/analytics   # Creator metrics
+GET    /api/v1/payments/creators/{id}/payouts     # Payout history
 ```
 
 ## Architecture
@@ -75,33 +84,68 @@ POST   /api/v1/webhooks/stripe           # Stripe webhook
 ```
 marketplace/backend/
 ├── app/
-│   ├── api/
-│   │   └── v1/
-│   │       ├── agents.py         # Agent endpoints
-│   │       ├── subscriptions.py  # Subscription endpoints
-│   │       ├── auth.py           # Authentication
-│   │       └── payments.py       # Payment endpoints
-│   ├── models/                   # SQLAlchemy models
-│   │   ├── agent.py
-│   │   ├── user.py
-│   │   ├── subscription.py
-│   │   ├── rating.py
-│   │   └── transaction.py
-│   ├── services/                 # Business logic
-│   │   ├── agent_service.py
-│   │   ├── subscription_service.py
-│   │   ├── payment_service.py
-│   │   └── analytics_service.py
-│   ├── schemas/                  # Pydantic models
-│   ├── database.py               # SQLAlchemy setup
-│   └── main.py                   # FastAPI app
-├── migrations/                   # Alembic migrations
-├── tests/                        # Test suite
-├── requirements.txt
-├── .env.example
-├── alembic.ini
+│   ├── api_agents.py             # Agent discovery & publishing endpoints
+│   ├── api_auth.py               # Authentication (signup/login)
+│   ├── api_subscriptions.py       # Subscription management
+│   ├── api_payments.py            # Stripe webhooks & analytics
+│   ├── models.py                  # SQLAlchemy ORM models
+│   │   ├── User                   # Users + creators
+│   │   ├── Agent                  # Published agents
+│   │   ├── AgentVersion           # Version history
+│   │   ├── Subscription           # User subscriptions
+│   │   ├── Rating                 # Community reviews
+│   │   ├── Transaction            # Financial audit trail
+│   │   └── Payout                 # Monthly creator payouts
+│   ├── schemas.py                 # Pydantic validation models
+│   └── database.py                # AsyncSession setup (PostgreSQL + asyncpg)
+├── alembic/
+│   ├── env.py                     # Migration environment
+│   ├── script.py.mako             # Migration template
+│   └── versions/
+│       └── 001_initial_schema.py  # Create all tables
+├── main.py                        # FastAPI app entry
+├── requirements.txt               # Dependencies
+├── alembic.ini                    # Alembic config
+├── .env.example                   # Environment template
 └── README.md
 ```
+
+### Database Models
+
+**User** - marketplace users + creators
+- id (UUID)
+- email, name, password_hash
+- is_creator (boolean), stripe_customer_id, stripe_account_id
+- bio, avatar_url, is_active
+
+**Agent** - published agents
+- id, creator_id, name, slug (creator/name)
+- description, markdown_content, category, keywords
+- price_usd (cents, 0=free), status (draft/published/deprecated)
+- rating, rating_count, install_count
+- version, is_public, published_at
+
+**Subscription** - active subscriptions
+- id, user_id, agent_id
+- stripe_subscription_id, status (active/canceled/past_due)
+- price_usd (locked at time of subscription)
+- started_at, current_period_end, canceled_at
+
+**Rating** - community reviews
+- id, agent_id, user_id
+- rating (1-5), review (optional)
+- helpful_count
+
+**Transaction** - financial records
+- id, type (subscription_created/payment_succeeded/payout)
+- user_id, agent_id
+- amount_usd, platform_fee_usd, creator_payout_usd
+- stripe_charge_id, stripe_transaction_id
+
+**Payout** - monthly creator payouts
+- id, creator_id, month, year
+- total_revenue_usd, platform_fee_usd, amount_paid_usd
+- stripe_payout_id, status (pending/completed/failed)
 
 ## Data Models
 

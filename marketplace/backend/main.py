@@ -3,11 +3,17 @@
 Enables agent discovery, publishing, subscriptions, and revenue sharing.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+import os
 
-# Initialize FastAPI app
+from app.api_agents import router as agents_router
+from app.api_auth import router as auth_router
+from app.api_subscriptions import router as subscriptions_router
+from app.api_payments import router as payments_router
+from app.database import async_engine
+from app.models import Base
+
 app = FastAPI(
     title="ONE SHOT PLUGIN Marketplace",
     description="Agent discovery, publishing, and subscription management",
@@ -17,26 +23,30 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict in production
+    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Include routers
+app.include_router(agents_router)
+app.include_router(auth_router)
+app.include_router(subscriptions_router)
+app.include_router(payments_router)
 
-# Health check endpoint
+
+@app.on_event("startup")
+async def startup():
+    """Initialize database tables."""
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "service": "marketplace-api"}
-
-
-# API routes (will be added in next steps)
-# - /api/v1/agents
-# - /api/v1/subscriptions
-# - /api/v1/auth
-# - /api/v1/payments
-# - /api/v1/webhooks/stripe
 
 
 @app.get("/")
