@@ -216,6 +216,10 @@ def _patch_imports(file: Path, import_map: Dict[str, Dict]) -> Optional[PatchAct
 
 # ─── Public entry ────────────────────────────────────────────────────────────
 
+from lib.telemetry import traced as _traced
+
+
+@_traced("auto_patch", attr_keys=["sandbox"])
 def patch(sandbox: str | Path, diagnostics: List[Dict],
           codebase_imports: Optional[Dict[str, Dict]] = None,
           resource_hint: Optional[str] = None) -> PatchReport:

@@ -286,6 +286,10 @@ def _migrations_for(framework: str) -> List[str]:
 
 # ─── Public entry ────────────────────────────────────────────────────────────
 
+from lib.telemetry import traced as _traced
+
+
+@_traced("scaffold_plan")
 def plan(spec: Dict[str, Any]) -> ScaffoldPlan:
     framework = spec.get("framework", "fastapi")
     if framework not in _FILE_DISPATCHERS:

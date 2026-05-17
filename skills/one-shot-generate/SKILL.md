@@ -152,6 +152,34 @@ If no `--budget` flag was passed, continue without the gate.
 
 ---
 
+## Stage 1.7 — Apply route-overrides from Stage 0.5 discovery
+
+If Stage 0.5 surfaced any `route-override` recommendations, **record
+which local agents get replaced for the rest of this run**. Concretely:
+
+If discovery returned:
+```json
+{"type": "route-override", "external": "claude-code/pr-test-analyzer",
+ "replaces_local": "critic", "reason": "..."}
+```
+
+…then at Stage 7 (Critic), instead of spawning the local `critic`
+agent, spawn `subagent_type: "pr-review-toolkit:pr-test-analyzer"`
+with an equivalent prompt. Tell the user inline:
+
+> "Routing the critic stage to `pr-review-toolkit:pr-test-analyzer`
+> because the registry marks it as a better fit for PR-style test
+> coverage review on this task."
+
+The route-override is **transient** — it only applies to this single
+`/one-shot` invocation. To make it permanent, the user can manually
+edit `.claude/registry/agents.json` to set the override.
+
+If multiple overrides target the same local agent, prefer the one with
+the highest discovery score.
+
+---
+
 ## Stage 2 — Architect agent
 
 Spawn the architect agent via Task. Give it:

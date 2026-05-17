@@ -177,6 +177,34 @@ def is_enabled() -> bool:
     return tracer is not None
 
 
+def traced(operation: str, *, attr_keys: Optional[list] = None):
+    """Decorator that wraps a function in a span.
+
+    Usage:
+        @traced("verify_directory", attr_keys=["sandbox"])
+        def verify_directory(sandbox, files): ...
+
+    No-op when OSP_OTEL_ENABLED is unset (the inner span() returns a
+    cheap _NoOpSpan).
+    """
+    import functools
+
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            attrs: Dict[str, Any] = {}
+            if attr_keys:
+                for k in attr_keys:
+                    if k in kwargs:
+                        v = kwargs[k]
+                        attrs[k] = (v if isinstance(v, (str, int, float, bool))
+                                    else str(v))
+            with span(operation, attrs=attrs):
+                return fn(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
 # ─── CLI (smoke) ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":

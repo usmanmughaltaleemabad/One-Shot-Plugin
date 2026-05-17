@@ -1,0 +1,91 @@
+name: Cross-OS Test Matrix
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: pytest on ${{ matrix.os }} + Py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install pytest
+        run: pip install pytest pytest-asyncio httpx fastapi sqlalchemy pydantic
+
+      - name: Run plugin test suite
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python -m pytest tests/ -v --tb=line
+
+      - name: Run deterministic evals
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python tests/evals/eval_runner.py
+
+      - name: Run agentic replay evals
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python tests/evals/agentic_evals.py
+
+      - name: Smoke test (Linux/macOS only)
+        if: matrix.os != 'windows-latest'
+        run: bash .claude/scripts/smoke-test.sh
+
+  sast:
+    name: Bandit SAST
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install bandit
+        run: pip install bandit
+
+      - name: SAST scan on plugin scripts
+        run: |
+          python skills/one-shot-generator/scripts/sast_runner.py \
+            --dir skills/one-shot-generator/scripts \
+            --json | tee sast-report.json
+          # Fail on critical findings only; warnings allowed.
+
+      - name: Upload SAST report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-report
+          path: sast-report.json
+
+  lint:
+    name: Python compile check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: py_compile across all scripts
+        run: |
+          find skills -name "*.py" -not -path "*/__pycache__/*" \
+            -exec python -m py_compile {} \;

@@ -233,6 +233,10 @@ def write_to_sandbox(files: Dict[str, str], sandbox: Path) -> List[str]:
 
 # ─── Verification ────────────────────────────────────────────────────────────
 
+from lib.telemetry import traced as _traced
+
+
+@_traced("verify_directory", attr_keys=["sandbox"])
 def verify_directory(sandbox: Path, files: Dict[str, str]) -> List[Diagnostic]:
     diagnostics: List[Diagnostic] = []
     for path in sandbox.rglob("*.py"):

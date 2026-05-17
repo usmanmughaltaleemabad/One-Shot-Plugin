@@ -94,6 +94,10 @@ _PYTEST_OUTCOME_RE = re.compile(
 )
 
 
+from lib.telemetry import traced as _traced
+
+
+@_traced("critic_run_pytest", attr_keys=["pattern"])
 def run_pytest(tests_dir: Path, pattern: Optional[str] = None,
                extra_args: Optional[List[str]] = None,
                python_executable: Optional[str] = None) -> CriticReport:

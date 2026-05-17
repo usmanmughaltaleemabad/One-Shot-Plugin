@@ -1,0 +1,32 @@
+{
+  "scenario": "architect-cleans-extractor-noise",
+  "agent": "architect",
+  "input": {
+    "task": "Tag with name, plus TagAssignment connecting tags to products",
+    "note": "Tests whether architect compensates when the rule-based extractor produces messy entity names"
+  },
+  "expected_output_contract": {
+    "must_be_valid_json": true,
+    "required_keys": [
+      "entities",
+      "relationships"
+    ],
+    "expected_entities": [
+      "Tag",
+      "TagAssignment",
+      "Product"
+    ],
+    "must_create": [
+      "Tag",
+      "TagAssignment"
+    ],
+    "must_reuse": [
+      "Product"
+    ]
+  },
+  "recorded_output": "{\n  \"feature\": \"Tag with name, plus TagAssignment connecting tags to products\",\n  \"entities\": [\n    {\n      \"name\": \"Tag\",\n      \"action\": \"create\",\n      \"module\": \"tags/models.py\",\n      \"attributes\": [\n        {\n          \"name\": \"id\",\n          \"type\": \"int\",\n          \"primary_key\": true\n        },\n        {\n          \"name\": \"name\",\n          \"type\": \"str\",\n          \"nullable\": false,\n          \"unique\": true,\n          \"max_length\": 64\n        }\n      ],\n      \"invariants\": [\n        \"name is unique across all tags\",\n        \"name is non-empty (1-64 chars)\"\n      ]\n    },\n    {\n      \"name\": \"TagAssignment\",\n      \"action\": \"create\",\n      \"module\": \"tags/models.py\",\n      \"join_table\": true,\n      \"attributes\": [\n        {\n          \"name\": \"id\",\n          \"type\": \"int\",\n          \"primary_key\": true\n        },\n        {\n          \"name\": \"tag_id\",\n          \"type\": \"int\",\n          \"nullable\": false,\n          \"foreign_key\": \"tags.id\"\n        },\n        {\n          \"name\": \"product_id\",\n          \"type\": \"int\",\n          \"nullable\": false,\n          \"foreign_key\": \"products.id\"\n        }\n      ],\n      \"invariants\": [\n        \"(tag_id, product_id) pair is unique \\u2014 a tag can only be assigned once per product\",\n        \"tag_id must reference an existing Tag\",\n        \"product_id must reference an existing Product\"\n      ]\n    },\n    {\n      \"name\": \"Product\",\n      \"action\": \"reuse\",\n      \"existing_file\": \"models.py\",\n      \"note\": \"Already defined as sqlalchemy_model in fastapi-shop codebase graph\"\n    }\n  ],\n  \"relationships\": [\n    {\n      \"from\": \"Tag\",\n      \"to\": \"Product\",\n      \"kind\": \"many_to_many\",\n      \"through\": \"TagAssignment\",\n      \"from_fk\": \"tag_id\",\n      \"to_fk\": \"product_id\"\n    },\n    {\n      \"from\": \"TagAssignment\",\n      \"to\": \"Tag\",\n      \"kind\": \"belongs_to\",\n      \"foreign_key\": \"tag_id\"\n    },\n    {\n      \"from\": \"TagAssignment\",\n      \"to\": \"Product\",\n      \"kind\": \"belongs_to\",\n      \"foreign_key\": \"product_id\"\n    }\n  ],\n  \"api_surface\": [\n    {\n      \"method\": \"POST\",\n      \"path\": \"/api/v1/tags\",\n      \"handler\": \"create_tag\"\n    },\n    {\n      \"method\": \"GET\",\n      \"path\": \"/api/v1/tags\",\n      \"handler\": \"list_tags\"\n    },\n    {\n      \"method\": \"GET\",\n      \"path\": \"/api/v1/tags/{tag_id}\",\n      \"handler\": \"get_tag\"\n    },\n    {\n      \"method\": \"DELETE\",\n      \"path\": \"/api/v1/tags/{tag_id}\",\n      \"handler\": \"delete_tag\"\n    },\n    {\n      \"method\": \"POST\",\n      \"path\": \"/api/v1/products/{product_id}/tags\",\n      \"handler\": \"assign_tag_to_product\"\n    },\n    {\n      \"method\": \"GET\",\n      \"path\": \"/api/v1/products/{product_id}/tags\",\n      \"handler\": \"list_product_tags\"\n    },\n    {\n      \"method\": \"DELETE\",\n      \"path\": \"/api/v1/products/{product_id}/tags/{tag_id}\",\n      \"handler\": \"unassign_tag_from_product\"\n    }\n  ],\n  \"test_contract\": {\n    \"auth\": \"none\",\n    \"pagination\": \"list\",\n    \"error_shape\": \"fastapi_httpexception\"\n  },\n  \"wiring\": {\n    \"main_py\": [\n      \"include tags_router\"\n    ],\n    \"migrations\": [\n      \"alembic_002_tags_and_tag_assignments\"\n    ],\n    \"imports\": [\n      \"Base from models (per existing model_base contract)\"\n    ]\n  },\n  \"conventions\": {\n    \"framework\": \"fastapi\",\n    \"orm\": \"sqlalchemy\",\n    \"schema_lib\": \"pydantic_v2\",\n    \"naming\": \"snake_case\"\n  },\n  \"notes\": [\n    \"Extractor demoted: 'Name' was treated as a top-level entity by the rule-based extractor; it is actually a scalar attribute of Tag.\",\n    \"Extractor renamed: 'TagassignmentConnectingTagsToProduct' collapsed to clean entity 'TagAssignment'.\",\n    \"Extractor relationship fix: the raw 'has_many' edge between Tag and TagAssignment is correct as one half of the join, but the user's intent ('connecting tags to products') is a many-to-many between Tag and Product realized through TagAssignment \\u2014 that is the primary relationship.\",\n    \"Product is reused from the existing fastapi-shop codebase (sqlalchemy_model already present).\"\n  ]\n}",
+  "recorded_at": "2026-05-18T02:00:00Z",
+  "recorded_model": "sonnet",
+  "recorded_tokens": 25287,
+  "recorded_duration_ms": 53107
+}

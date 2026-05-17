@@ -182,6 +182,10 @@ def _wire_django(project: Path, generated: Dict[str, str],
 
 # ─── Public entry ────────────────────────────────────────────────────────────
 
+from lib.telemetry import traced as _traced
+
+
+@_traced("auto_wire", attr_keys=["framework", "dry_run"])
 def wire(project: str | Path, generated_files: Dict[str, str], *,
          framework: Optional[str] = None, dry_run: bool = False) -> WireReport:
     project_path = Path(project).expanduser().resolve()
