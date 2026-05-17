@@ -1,7 +1,8 @@
 ---
 name: phase-planner
-description: Plans Phase 4-5 implementation — reads roadmap, opens beads per module
-trigger: manual
+description: Plans Phase 4-5 implementation — reads roadmap, opens beads per module. Use when scoping new phase work or breaking a large initiative into trackable modules. Outputs a structured plan and writes beads to `.beads/status.jsonl`.
+tools: Read, Grep, Glob, Bash, Write
+model: sonnet
 ---
 
 # Phase Planner Agent

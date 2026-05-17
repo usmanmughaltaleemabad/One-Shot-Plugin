@@ -1,18 +1,30 @@
 ---
 type: status
-last_verified: 2026-05-17
+last_verified: 2026-05-18
 owner: claude
 ---
 
-# TIER 2 Execution Status — May 17, 2026
+# Execution Status — May 18, 2026
+
+> [!IMPORTANT]
+> **This document tracks the business/marketplace execution plan from
+> May 17, 2026.** The codebase has since shipped Tier 3.5 (agentic
+> restructure) — see `IMPLEMENTATION_STATUS.md` for the current
+> engineering state. The Phase 3-5 marketplace strategy below remains
+> the long-horizon plan; the engineering foundation is materially
+> stronger than when this doc was first drafted.
 
 ## Executive Summary
 
-ONE SHOT PLUGIN (Claude Code Studio) has completed Phase 1-2 planning and documentation. All 5 phases are now fully specified with implementation plans, architectural designs, team structures, and success metrics.
+ONE SHOT PLUGIN (Claude Code Studio) is engineering-ready and pivoting
+to align with Claude Code plugin best practices (Tier 3.5).
 
-**Status**: ✅ Phases 1-2 complete, Phases 3-5 fully planned and committed to repository.  
-**Timeline**: May 2026 → May 2028 (24 months to $300-600M acquisition)  
-**Next**: Phase 3 marketplace platform development (Month 6, June 2026)
+**Status**: ✅ Tier 3.5 shipped (agentic pipeline + deterministic
+muscles). Marketplace strategy (Phases 3-5 below) remains the long-term
+business plan.
+**Timeline**: May 2026 → May 2028 (24-month roadmap)
+**Next**: First real-user runs of `/one-shot`, empirical cost
+calibration, then marketplace launch.
 
 ---
 

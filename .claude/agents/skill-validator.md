@@ -1,7 +1,8 @@
 ---
 name: skill-validator
-description: Validates a SKILL.md edit — checks frontmatter, scripts exist, syntax OK
-trigger: manual
+description: Validates a SKILL.md edit — checks frontmatter, referenced scripts exist, Python syntax is valid. Use after editing any SKILL.md or its supporting scripts, before committing. Deterministic checks — no reasoning required.
+tools: Read, Grep, Bash
+model: haiku
 ---
 
 # Skill Validator Agent
