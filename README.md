@@ -1,10 +1,12 @@
 # ONE SHOT PLUGIN (Claude Code Studio)
 
-**Agentic one-shot code generation for existing codebases.** Claude conducts a 7-stage pipeline of deterministic scanners + specialist agents (architect, implementer, test-author, reviewer, wirer, critic) to take a natural-language feature request and ship verified, FK-aware, cost-gated code into your project. Multi-entity, relationship-aware, with a free templated fallback for CI use.
+**Production agentic one-shot code generation for existing codebases.** Claude conducts a 9-stage pipeline through 10 specialist agents (architect → service-author → implementer×N + test-author → reviewer → wirer → migration → critic, with extractor + docs-author + rollback on the side) to take a natural-language feature request and ship verified, FK-aware, migration-emitting, cost-gated code into your project. Multi-entity, relationship-aware, with a free templated fallback for CI use.
 
-## ⭐ v3.5.0 — Agentic Restructure (Tier 3.5)
+## ⭐ v4.0.0 — Production Release (Tier 10)
 
-**Status**: Architecture pivoted from Python regex templates → Claude (the model) for code generation. Deterministic muscles stay in Python; reasoning moves to the agentic layer.
+**Status**: Production-ready. 133 tests passing. service-layer enforces invariants, real Alembic migrations, OpenAPI docs, rate-limit + cache hints, OpenTelemetry tracing, autonomy-level gating, learnings-hub agent ratings.
+
+The v4.0 release closes every gap that can be closed without external users — what's left is empirical (Anthropic Directory listing + community adoption).
 
 ```bash
 # Primary entry point (agentic) — Claude reasons, scripts execute
@@ -22,12 +24,14 @@
 
 ### What you get for `/one-shot "shopping cart with line items and discounts"`
 
-- Multi-entity extraction: 3 entities + relationships (`has_many`)
-- Codebase scan: detects FastAPI, existing models, import contracts
-- Architect agent: produces `spec.json` (entities, FKs, API surface, test contract)
-- Implementer agents (parallel, one per file, **Haiku** for cost): write models / schemas / routers
-- Test-author agent (independent, reads only spec): writes tests that match the contract
-- Reviewer agent: security / perf / style gate
+- **Curriculum check**: scans past failures for similar tasks (`predictive_failure.py`)
+- **Multi-entity extraction**: 3 entities + relationships, with LLM fallback when extractor is uncertain (extractor agent at confidence < 0.55)
+- **Codebase scan**: detects FastAPI, existing models, import contracts (re-uses, doesn't duplicate)
+- **Architect agent**: produces `spec.json` (entities, FKs, invariants, API surface, test contract)
+- **Service-author agent** (when invariants exist): writes business logic in `cart/service.py` — invariants enforced, transactions wrapped, domain events emitted
+- **Implementer agents** (parallel, Haiku for cost): write models / schemas / routers that delegate to the service
+- **Test-author agent** (independent, reads only spec): writes tests that match the contract
+- **Reviewer agent**: security / perf / style gate
 - Static verifier + auto-patch: catches and fixes 4 deterministic bug classes (401-drift, pagination-drift, placeholder-leak, broken-imports)
 - Wirer: adds `app.include_router(...)` to your `main.py` (dry-run by default)
 - Critic agent: runs `pytest` against generated code; verdicts ship-or-loop
@@ -48,27 +52,44 @@ Templated fallback path: all 6 frameworks, 99 phase generators.
 The plugin is a **Claude Code plugin proper** — skills, commands, and agents as first-class units; scripts as deterministic helpers the agents call.
 
 ```
-commands/                            ← User entry points
+commands/                            ← 20 slash commands
   one-shot.md                          ⭐ /one-shot — primary agentic
-  (14 legacy commands)                  generate, plan, tdd, debug, ...
+  rollback.md, docs-drift.md           rollback, doc drift detection
+  autonomy.md, curate.md               autonomy level, external curation
+  (14 legacy commands)                 generate, plan, tdd, debug, ...
 
 skills/                              ← Claude reads SKILL.md and acts
-  one-shot-generate/SKILL.md           ⭐ Tier 3.5 agentic playbook
+  one-shot-generate/SKILL.md           ⭐ 9-stage agentic playbook
   one-shot-generator/SKILL.md          legacy templated fallback
+  curator/SKILL.md                     external agent/skill discovery via WebSearch
   write-plan, execute-plan, tdd-cycle, systematic-debug, verify-before-complete
 
-.claude/agents/                      ← Specialists invoked via Task
-  architect.md       (sonnet) — designs spec.json
-  implementer.md     (haiku)  — writes ONE file per spawn
-  test-author.md     (sonnet) — independent of implementer
-  reviewer.md        (sonnet) — security/perf/style gate
-  wirer.md           (haiku)  — integrates into main.py
-  critic.md          (sonnet) — runs pytest, verdicts
+.claude/agents/                      ← 10 specialists invocable via Task
+  architect       (sonnet) — designs spec.json
+  service-author  (sonnet) — business logic, invariants, transactions, events
+  implementer     (haiku)  — writes ONE file per spawn
+  test-author     (sonnet) — independent of implementer (defends contract)
+  reviewer        (sonnet) — security/perf/style gate
+  wirer           (haiku)  — integrates into main.py
+  critic          (sonnet) — runs pytest, verdicts
+  extractor       (sonnet) — fallback for ambiguous prose (confidence < 0.55)
+  docs-author     (haiku)  — proposes doc updates on entity drift
+  rollback        (haiku)  — undoes failed --apply, git-stash safety
 
-skills/one-shot-generator/scripts/   ← Deterministic tools
-  scan, graph, diff, verify, auto-patch, auto-wire,
-  critic-runner, live-critic, beads, curriculum,
-  cross-feature-consistency, self-improvement, scaffold_planner, cost_budget
+.claude/registry/                    ← Self-extending capability marketplace
+  agents.json    (8 known good external agents)
+  skills.json    (1 entry, growing via curator)
+  mcp_servers.json  (4 entries: chrome-devtools, gmail, supabase, vercel)
+  learnings.jsonl   (per-agent success-rate tracking)
+
+skills/one-shot-generator/scripts/   ← 25+ deterministic tools
+  Pipeline:     scan, graph, diff, verify, auto-patch, auto-wire,
+                critic-runner, live-critic, scaffold_planner, body_hints
+  Generation:   migration_generator, openapi_doc_generator, spec_driven_generator
+  Learning:     beads, curriculum, predictive_failure, self_improvement,
+                auto_rule_extractor, promote_rule, learnings_hub
+  Operations:   cost_budget, sast_runner, perf_profiler, autonomy_level,
+                prompt_versioner, agentic_session_driver
 ```
 
 See [docs/tier35-agentic.md](docs/tier35-agentic.md) for the full architectural narrative; the other tier docs (`tier1`, `tier2`, `tier25`, `tier3`) cover the foundations.

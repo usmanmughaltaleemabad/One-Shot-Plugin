@@ -196,6 +196,66 @@ HINTS: Dict[tuple, Dict] = {
         ],
         "guidance": "Each carries a `code: str` field for machine handling",
     },
+    ("common", "rate_limiter"): {
+        "language": "python",
+        "file": "common/rate_limit.py",
+        "imports_must_include": [
+            "from fastapi import Request, HTTPException, status",
+            "from collections import defaultdict, deque",
+            "import time",
+        ],
+        "guidance": (
+            "In-memory token bucket per (route, client_ip). For real "
+            "production, swap for Redis-backed via slowapi or fastapi-limiter. "
+            "Apply as a dependency: Depends(rate_limit('/auth/login', limit=5, window=60))"
+        ),
+        "must_emit": [
+            "def rate_limit(route_key: str, limit: int, window: int) -> Callable",
+            "_buckets: dict[tuple[str, str], deque] = defaultdict(deque)",
+        ],
+        "anti_patterns": [
+            "Don't use in-memory state in multi-worker deployments — use Redis",
+            "Don't rate-limit by user_id alone — combine with IP for unauthenticated routes",
+        ],
+    },
+    ("common", "cache_layer"): {
+        "language": "python",
+        "file": "common/cache.py",
+        "imports_must_include": [
+            "from functools import wraps",
+            "import hashlib, json, time",
+        ],
+        "guidance": (
+            "TTL-based in-memory cache with optional Redis backend. "
+            "Decorator API: @cached(ttl=60, key_prefix='cart.list'). "
+            "Cache key = SHA-256 of (function_name, args, kwargs)."
+        ),
+        "must_emit": [
+            "def cached(ttl: int = 60, key_prefix: str = '') -> Callable",
+            "def invalidate(prefix: str) -> int",
+        ],
+        "anti_patterns": [
+            "Don't cache write endpoints",
+            "Don't cache per-user data with a global key — include user_id in the key",
+            "Don't set TTL >5 minutes without an invalidation strategy",
+        ],
+    },
+    ("common", "logging_setup"): {
+        "language": "python",
+        "file": "common/logging_setup.py",
+        "imports_must_include": [
+            "import logging, sys, json",
+        ],
+        "guidance": (
+            "Structured JSON logging to stdout (12-factor). Each log "
+            "entry: {ts, level, logger, message, trace_id, request_id, ...}. "
+            "Routers inject request_id from X-Request-ID header (or generate)."
+        ),
+        "must_emit": [
+            "def configure_logging(level: str = 'INFO') -> None",
+            "class JsonFormatter(logging.Formatter)",
+        ],
+    },
 
     # ─── Django ──────────────────────────────────────────────────────────
     ("django", "django_appconfig"): {

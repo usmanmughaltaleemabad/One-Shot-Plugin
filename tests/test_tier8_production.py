@@ -195,10 +195,12 @@ def test_body_hints_has_domain_exceptions():
     assert "ConflictError" in classes
 
 
-def test_body_hints_total_count_grew_to_34():
+def test_body_hints_total_count_at_least_34():
+    """Catalogue grows over time. Tier 8 added 5; Tier 10 added 4 more.
+    Assert monotone-grow rather than exact count."""
     proc = _run("body_hints.py", "--list", "--json")
     data = json.loads(proc.stdout)
-    assert len(data) == 34, f"expected 34 hint entries, got {len(data)}"
+    assert len(data) >= 34, f"expected ≥34 hint entries, got {len(data)}"
 
 
 # ─── scaffold_planner now produces service.py files ─────────────────────────

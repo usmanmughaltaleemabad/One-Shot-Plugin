@@ -1,86 +1,89 @@
 ---
 type: router
-last_verified: 2026-05-16
+last_verified: 2026-05-18
 owner: claude
 ---
 
-# one-shot-prompting Plugin
+# one-shot-prompting Plugin — v4.0.0
 
-Plugin for generating REST APIs and batch jobs from natural language.
+Production agentic one-shot generation. Claude conducts 9-stage
+pipeline → 10 specialist agents → 25+ deterministic tools.
 
 ## Quick Navigation
 
 | For... | See... |
 |---|---|
 | Tier 1 pipeline | `docs/tier1-pipeline.md` |
-| Tier 2 (closed loop + agents) | `docs/tier2-pipeline.md` |
-| Tier 2.5 (spec-driven, FKs, loop) | `docs/tier25-pipeline.md` |
-| Tier 3 (curriculum, drift, gates) | `docs/tier3-pipeline.md` |
-| Tier 3.5 (**agentic restructure**) | `docs/tier35-agentic.md` |
-| Tier 4 (self-extending plugin) | `docs/tier4-self-extending.md` |
-| Plugin scorecard | `docs/scorecard.md` |
-| One-shot orchestrator | `skills/one-shot-generator/scripts/one_shot_orchestrator.py` |
-| Multi-agent definitions | `.claude/agents/{architect,implementer,test-author,reviewer,wirer,critic}.md` |
-| Validation findings | `VALIDATION_REPORT.md` |
-| Writing a skill | `docs/skill-authoring.md` |
-| Real vs stub modules | `docs/phase-status.md` |
-| Testing locally | `docs/testing.md` |
-| Publishing | `docs/publish.md` |
-| All scripts | `docs/scripts-index.md` |
-| Active work | `.beads/status.jsonl` |
-| Failure beads | `.beads/failures.jsonl` |
+| Tier 2 (closed loop) | `docs/tier2-pipeline.md` |
+| Tier 2.5 (spec-driven) | `docs/tier25-pipeline.md` |
+| Tier 3 (curriculum, drift) | `docs/tier3-pipeline.md` |
+| Tier 3.5 (agentic restructure) | `docs/tier35-agentic.md` |
+| Tier 4 (self-extending) | `docs/tier4-self-extending.md` |
+| Tier 5 (observability) | `docs/tier5-observability.md` |
+| Scorecard v4 | `docs/scorecard-v4.md` |
+| Path to 10/10 | `docs/path-to-10.md` |
+| Production deployment | `docs/production-deployment.md` |
+| Observability stack | `docs/observability/` |
+| Cookbook | `docs/cookbook.md` |
+| Marketplace submission | `MARKETPLACE_SUBMISSION.md` |
 
-## Structure
+## Structure (v4.0.0)
 
 ```
-├── .claude/           ← harness: hooks, agents, standards, beads
-├── skills/            ← 6 skills + 170 scripts
-├── docs/              ← L3 docs
-├── tests/, examples/  ← fixtures, examples
-├── CHANGELOG.md, plugin.json
+.claude/    hooks, 10 agents, standards, registry, beads
+skills/     9 skills
+commands/   20 slash commands
+docs/       per-tier reference + observability + cookbook + scorecards
+tests/      133 invocation tests + evals + agentic replays
 ```
 
-## The 6 Skills
+## Agentic pipeline stages (9 total)
 
-| Skill | Purpose |
-|---|---|
-| one-shot-generator | REST APIs + batch jobs (1677 L) |
-| write-plan | Generate plan before code |
-| execute-plan | Execute plan steps |
-| tdd-cycle | Test → fail → implement → pass |
-| systematic-debug | Analyze error logs |
-| verify-before-complete | Gate: confirm before apply |
+```
+0    curriculum + predictive failure scan
+0.5  external discovery (registry + curator)
+1    scan + extract domain model
+1.5  cost-budget gate
+2    architect → spec.json
+2.5  spec review (--review flag)
+2.7  service-author (when invariants exist)
+3    implementer×N + test-author (parallel)
+4    verify + auto-patch
+5    reviewer
+6    wire + 6.5 migration
+7    critic (N-iter loop, max 3)
+8    record (graph + beads)
+```
 
 ## Critical Rules
 
 1. CLAUDE.md < 100 lines — route to L2/L3
-2. All scripts: zero external dependencies (stdlib only)
+2. Deterministic scripts: stdlib + optional pip deps (graceful fallback)
 3. All .md files: YAML frontmatter (type, last_verified, owner)
-4. Phase 4-5 scripts are STUBS — see docs/phase-status.md
-5. Publish: version bump protocol (see docs/publish.md)
-
-## Workflow
-
-PLAN → AUTHOR → TEST → VERIFY → PUBLISH → CLOSE
+4. Agents: explicit `tools:` + `model:` (haiku for writers, sonnet for reasoners)
 
 ## Quick Commands
 
 ```bash
-# Primary path — agentic (Claude reasons, scripts execute)
-/one-shot "shopping cart with line items, discounts" @./my-project
-/one-shot "..." @./my-project --apply              # mutate main.py
-/one-shot "..." @./my-project --budget=0.30        # halt if cost exceeds
-/one-shot "..." @./my-project --templated          # free fallback (no Claude tokens)
+# Primary
+/one-shot "<feature>" @./my-project              # dry-run
+/one-shot "..." @./my-project --apply            # mutate main.py
+/one-shot "..." @./my-project --budget=0.30
+/one-shot "..." @./my-project --review
+/one-shot "..." @./my-project --templated        # free fallback
 
-# Headless / CI mode
-python skills/one-shot-generator/scripts/one_shot_orchestrator.py \
-    "shopping cart with line items" --project ./my-project
+# Operations
+/rollback                  # undo last --apply
+/docs-drift                # propose doc updates
+/autonomy get-level
+/curate <task>             # find external agents/MCPs
 
 # Tests
 bash .claude/scripts/smoke-test.sh
 python -m pytest tests/
+python tests/evals/pass_k_runner.py --mode deterministic-replay --k 5
 ```
 
 ---
 
-Updated 2026-05-16
+Updated 2026-05-18 (v4.0.0)
