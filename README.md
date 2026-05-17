@@ -52,7 +52,7 @@ claude --plugin-dir ./One-Shot-Plugin/one-shot-prompting
 # 4. Review the output and integrate
 ```
 
-[→ Full Quickstart](QUICKSTART.md) | [→ More Examples](#usage-examples)
+See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for complete module reference.
 
 ---
 
