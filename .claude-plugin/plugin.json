@@ -1,7 +1,7 @@
 {
-  "name": "one-shot-prompting",
-  "description": "Production-ready code generation: 147 modules, 43.6k LOC, 6 frameworks (Django, FastAPI, Spring, Go, Node.js, NestJS). All phases complete: Phase 0-3 REST APIs + batch jobs; Phase 4 DDD/CQRS/event sourcing/TDD/compliance; Phase 5 microservices/real-time/GraphQL/legacy modernization. Zero external dependencies.",
-  "version": "5.0.0",
+  "name": "Claude Code Studio",
+  "description": "Tier 2: Professional development orchestration + code generation. 177 enterprise-grade modules (100% complete), 75k+ LOC, 6 frameworks, zero dependencies. Harness: repo governance, multi-agent orchestration, hooks, standards. One-Shot: context-aware code generation from specs. Phase 0-5 complete: REST APIs, batch jobs, DDD, CQRS, event sourcing, microservices, real-time, GraphQL, multi-tenancy, Kubernetes, CI/CD, compliance, security. Built for Claude Code teams at scale.",
+  "version": "2.0.0",
   "author": {
     "name": "Claude Plugins Community",
     "url": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin"
