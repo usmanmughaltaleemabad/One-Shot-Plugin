@@ -113,19 +113,29 @@ def _check_imports(file: Path, project_root: Path) -> List[ConsistencyIssue]:
     # Find top-level relative-style imports: 'from foo import bar' or 'from foo.bar import baz'
     for match in re.finditer(r"^from\s+([a-zA-Z_][\w.]*)\s+import\s+", text, re.MULTILINE):
         module = match.group(1)
+        top = module.split(".")[0]
         # Skip well-known stdlib + third-party names (cheap allow-list)
-        if module.split(".")[0] in {
-            "typing", "datetime", "pathlib", "os", "sys", "json", "re",
-            "dataclasses", "decimal", "uuid", "logging", "abc",
+        if top in {
+            "__future__", "typing", "datetime", "pathlib", "os", "sys",
+            "json", "re", "dataclasses", "decimal", "uuid", "logging",
+            "abc", "collections", "contextlib", "functools", "itertools",
+            "asyncio", "enum", "math", "random", "subprocess", "tempfile",
+            "io", "warnings", "copy", "operator", "string", "textwrap",
             "fastapi", "pydantic", "sqlalchemy", "alembic", "starlette",
             "django", "rest_framework", "flask", "pytest", "celery",
-            "httpx", "requests",
+            "httpx", "requests", "yaml", "toml", "click", "rich",
+            "redis", "kafka", "boto3", "stripe",
         }:
             continue
-        # Treat the module as a local path under the project root
+        # Treat the module as a local path under either the project root
+        # OR the generated-sandbox sibling (so siblings generated together
+        # don't accuse each other of being missing).
         candidate_paths = [
             project_root / (module.replace(".", "/") + ".py"),
             project_root / module.replace(".", "/") / "__init__.py",
+            file.parent / (module.replace(".", "/") + ".py"),
+            file.parent.parent / module.replace(".", "/") / "__init__.py",
+            file.parent.parent / (module.replace(".", "/") + ".py"),
         ]
         if not any(p.exists() for p in candidate_paths):
             issues.append(ConsistencyIssue(

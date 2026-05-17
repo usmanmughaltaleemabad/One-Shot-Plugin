@@ -202,11 +202,32 @@ def compile_spec(report: Dict[str, Any]) -> Dict[str, Any]:
         "api_surface": api_surface,
         "wiring": wiring,
         "open_questions": _derive_open_questions(report, entities_spec),
+        # Tier-2.5: include relationships + import contract so downstream
+        # generators (spec_driven_generator) can emit FK columns + correct
+        # imports without re-running the scanner.
+        "relationships": _flatten_relationships(report),
+        "graph_imports": cs.get("imports") or {},
         "source_report": {
             "confidence": report.get("confidence"),
             "bead_id": report.get("bead_id"),
         },
     }
+
+
+def _flatten_relationships(report: Dict) -> List[Dict]:
+    """Pull relationships out of the orchestrator report.
+
+    The orchestrator stores them on the original DomainModel which we
+    flattened into domain_entities; relationships live on the model itself.
+    """
+    out: List[Dict] = []
+    for rel in (report.get("relationships") or []):
+        out.append({
+            "from": rel.get("from") or rel.get("from_entity"),
+            "to": rel.get("to") or rel.get("to_entity"),
+            "kind": rel.get("kind") or "has_many",
+        })
+    return out
 
 
 def _derive_open_questions(report: Dict, entities: List[Dict]) -> List[str]:

@@ -190,6 +190,10 @@ def _check_test_contract_alignment(
 
 
 def _check_empty_files(file: Path) -> List[Diagnostic]:
+    # __init__.py files are intentionally empty in many cases — that's a
+    # valid Python package marker, not a bug. Other files being empty is.
+    if file.name == "__init__.py":
+        return []
     content = file.read_text(encoding="utf-8").strip()
     if not content:
         return [Diagnostic(

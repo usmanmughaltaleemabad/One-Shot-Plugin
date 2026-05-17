@@ -49,6 +49,9 @@ from auto_wirer import wire as run_wire, WireReport
 from beads_writer import record_failure
 from beads_curriculum import consult as consult_curriculum, CurriculumReport
 from cross_feature_consistency import check as check_consistency, ConsistencyReport
+from compile_spec import compile_spec
+from spec_driven_generator import generate_from_spec
+from run_critic_loop import run_loop as run_critic_loop_real
 
 logger = setup_logging(__name__)
 
@@ -85,6 +88,7 @@ class OrchestratorReport:
     curriculum: Optional[Dict] = None
     consistency: Optional[Dict] = None
     clarifying_question: Optional[str] = None
+    relationships: List[Dict] = field(default_factory=list)
 
     def to_dict(self) -> Dict:
         return {
@@ -103,6 +107,7 @@ class OrchestratorReport:
             "curriculum": self.curriculum,
             "consistency": self.consistency,
             "clarifying_question": self.clarifying_question,
+            "relationships": self.relationships,
         }
 
 
@@ -248,32 +253,72 @@ def _orchestrate_inner(*, task: str, project: Optional[str], apply: bool,
     exist_count = sum(1 for r in reconciled if r.status == "exists")
     notes.append(f"reconciled: {new_count} new, {exist_count} already present")
 
-    # 4–5. Generate + verify, ONE entity at a time. The phase2 generator
-    # is single-resource; the orchestrator loops over every NEW reconciled
-    # entity so a request like "shopping cart with line items + discounts"
-    # produces routers/tests/docs for every child entity, not just the head.
+    # 4–5. Generate + verify
     phase = choose_phase(model.intent)
     generation_reports: List[Dict] = []
     overall_succeeded = True
     new_entities = [r for r in reconciled if r.status == "new"]
     codebase_imports = {k: v.to_dict() for k, v in graph.imports.items()} if graph.imports else None
-    for ent in new_entities:
-        entity_task = f"add {ent.entity_name} CRUD API"
-        reports = run_verify_loop(
-            task=entity_task,
-            project=project or "",
-            phase=phase,
+
+    use_spec_driven = (graph.framework == "fastapi"
+                       and bool(new_entities)
+                       and len(model.entities) > 0)
+
+    if use_spec_driven:
+        # Tier-2.5 path: multi-entity, relationship-aware, single pass.
+        # We construct a partial OrchestratorReport-like dict for compile_spec
+        # so the spec carries through relationships + graph imports.
+        partial_report = {
+            "task": task,
+            "intent": model.intent,
+            "confidence": model.confidence,
+            "codebase_summary": {
+                "language": graph.language,
+                "framework": graph.framework,
+                "imports": codebase_imports or {},
+                "conventions": graph.conventions,
+            },
+            "reconciled_entities": [r.to_dict() for r in reconciled],
+            "relationships": [r.to_dict() for r in model.relationships],
+            "wire": None,
+        }
+        spec = compile_spec(partial_report)
+        spec["graph_imports"] = codebase_imports or {}
+        loop_result = run_critic_loop_real(
+            spec=spec,
+            project=Path(project).resolve() if project else None,
             max_iterations=max_iterations,
-            codebase_imports=codebase_imports,
+            sandbox_root=None,
         )
-        for r in reports:
-            payload = r.to_dict()
-            payload["entity"] = ent.entity_name
+        for it in loop_result.iterations:
+            payload = it.to_dict()
+            payload["entity"] = "<spec-driven>"
             generation_reports.append(payload)
-        if reports and not reports[-1].succeeded:
-            overall_succeeded = False
-    if not new_entities:
-        notes.append("no new entities to generate (all already exist)")
+        overall_succeeded = loop_result.succeeded
+        notes.append(f"spec-driven generation: {len(new_entities)} entit"
+                     f"{'y' if len(new_entities) == 1 else 'ies'} in one pass, "
+                     f"{'green' if overall_succeeded else 'red'}")
+    else:
+        # Fallback: legacy per-entity phase2/phase3 loop. Used when the
+        # project framework is something the spec_driven_generator doesn't
+        # support yet (Django, Go, Spring, NestJS).
+        for ent in new_entities:
+            entity_task = f"add {ent.entity_name} CRUD API"
+            reports = run_verify_loop(
+                task=entity_task,
+                project=project or "",
+                phase=phase,
+                max_iterations=max_iterations,
+                codebase_imports=codebase_imports,
+            )
+            for r in reports:
+                payload = r.to_dict()
+                payload["entity"] = ent.entity_name
+                generation_reports.append(payload)
+            if reports and not reports[-1].succeeded:
+                overall_succeeded = False
+        if not new_entities:
+            notes.append("no new entities to generate (all already exist)")
 
     # 6. Wire (dry-run unless apply). Aggregate files across ALL generated
     # entities so the auto-wirer sees every router it should hook up.
@@ -345,6 +390,7 @@ def _orchestrate_inner(*, task: str, project: Optional[str], apply: bool,
         bead_id=bead_id,
         curriculum=curriculum.to_dict() if curriculum else None,
         consistency=consistency_report,
+        relationships=[r.to_dict() for r in model.relationships],
     )
 
 
