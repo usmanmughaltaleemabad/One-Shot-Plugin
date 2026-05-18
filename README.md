@@ -189,16 +189,16 @@ See [docs/cookbook.md](docs/cookbook.md) for full traces with stage-by-stage out
 
 ## Framework support
 
-| Framework | Agentic body templates | Templated fallback | Scaffold paths |
+| Framework | Agentic body hints | Templated fallback | Scaffold paths |
 |---|---|---|---|
-| **FastAPI** | ✅ full (service_layer + auth + events + exceptions) | ✅ | ✅ |
-| Django | ⚠️ partial (paths ready, body hints queued) | ✅ | ✅ |
-| Spring Boot | ⚠️ partial | ✅ | ✅ |
-| Go | ⚠️ partial | ✅ | ✅ |
-| Node.js | ⚠️ partial | ✅ | ✅ |
-| NestJS | ⚠️ partial | ✅ | ✅ |
+| **FastAPI** | ✅ full (8 hints — incl. service layer + auth + events + background tasks) | ✅ | ✅ |
+| Django | ✅ CRUD complete (8 hints — model, DRF serializer/viewset, urls, admin, tests; service layer queued) | ✅ | ✅ |
+| Spring Boot | ✅ CRUD complete (6 hints — controller, entity, DTO, repository, service, test; auth + events queued) | ✅ | ✅ |
+| NestJS | ✅ CRUD complete (6 hints — controller, entity, DTO, module, service, spec; auth + events queued) | ✅ | ✅ |
+| Go | ⚠️ basic CRUD only (4 hints — handler, model, repository, test; no service layer / auth / DTOs) | ✅ | ✅ |
+| Node.js | ❌ scaffold paths only (0 body hints — implementer falls back to templated) | ✅ | ✅ |
 
-Cross-language body hints are queued in [docs/path-to-10.md](docs/path-to-10.md) § Tier B.
+Missing hints (Go service layer, Node.js everything, cross-framework auth/events) are queued in [docs/path-to-10.md](docs/path-to-10.md) § Tier B.
 
 ---
 
