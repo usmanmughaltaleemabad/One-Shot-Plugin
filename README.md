@@ -10,7 +10,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 264 / 264 green (18 suites, Py 3.14 / Windows) |
+| **Tests** | 280 / 280 green (19 suites, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
@@ -196,8 +196,15 @@ framework-specific extras AND the Tier-1 production-concerns set
 idempotency keys, audit log, email templates, outbox pattern, health checks,
 RBAC, API versioning, data migrations).
 
-Total catalogue: **97 hints** (10 × FastAPI, 13 × Django, 10 × Spring,
-10 × NestJS, 10 × Go, 10 × Node.js, 34 × common).
+Total catalogue: **101 hints** (10 × FastAPI, 13 × Django, 10 × Spring,
+10 × NestJS, 10 × Go, 10 × Node.js, 38 × common).
+
+**v4.7 — integration tightening + remaining Osmani absorptions**:
+
+- **`/adr`** — standalone slash command for ADR creation outside `/one-shot`
+- **`/dashboard`** — trend analysis + drift detection over a rolling window (flags `degrading` agents when recent success rate drops > 15 points vs prior window). Backed by new `learnings_hub.py dashboard` subcommand.
+- **Stage 2.3 + 5.5 + ship-check + ADR emission now DEFAULT ON in `/one-shot`** — no longer opt-in. Doc lookup runs every architect, doubter runs after every reviewer, ADR lands alongside spec.json, ship-gates run before any `--apply`. Opt-out via `--no-doubt`, `--no-adr`, `--no-ship-check`.
+- **4 new cross-cutting hints**: `performance_optimization`, `error_recovery`, `debugging_strategy`, `git_workflow` (absorbed from Osmani's debugging-and-error-recovery + performance-optimization + git-workflow-and-versioning skills).
 
 **v4.6 — absorbed from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)**:
 

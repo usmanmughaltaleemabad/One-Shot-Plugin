@@ -1188,6 +1188,193 @@ HINTS: Dict[tuple, Dict] = {
         ],
     },
 
+    ("common", "performance_optimization"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Optimise based on MEASUREMENT, not intuition. Three rules: "
+            "(1) profile before changing anything — establish a baseline "
+            "with real production-like data, NOT toy benchmarks. "
+            "(2) The slowest thing is almost never what you think. Database "
+            "queries (N+1, missing indexes, COUNT(*) on hot tables) and "
+            "outbound HTTP (no connection pooling, no timeout, no retry "
+            "budget) dominate 80%+ of real slowdowns. App-code CPU is "
+            "rare unless you've actually profiled. "
+            "(3) Optimise the hot path, leave the cold path alone. Measure "
+            "P50 + P95 + P99 — not the mean, which hides tail latency. "
+            "Set SLO targets BEFORE coding (e.g. p95 < 300ms for /carts "
+            "list); the implementation is done when SLO is met, not when "
+            "code 'looks fast.'"
+        ),
+        "must_emit": [
+            "Baseline measurement: load test against a realistic dataset "
+            "BEFORE the optimisation attempt",
+            "EXPLAIN ANALYZE on every query that's part of the hot path",
+            "Connection pool config (min/max conns, timeout) for every "
+            "outbound HTTP / DB / cache client",
+            "Bulk operations (INSERT ... VALUES ..., SELECT ... WHERE id IN (...)) "
+            "instead of N single-row queries inside a loop",
+            "Cache layer ONLY after measuring the query is actually the "
+            "bottleneck (see common/cache_layer hint)",
+            "Lazy loading for high-cardinality relationships",
+        ],
+        "anti_patterns": [
+            "Never optimise without a profiler / EXPLAIN ANALYZE / flame graph",
+            "Never measure with mean alone — tail latency is what hurts users",
+            "Never cache to fix what's really a missing index",
+            "Never SELECT * — list columns explicitly so the query planner can use covering indexes",
+            "Never use len(queryset) when count() works — len() materialises rows",
+            "Never iterate over a queryset that fetches related objects without prefetch_related / selectinload / Include — N+1",
+            "Never optimise for raw throughput when latency budget hasn't been met — wrong axis",
+            "Never premature-optimise — a profiler showing the hot spot is the prerequisite",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "py-spy / scalene for CPU; SQLAlchemy echo+EXPLAIN; httpx with connection pooling; redis pipeline for batched ops",
+            "django":  "django-silk / django-debug-toolbar for queries; select_related + prefetch_related; bulk_create / bulk_update; QuerySet.iterator() for huge sets",
+            "spring":  "JMH for microbenchmarks; Spring Data @Query with FETCH JOIN; HikariCP pool sizing; Micrometer + Actuator metrics endpoint",
+            "nestjs":  "@nestjs/terminus + clinic.js + autocannon; TypeORM relations: { eager: false, lazy: true }; ioredis pipelines",
+            "go":      "pprof (net/http/pprof); database/sql.SetMaxOpenConns; goroutine pools; sync.Pool for hot allocations",
+            "nodejs":  "clinic.js (flame, doctor, bubbleprof); autocannon for load; pg-pool / mysql2 with explicit limits; pino over winston in hot paths",
+        },
+    },
+
+    ("common", "error_recovery"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Build for failure, not for the happy path. Five floors: "
+            "(1) every external call has a timeout + retry policy (see "
+            "retry_circuit_breaker); (2) every retry on a non-idempotent "
+            "operation is gated by an idempotency key (see idempotency_keys); "
+            "(3) every BACKGROUND task is idempotent so re-running it is "
+            "safe; (4) every operator-facing error has a STABLE error code "
+            "(string constant, NOT just an HTTP status) so dashboards + "
+            "alerts can pivot on it; (5) every user-facing error has a "
+            "RECOVERY ACTION the user can take (not just 'something went "
+            "wrong'). Internal exceptions are domain types "
+            "(DomainError subclasses); HTTP/protocol mapping happens at "
+            "the boundary, never in the service layer."
+        ),
+        "must_emit": [
+            "Domain exception hierarchy: NotFoundError, ConflictError, "
+            "ForbiddenError, ValidationError, RateLimitedError — each with "
+            "a stable string code attribute",
+            "Error envelope: { code: 'cart.not_found', message: '...', "
+            "details: {...}, request_id: '...' } — code and structure "
+            "stable across versions",
+            "Boundary mapper: DomainError → HTTP status + envelope. "
+            "Lives in the router/controller, NEVER in the service.",
+            "Every background task: idempotency check at start; emit "
+            "audit log entry; retry policy declared on the queue/task",
+            "request_id header injected by middleware; included in every "
+            "error response + every log line",
+        ],
+        "anti_patterns": [
+            "Never throw HTTPException from the service layer — domain code shouldn't know about HTTP",
+            "Never return 200 with `{error: ...}` — use proper status codes",
+            "Never swallow exceptions silently (`try: ... except: pass`) — at minimum log",
+            "Never reuse error codes across unrelated domains — namespace them (cart.not_found vs user.not_found)",
+            "Never expose internal exception class names in user-facing errors — sanitise",
+            "Never write 'something went wrong' as the user message — say what failed AND what they can do",
+            "Never retry a 4xx — client error won't fix itself; only retry 5xx / network",
+            "Never lose the original exception when re-raising — `raise NewError(...) from original`",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "common/exceptions.py + exception_handlers registered on app; HTTPException only at router boundary",
+            "django":  "DRF custom exception handler; rest_framework.exceptions subclasses; sentry-sdk for tracking",
+            "spring":  "@ControllerAdvice + @ExceptionHandler beans mapping DomainException to ResponseEntity",
+            "nestjs":  "Global ExceptionFilter implementing ExceptionFilter; HttpException only at controller boundary",
+            "go":      "Sentinel errors (errors.Is/errors.As); wrap with fmt.Errorf('...: %w', err); single boundary handler",
+            "nodejs":  "Express error middleware (err, req, res, next); domain errors subclass DomainError; never `throw new Error('msg')` without code field",
+        },
+    },
+
+    ("common", "debugging_strategy"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Debug from EVIDENCE, not from intuition. Three rules: "
+            "(1) Reproduce before fixing — if you can't trigger the bug "
+            "on demand, you haven't understood it. The first commit is "
+            "a failing test, not a fix. "
+            "(2) Bisect, don't speculate — git bisect for regression bugs; "
+            "binary-search the offending request param / DB state / config "
+            "value. Speculation is how you spend 4 hours fixing the wrong "
+            "thing. "
+            "(3) Read the stack trace top-to-bottom AND bottom-to-top. The "
+            "top frame is where the symptom surfaced; the bottom-most "
+            "user-code frame is usually where the cause lives. Inspect "
+            "values, not just lines — `print(repr(x))` not `print(x)` "
+            "because repr preserves type info. "
+            "Heisenbugs (only happen 'sometimes') almost always reduce to: "
+            "concurrency + shared mutable state, timezone, locale, "
+            "non-deterministic dict/set ordering on small inputs."
+        ),
+        "must_emit": [
+            "A failing test reproducing the bug — commit it BEFORE the fix",
+            "Logs with the request_id correlating the failing request to the "
+            "specific log line where the bad state appeared",
+            "If concurrency-related: a stress-test that exercises the race "
+            "(loop the operation N times in parallel)",
+            "If data-related: a SQL dump or fixture for the minimal data "
+            "shape that triggers the bug",
+        ],
+        "anti_patterns": [
+            "Never fix a bug you can't reproduce — you'll fix the wrong thing OR fix something that wasn't broken",
+            "Never trust 'works on my machine' — environment differences ARE the bug",
+            "Never delete the failing assertion to make the test pass",
+            "Never wrap the suspected line in `try: except:` to silence — that's hiding, not fixing",
+            "Never commit a fix without the test that captures it — regressions live forever",
+            "Never debug with print and forget to remove it — use logger.debug + structured fields",
+            "Never assume the framework is broken before you've exhausted your own code",
+            "Never investigate intermittent failures without seeding random / locking time / pinning the test order",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "pytest-xdist for stress; freezegun for time; faker with seeded Random; pdb / breakpoint() / pytest -x --pdb",
+            "django":  "django.test.TestCase + transaction rollback; manage.py shell_plus; sentry breadcrumbs",
+            "spring":  "@SpringBootTest with @DirtiesContext for state; JUnit RepeatedTest; Mockito spy / verify for invocation traces",
+            "nestjs":  "Jest --detectOpenHandles --runInBand; ts-node + node --inspect-brk; nestjs-debug",
+            "go":      "delve (dlv); go test -race; testify mock; httptest.NewRecorder for handler unit tests",
+            "nodejs":  "node --inspect-brk; jest --detectOpenHandles; node-tap with -j 1; supertest with .expect callbacks",
+        },
+    },
+
+    ("common", "git_workflow"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Conventions that keep history readable and PRs reviewable. "
+            "Commits: imperative mood ('add cart router', not 'added' or "
+            "'adding'). Subject ≤ 72 chars, body wrap at 72. Use prefixes "
+            "from conventional-commits when the project follows them "
+            "(feat:, fix:, docs:, refactor:, test:, chore:); otherwise "
+            "match the existing log style. Branches: short, kebab-case, "
+            "owner-prefixed (`alice/cart-discounts`). PRs: one logical "
+            "change per PR; describe WHY first, WHAT second, HOW only if "
+            "non-obvious. Squash-merge small PRs (< 10 commits); merge-"
+            "commit large feature branches so the intermediate history "
+            "survives. Inspired by Addy Osmani's "
+            "git-workflow-and-versioning skill."
+        ),
+        "must_emit": [
+            "Commit subject: imperative, ≤72 chars, no trailing period",
+            "Commit body: WHY before WHAT; wrap at 72; bullet lists OK",
+            "Branch names: <owner>/<kebab-topic>, no spaces, no slashes "
+            "beyond owner/topic",
+            "PR description: Summary (3-5 bullets) + Test plan (checklist) + "
+            "Risk / rollback (one paragraph)",
+            "Co-authorship trailer when AI-assisted: Co-Authored-By: <name> <email>",
+        ],
+        "anti_patterns": [
+            "Never force-push to a shared branch (main, develop, release/*) — "
+            "loses other people's work",
+            "Never amend a commit that's already pushed to a shared branch — "
+            "creates duplicate history for everyone else",
+            "Never mix unrelated changes in one PR — reviewers will skip the parts they don't understand",
+            "Never include build artefacts or auto-generated files in commits — .gitignore them",
+            "Never write commit messages like 'fix' or 'wip' — they're worthless on bisect",
+            "Never delete a public branch without coordinating — others may have outstanding work on it",
+            "Never use `git rebase -i` without coordinating if the branch is shared",
+            "Never bypass pre-commit hooks (--no-verify) without explaining in the commit body",
+        ],
+    },
+
     ("common", "frontend_ui_concerns"): {
         "scope": "cross-framework",
         "guidance": (

@@ -174,6 +174,120 @@ def top_agents(repo_root: Path, limit: int = 10) -> List[AgentRating]:
     return ratings[:limit]
 
 
+def dashboard(repo_root: Path, *, window_days: int = 30,
+              drift_threshold: float = 0.15) -> Dict:
+    """Richer view than top-agents: surfaces trends + drift warnings.
+
+    For each agent:
+      - recent success rate (last N days, default 30)
+      - prior success rate (the N days before that)
+      - drift = recent - prior; flag if drift < -drift_threshold (default
+        15-point drop) — that's the "something changed, investigate" signal.
+
+    Returns:
+      {
+        "window_days": 30,
+        "drift_threshold": 0.15,
+        "total_learnings": int,
+        "total_agents": int,
+        "agents": [
+          {
+            "agent_id": "local/architect",
+            "recent_sample_count": int,
+            "recent_success_rate": float,
+            "prior_success_rate": float,
+            "drift": float,
+            "drift_flag": "stable" | "warming" | "degrading",
+            ...
+          },
+          ...
+        ],
+        "overall": {
+          "total_runs_recent": int,
+          "success_rate_recent": float,
+          "agents_degrading": int,
+        }
+      }
+    """
+    learnings = _load(repo_root)
+    now = dt.datetime.now()
+    cutoff_recent = now - dt.timedelta(days=window_days)
+    cutoff_prior = now - dt.timedelta(days=window_days * 2)
+
+    def _parse_ts(ts: str) -> Optional[dt.datetime]:
+        try:
+            return dt.datetime.fromisoformat(ts.rstrip("Z"))
+        except ValueError:
+            return None
+
+    by_agent: Dict[str, Dict[str, List[Learning]]] = {}
+    for l in learnings:
+        parsed = _parse_ts(l.ts)
+        if parsed is None:
+            continue
+        bucket = by_agent.setdefault(l.agent_id, {"recent": [], "prior": []})
+        if parsed >= cutoff_recent:
+            bucket["recent"].append(l)
+        elif parsed >= cutoff_prior:
+            bucket["prior"].append(l)
+
+    def _rate(rows: List[Learning]) -> float:
+        if not rows:
+            return 0.0
+        return sum(1 for r in rows if r.outcome == "succeeded") / len(rows)
+
+    agent_rows: List[Dict] = []
+    for agent_id, buckets in by_agent.items():
+        recent = buckets["recent"]
+        prior = buckets["prior"]
+        if not recent and not prior:
+            continue
+        r_rate = _rate(recent)
+        p_rate = _rate(prior) if prior else r_rate   # no prior data → use current
+        drift = r_rate - p_rate
+        if not prior:
+            flag = "no_baseline"
+        elif drift < -drift_threshold:
+            flag = "degrading"
+        elif drift > drift_threshold:
+            flag = "warming"
+        else:
+            flag = "stable"
+        agent_rows.append({
+            "agent_id": agent_id,
+            "recent_sample_count": len(recent),
+            "recent_success_rate": round(r_rate, 3),
+            "prior_sample_count": len(prior),
+            "prior_success_rate": round(p_rate, 3) if prior else None,
+            "drift": round(drift, 3),
+            "drift_flag": flag,
+        })
+    # Sort: degrading first (loudest alert), then by recent sample count.
+    flag_order = {"degrading": 0, "no_baseline": 1, "stable": 2, "warming": 3}
+    agent_rows.sort(key=lambda r: (flag_order.get(r["drift_flag"], 99),
+                                    -r["recent_sample_count"]))
+
+    total_recent = sum(r["recent_sample_count"] for r in agent_rows)
+    total_succ_recent = sum(
+        r["recent_sample_count"] * r["recent_success_rate"]
+        for r in agent_rows
+    )
+    return {
+        "window_days": window_days,
+        "drift_threshold": drift_threshold,
+        "total_learnings": len(learnings),
+        "total_agents": len(agent_rows),
+        "agents": agent_rows,
+        "overall": {
+            "total_runs_recent": total_recent,
+            "success_rate_recent": round(total_succ_recent / total_recent, 3)
+                if total_recent else 0.0,
+            "agents_degrading": sum(1 for r in agent_rows
+                                     if r["drift_flag"] == "degrading"),
+        },
+    }
+
+
 def export_anonymized(repo_root: Path) -> Dict:
     """Strip notes + actor identifiers from learnings for sharing."""
     learnings = _load(repo_root)
@@ -219,6 +333,13 @@ def main():
     sp_top = sub.add_parser("top-agents")
     sp_top.add_argument("--limit", type=int, default=10)
 
+    sp_dash = sub.add_parser("dashboard",
+                              help="Trend analysis + drift detection over a rolling window")
+    sp_dash.add_argument("--window-days", type=int, default=30)
+    sp_dash.add_argument("--drift-threshold", type=float, default=0.15,
+                          help="Flag 'degrading' if recent success rate drops by "
+                               "more than this fraction (default 0.15 = 15 points)")
+
     sub.add_parser("export-anonymized")
 
     args = parser.parse_args()
@@ -245,6 +366,14 @@ def main():
     if args.cmd == "top-agents":
         ratings = top_agents(repo, args.limit)
         print(json.dumps([r.to_dict() for r in ratings], indent=2))
+        return
+
+    if args.cmd == "dashboard":
+        print(json.dumps(
+            dashboard(repo, window_days=args.window_days,
+                      drift_threshold=args.drift_threshold),
+            indent=2,
+        ))
         return
 
     if args.cmd == "export-anonymized":

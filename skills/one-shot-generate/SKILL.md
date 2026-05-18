@@ -219,6 +219,25 @@ valid JSON with the expected shape (`entities`, `api_surface`,
 `test_contract`, `wiring`). If malformed, re-spawn architect with the
 error message.
 
+**Emit an ADR alongside spec.json** capturing the WHY (run unless the
+user passed `--no-adr`). The architect's response should include 2-3
+sentences of decision reasoning — feed those into `adr_writer.py`:
+
+```!
+python "./scripts/adr_writer.py" emit \
+    --project <project-path> \
+    --title "<short title derived from the feature request>" \
+    --status accepted \
+    --context "<one paragraph: what problem are we solving?>" \
+    --decision "<one paragraph: what did the architect choose?>" \
+    --consequences "<one paragraph from architect's reasoning>" \
+    --alternatives "<bullet list of options considered, if any>"
+```
+
+The ADR lands in `<project>/docs/adr/{NNNN}-{kebab-title}.md`. Future
+sessions reading the codebase will pick it up alongside spec.json so
+the design constraints survive memory churn.
+
 ---
 
 ## Stage 2.3 — Source-driven doc lookup
@@ -407,10 +426,11 @@ review iterations). If still red after 2, escalate to the user.
 
 ---
 
-## Stage 5.5 — Doubt-driven adversarial pass
+## Stage 5.5 — Doubt-driven adversarial pass (DEFAULT ON)
 
-The reviewer reads the spec, the implementer's reasoning, and previous
-review history — that context makes it biased toward "this looks fine."
+**Run this stage unless the user passed `--no-doubt`.** The reviewer
+reads the spec, the implementer's reasoning, and previous review
+history — that context makes it biased toward "this looks fine."
 Stage 5.5 spawns a FRESH-CONTEXT **doubter** agent per artifact. The
 doubter receives ONLY:
   1. The artifact's content (the generated file)
@@ -472,8 +492,22 @@ python "./scripts/auto_wirer.py" --project <project-path> \
     --generated-dir /tmp/osp-out --dry-run
 ```
 
-Present the wire plan to the user. If they invoked with `--apply`, run
-again without `--dry-run` and copy generated files into the project:
+Present the wire plan to the user.
+
+**Before `--apply` mutates anything, run the production-readiness gates**
+(unless the user passed `--no-ship-check`):
+
+```!
+python "./scripts/ship_gates.py" --project <project-path>
+```
+
+If verdict is `BLOCKED`: halt the apply, surface the failing gates to
+the user, ask whether to address or override with `--force`.
+If verdict is `READY_WITH_WARN`: list the warnings, proceed.
+If verdict is `READY`: proceed silently.
+
+For `--apply`, run the wirer again without dry-run and copy generated
+files into the project:
 
 ```!
 python "./scripts/auto_wirer.py" --project <project-path> \
