@@ -408,7 +408,35 @@ introspection).
 
 ## Stage 7 — Critic agent + multi-iteration loop
 
-Spawn the critic to actually run the generated tests:
+Before spawning the critic the first time, **initialise the loop state**
+(this gives the deterministic driver something to track across iterations):
+
+```!
+python "./scripts/critic_loop_driver.py" init --sandbox <sandbox-dir>
+```
+
+After every critic spawn, **route the verdict through the driver** instead
+of deciding the next step ad-hoc. The driver enforces the hard caps below
+(max 3 iterations, max 5 min/iteration, escalate on new failure nodeids)
+without you having to track state by hand:
+
+```!
+# Write the critic's JSON output to /tmp/osp-critic-verdict.json, then:
+python "./scripts/critic_loop_driver.py" record \
+    --sandbox <sandbox-dir> \
+    --verdict /tmp/osp-critic-verdict.json
+```
+
+The driver returns one of three decisions:
+  - `SHIPPED` — present success summary to the user, jump to Stage 8.
+  - `LOOP_CONTINUE` — spawn the agents listed in `routes_by_agent` (one
+    Task per bucket, NOT one per failure), re-verify, then call the
+    critic again. Loop.
+  - `ESCALATE` — stop. Use the `escalation_summary` field verbatim in
+    the user-facing message, then write a bead and exit. Common reasons:
+    `max_iterations_exceeded`, `iteration_timeout`, `regression_new_failures`.
+
+The original critic spawn:
 
 ```text
 Agent({

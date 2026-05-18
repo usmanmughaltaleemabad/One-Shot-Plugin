@@ -10,7 +10,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 178 / 179 green (13 suites, Py 3.14 / Windows) |
+| **Tests** | 206 / 206 green (14 suites, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
@@ -196,8 +196,14 @@ framework-specific extras AND the Tier-1 production-concerns set
 idempotency keys, audit log, email templates, outbox pattern, health checks,
 RBAC, API versioning, data migrations).
 
-Total catalogue: **77 hints** (10 × FastAPI, 13 × Django, 10 × Spring,
-10 × NestJS, 10 × Go, 10 × Node.js, 14 × common).
+Total catalogue: **85 hints** (10 × FastAPI, 13 × Django, 10 × Spring,
+10 × NestJS, 10 × Go, 10 × Node.js, 22 × common).
+
+v4.4 adds 8 Tier-2 production contracts (webhooks send/receive, multi-tenancy,
+feature flags, optimistic locking, retry+circuit breaker, configuration
+management, websocket endpoints) PLUS a deterministic **critic loop driver**
+that owns the Stage 7 hard caps (max 3 iterations, 5 min/iteration,
+escalate on regression).
 
 | Framework | Body hints | Scaffold paths | Migration tool |
 |---|---|---|---|
