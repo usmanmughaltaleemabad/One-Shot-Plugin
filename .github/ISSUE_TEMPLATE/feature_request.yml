@@ -1,0 +1,43 @@
+name: Feature request
+description: Suggest a capability the plugin should add
+title: "[feature] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion! The plugin has an explicit
+        path-to-10 roadmap (`docs/path-to-10.md`) — please check there
+        first to see if your idea is already queued.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      placeholder: |
+        "I run /one-shot frequently against Django projects but the agentic
+        body-template hints are FastAPI-first, so the implementer produces
+        idiomatic-Django code only after a critic-loop retry."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      placeholder: |
+        "Add Django-equivalent entries to body_hints.py for the new tier-8
+        kinds (service_layer, auth_endpoints, background_task)."
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      placeholder: "manually run --templated and clean up afterwards"
+
+  - type: textarea
+    id: scorecard
+    attributes:
+      label: Which scorecard dimension does this lift?
+      description: See `docs/scorecard-v4.md`
+      placeholder: "Cross-language scaffold variants → ONE SHOT PROMPTING 8.0 → 8.5"

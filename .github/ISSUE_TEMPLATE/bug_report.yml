@@ -1,0 +1,74 @@
+name: Bug report
+description: Something the plugin did wrong — generated bad code, agent crashed, /one-shot escalated unexpectedly
+title: "[bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a report! Please include the structured data below so I can reproduce quickly.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - critical (data loss, security, plugin unusable)
+        - high (feature broken, no workaround)
+        - medium (feature degraded, workaround exists)
+        - low (cosmetic, polish)
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command that triggered the bug
+      placeholder: |
+        /one-shot "shopping cart with line items" @./my-project --apply --budget=0.30
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Describe the failure — be specific about which stage failed
+      placeholder: |
+        Stage 4 verify reported "unsubstituted placeholder" but stage 5 reviewer didn't catch it.
+        Stage 7 critic ran the tests and they passed despite the placeholder being in the code.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      placeholder: "auto_patch P3 should have scrubbed the placeholder before reviewer ran"
+
+  - type: textarea
+    id: bead-id
+    attributes:
+      label: Bead ID (if any)
+      description: Check `.beads/failures.jsonl` for an entry matching this task
+      placeholder: bd-fail-20260518-007
+
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      placeholder: |
+        - Plugin version: 4.0.0
+        - Python: 3.14.3
+        - OS: Windows 11 / Ubuntu 22.04 / macOS 14
+        - Framework targeted: fastapi / django / ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction project
+      description: A minimal project that triggers the bug — even just the requirements.txt + main.py
+      placeholder: "gist link or attached zip"

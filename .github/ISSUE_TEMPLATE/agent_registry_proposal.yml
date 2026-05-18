@@ -1,0 +1,73 @@
+name: Agent registry proposal
+description: Propose adding an external agent / skill / MCP server to .claude/registry/
+title: "[registry] "
+labels: ["registry", "needs-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The plugin's self-extending registry holds pointers to external
+        agents, skills, and MCP servers. Use this template when proposing
+        a new entry. The curator will review for fit + safety.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - external agent (e.g. pr-review-toolkit member)
+        - external skill (e.g. claude-code-guide)
+        - MCP server (e.g. chrome-devtools)
+    validations:
+      required: true
+
+  - type: input
+    id: source-url
+    attributes:
+      label: Upstream source URL
+      placeholder: https://github.com/<owner>/<repo>
+    validations:
+      required: true
+
+  - type: input
+    id: id
+    attributes:
+      label: Proposed registry ID
+      placeholder: <owner>/<name>  — e.g. anthropics/code-reviewer
+    validations:
+      required: true
+
+  - type: textarea
+    id: triggers
+    attributes:
+      label: Trigger keywords
+      description: What task descriptions should match this agent?
+      placeholder: |
+        - code review
+        - style check
+        - before commit
+    validations:
+      required: true
+
+  - type: textarea
+    id: tools-needed
+    attributes:
+      label: Tools the agent uses
+      placeholder: "Read, Grep, Bash"
+
+  - type: textarea
+    id: prefer-over-local
+    attributes:
+      label: Preferred over any local agent?
+      description: If yes, name the local agent this should replace
+      placeholder: "Replaces our `critic` for PR test coverage review specifically"
+
+  - type: textarea
+    id: license
+    attributes:
+      label: License + activity check
+      placeholder: |
+        - License: MIT / Apache 2.0 / ...
+        - Last commit: <date>
+        - Stars: <count>
+        - Open issues: <count>

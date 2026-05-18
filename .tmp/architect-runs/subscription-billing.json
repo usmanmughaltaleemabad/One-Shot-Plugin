@@ -1,0 +1,160 @@
+{
+  "feature": "Subscription billing with plans, recurring invoices, and proration on upgrade",
+  "framework": "fastapi",
+  "conventions": {
+    "case": "snake_case",
+    "orm": "pydantic_v2",
+    "base_model": "models.Base"
+  },
+  "entities": [
+    {
+      "name": "User",
+      "action": "stub",
+      "module": "models.py",
+      "note": "Assumed to exist or stubbed minimally; owns subscriptions",
+      "attributes": [
+        {"name": "id", "type": "int", "primary_key": true},
+        {"name": "email", "type": "str", "unique": true}
+      ]
+    },
+    {
+      "name": "Product",
+      "action": "reuse",
+      "existing_file": "models.py",
+      "note": "Referenced by Plan for product catalog linkage"
+    },
+    {
+      "name": "Plan",
+      "action": "create",
+      "module": "billing/models.py",
+      "attributes": [
+        {"name": "id", "type": "int", "primary_key": true},
+        {"name": "code", "type": "str", "unique": true, "note": "stable slug, e.g. 'pro-monthly'"},
+        {"name": "name", "type": "str"},
+        {"name": "price_cents", "type": "int", "constraint": ">= 0"},
+        {"name": "currency", "type": "str", "default": "USD", "constraint": "ISO-4217"},
+        {"name": "interval", "type": "Literal['month','year']"},
+        {"name": "interval_count", "type": "int", "default": 1, "constraint": ">= 1"},
+        {"name": "active", "type": "bool", "default": true},
+        {"name": "created_at", "type": "datetime"}
+      ],
+      "invariants": [
+        "price_cents >= 0",
+        "interval_count >= 1",
+        "code is immutable once referenced by an active Subscription"
+      ]
+    },
+    {
+      "name": "Subscription",
+      "action": "create",
+      "module": "billing/models.py",
+      "attributes": [
+        {"name": "id", "type": "int", "primary_key": true},
+        {"name": "user_id", "type": "int", "foreign_key": "users.id"},
+        {"name": "plan_id", "type": "int", "foreign_key": "plans.id", "note": "current active plan"},
+        {"name": "status", "type": "Literal['active','past_due','cancelled']", "default": "active"},
+        {"name": "current_period_start", "type": "datetime"},
+        {"name": "current_period_end", "type": "datetime"},
+        {"name": "cancel_at_period_end", "type": "bool", "default": false},
+        {"name": "cancelled_at", "type": "datetime | None"},
+        {"name": "created_at", "type": "datetime"},
+        {"name": "updated_at", "type": "datetime"}
+      ],
+      "invariants": [
+        "exactly one ACTIVE Plan is referenced via plan_id at any time",
+        "status transitions follow: active -> past_due -> cancelled (no skipping; cannot go backwards)",
+        "current_period_end > current_period_start",
+        "on plan change, proration is computed from remaining time in current period and price delta",
+        "cancelled_at is set if and only if status == 'cancelled'"
+      ]
+    },
+    {
+      "name": "Invoice",
+      "action": "create",
+      "module": "billing/models.py",
+      "note": "Renamed from RecurringInvoice — recurrence is a property of the subscription, not a separate type",
+      "attributes": [
+        {"name": "id", "type": "int", "primary_key": true},
+        {"name": "subscription_id", "type": "int", "foreign_key": "subscriptions.id"},
+        {"name": "period_start", "type": "datetime"},
+        {"name": "period_end", "type": "datetime"},
+        {"name": "subtotal_cents", "type": "int"},
+        {"name": "proration_cents", "type": "int", "default": 0, "note": "signed; negative = credit"},
+        {"name": "total_cents", "type": "int"},
+        {"name": "currency", "type": "str"},
+        {"name": "status", "type": "Literal['draft','open','paid','void']", "default": "open"},
+        {"name": "issued_at", "type": "datetime"},
+        {"name": "paid_at", "type": "datetime | None"},
+        {"name": "is_recurring", "type": "bool", "default": true, "note": "false for one-off proration invoices"}
+      ],
+      "invariants": [
+        "total_cents == subtotal_cents + proration_cents",
+        "period_end > period_start",
+        "paid_at is set iff status == 'paid'",
+        "invoices are immutable once status in {'paid','void'}"
+      ]
+    }
+  ],
+  "dropped_from_extractor": [
+    {"name": "billing", "reason": "concept/namespace, not an entity"},
+    {"name": "proration", "reason": "computation/action on Subscription plan change, modeled as Invoice.proration_cents"}
+  ],
+  "relationships": [
+    {"from": "User",         "to": "Subscription", "kind": "has_many",   "fk": "subscriptions.user_id"},
+    {"from": "Subscription", "to": "User",         "kind": "belongs_to", "fk": "subscriptions.user_id"},
+    {"from": "Subscription", "to": "Plan",         "kind": "belongs_to", "fk": "subscriptions.plan_id"},
+    {"from": "Subscription", "to": "Invoice",      "kind": "has_many",   "fk": "invoices.subscription_id"},
+    {"from": "Invoice",      "to": "Subscription", "kind": "belongs_to", "fk": "invoices.subscription_id"}
+  ],
+  "api_surface": [
+    {"method": "POST",   "path": "/api/v1/plans",                              "handler": "create_plan"},
+    {"method": "GET",    "path": "/api/v1/plans",                              "handler": "list_plans"},
+    {"method": "GET",    "path": "/api/v1/plans/{plan_id}",                    "handler": "get_plan"},
+    {"method": "POST",   "path": "/api/v1/subscriptions",                      "handler": "create_subscription"},
+    {"method": "GET",    "path": "/api/v1/subscriptions/{sub_id}",             "handler": "get_subscription"},
+    {"method": "POST",   "path": "/api/v1/subscriptions/{sub_id}/change-plan", "handler": "change_plan", "note": "computes proration, emits subscription.plan_changed + invoice.generated"},
+    {"method": "POST",   "path": "/api/v1/subscriptions/{sub_id}/cancel",      "handler": "cancel_subscription"},
+    {"method": "GET",    "path": "/api/v1/subscriptions/{sub_id}/invoices",    "handler": "list_invoices"},
+    {"method": "GET",    "path": "/api/v1/invoices/{invoice_id}",              "handler": "get_invoice"},
+    {"method": "POST",   "path": "/api/v1/invoices/{invoice_id}/pay",          "handler": "mark_invoice_paid"}
+  ],
+  "service_layer": {
+    "module": "billing/services.py",
+    "responsibilities": [
+      "Enforce subscription status transition rules",
+      "Compute proration on plan change (remaining_seconds / period_seconds * price_delta)",
+      "Generate recurring invoices on period rollover",
+      "Emit domain events"
+    ],
+    "events_emitted": [
+      {"name": "subscription.created",      "trigger": "create_subscription",            "payload": ["subscription_id", "user_id", "plan_id"]},
+      {"name": "subscription.plan_changed", "trigger": "change_plan",                    "payload": ["subscription_id", "old_plan_id", "new_plan_id", "proration_cents"]},
+      {"name": "invoice.generated",         "trigger": "recurring rollover + plan change","payload": ["invoice_id", "subscription_id", "total_cents", "is_recurring"]},
+      {"name": "subscription.cancelled",    "trigger": "cancel_subscription",            "payload": ["subscription_id", "cancelled_at", "cancel_at_period_end"]}
+    ]
+  },
+  "test_contract": {
+    "auth": "jwt",
+    "pagination": "envelope",
+    "error_shape": "fastapi_httpexception",
+    "must_assert": [
+      "401 when JWT missing/invalid",
+      "status transition active->cancelled WITHOUT past_due is rejected (422)",
+      "proration_cents is non-zero on upgrade mid-period",
+      "subscription.plan_changed event emitted exactly once per change_plan call",
+      "Invoice.total_cents == subtotal_cents + proration_cents"
+    ]
+  },
+  "wiring": {
+    "main_py": [
+      "include plan_router",
+      "include subscription_router",
+      "include invoice_router"
+    ],
+    "migrations": [
+      "alembic_001_plans",
+      "alembic_002_subscriptions",
+      "alembic_003_invoices"
+    ]
+  }
+}

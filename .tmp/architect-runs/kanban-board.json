@@ -1,0 +1,216 @@
+{
+  "feature": "kanban board with columns, cards, and assignees; cards move between columns",
+  "intent": "feature",
+  "confidence": 0.82,
+  "framework": "fastapi",
+  "conventions": {
+    "case": "snake_case",
+    "orm": "sqlalchemy",
+    "schemas": "pydantic_v2",
+    "base_import": "from models import Base"
+  },
+  "entities": [
+    {
+      "name": "User",
+      "action": "create",
+      "module": "users/models.py",
+      "note": "stub — required as FK target for Card.assignee_id; not in existing graph",
+      "attributes": [
+        {"name": "id", "type": "int", "pk": true},
+        {"name": "username", "type": "str", "unique": true, "max_length": 64},
+        {"name": "email", "type": "str", "unique": true, "max_length": 255},
+        {"name": "created_at", "type": "datetime", "default": "utcnow"}
+      ],
+      "invariants": [
+        "username is unique and non-empty",
+        "email matches RFC 5322"
+      ]
+    },
+    {
+      "name": "KanbanBoard",
+      "action": "create",
+      "module": "kanban/models.py",
+      "attributes": [
+        {"name": "id", "type": "int", "pk": true},
+        {"name": "name", "type": "str", "max_length": 120, "nullable": false},
+        {"name": "owner_id", "type": "int", "fk": "users.id", "nullable": false},
+        {"name": "created_at", "type": "datetime", "default": "utcnow"}
+      ],
+      "invariants": [
+        "name is non-empty",
+        "owner_id references an existing User"
+      ]
+    },
+    {
+      "name": "Column",
+      "action": "create",
+      "module": "kanban/models.py",
+      "attributes": [
+        {"name": "id", "type": "int", "pk": true},
+        {"name": "board_id", "type": "int", "fk": "kanban_boards.id", "nullable": false, "on_delete": "CASCADE"},
+        {"name": "name", "type": "str", "max_length": 80, "nullable": false},
+        {"name": "position", "type": "int", "nullable": false},
+        {"name": "created_at", "type": "datetime", "default": "utcnow"}
+      ],
+      "invariants": [
+        "Column belongs_to exactly one KanbanBoard via board_id",
+        "(board_id, position) is unique — columns are densely ordered per board",
+        "name is non-empty"
+      ]
+    },
+    {
+      "name": "Card",
+      "action": "create",
+      "module": "kanban/models.py",
+      "attributes": [
+        {"name": "id", "type": "int", "pk": true},
+        {"name": "column_id", "type": "int", "fk": "columns.id", "nullable": false, "on_delete": "CASCADE"},
+        {"name": "assignee_id", "type": "int", "fk": "users.id", "nullable": true, "on_delete": "SET NULL"},
+        {"name": "title", "type": "str", "max_length": 200, "nullable": false},
+        {"name": "description", "type": "str", "nullable": true},
+        {"name": "position", "type": "int", "nullable": false},
+        {"name": "created_at", "type": "datetime", "default": "utcnow"},
+        {"name": "updated_at", "type": "datetime", "default": "utcnow", "on_update": "utcnow"}
+      ],
+      "invariants": [
+        "Card belongs_to exactly one Column via column_id (hierarchical, NOT directly to KanbanBoard)",
+        "Card.assignee_id is nullable; when set it references a User (belongs_to User)",
+        "(column_id, position) is unique — cards are densely ordered within a column",
+        "Moving a card across columns MUST update column_id and position atomically in a single transaction",
+        "Moving a card MUST renumber positions in both source and destination columns to remain dense",
+        "On any column transition, the service MUST emit a card.moved event with {card_id, old_column_id, new_column_id, old_position, new_position, moved_by, moved_at}",
+        "title is non-empty"
+      ]
+    },
+    {
+      "name": "Product",
+      "action": "reuse",
+      "existing_file": "models.py",
+      "note": "present in codebase graph but unrelated to kanban feature; left untouched"
+    },
+    {
+      "name": "Base",
+      "action": "reuse",
+      "existing_file": "models.py",
+      "note": "SQLAlchemy declarative Base imported by all new models"
+    }
+  ],
+  "relationships": [
+    {"from": "KanbanBoard", "to": "Column", "kind": "has_many", "fk": "columns.board_id", "back_populates": "board", "cascade": "all, delete-orphan"},
+    {"from": "Column", "to": "KanbanBoard", "kind": "belongs_to", "fk": "columns.board_id"},
+    {"from": "Column", "to": "Card", "kind": "has_many", "fk": "cards.column_id", "back_populates": "column", "cascade": "all, delete-orphan"},
+    {"from": "Card", "to": "Column", "kind": "belongs_to", "fk": "cards.column_id"},
+    {"from": "User", "to": "Card", "kind": "has_many", "fk": "cards.assignee_id", "back_populates": "assignee", "note": "a user can be assigned many cards"},
+    {"from": "Card", "to": "User", "kind": "belongs_to", "fk": "cards.assignee_id", "nullable": true, "note": "card has at most one assignee"},
+    {"from": "User", "to": "KanbanBoard", "kind": "has_many", "fk": "kanban_boards.owner_id"},
+    {"from": "KanbanBoard", "to": "User", "kind": "belongs_to", "fk": "kanban_boards.owner_id"}
+  ],
+  "events": [
+    {
+      "name": "card.moved",
+      "trigger": "Card.column_id changes via move endpoint",
+      "payload": ["card_id", "old_column_id", "new_column_id", "old_position", "new_position", "moved_by", "moved_at"],
+      "emitter": "kanban/services/card_service.py::move_card",
+      "delivery": "in-process event bus (sync); see services/events.py"
+    },
+    {
+      "name": "card.created",
+      "trigger": "POST /cards succeeds",
+      "payload": ["card_id", "column_id", "created_by", "created_at"]
+    },
+    {
+      "name": "card.assigned",
+      "trigger": "Card.assignee_id transitions to non-null or changes value",
+      "payload": ["card_id", "old_assignee_id", "new_assignee_id", "assigned_by", "assigned_at"]
+    }
+  ],
+  "services": [
+    {
+      "name": "CardService",
+      "module": "kanban/services/card_service.py",
+      "operations": [
+        {
+          "name": "move_card",
+          "signature": "move_card(card_id, target_column_id, target_position, moved_by) -> Card",
+          "transactional": true,
+          "steps": [
+            "lock source column rows (SELECT ... FOR UPDATE on cards where column_id = source)",
+            "lock destination column rows",
+            "renumber source: decrement position for rows where position > old_position",
+            "renumber destination: increment position for rows where position >= target_position",
+            "update card.column_id and card.position",
+            "emit card.moved event"
+          ]
+        }
+      ]
+    }
+  ],
+  "api_surface": [
+    {"method": "POST",   "path": "/api/v1/boards",                                    "handler": "create_board"},
+    {"method": "GET",    "path": "/api/v1/boards",                                    "handler": "list_boards"},
+    {"method": "GET",    "path": "/api/v1/boards/{board_id}",                         "handler": "get_board"},
+    {"method": "DELETE", "path": "/api/v1/boards/{board_id}",                         "handler": "delete_board"},
+    {"method": "POST",   "path": "/api/v1/boards/{board_id}/columns",                 "handler": "create_column"},
+    {"method": "GET",    "path": "/api/v1/boards/{board_id}/columns",                 "handler": "list_columns"},
+    {"method": "PATCH",  "path": "/api/v1/columns/{column_id}",                       "handler": "update_column"},
+    {"method": "DELETE", "path": "/api/v1/columns/{column_id}",                       "handler": "delete_column"},
+    {"method": "POST",   "path": "/api/v1/columns/{column_id}/cards",                 "handler": "create_card"},
+    {"method": "GET",    "path": "/api/v1/columns/{column_id}/cards",                 "handler": "list_cards_in_column"},
+    {"method": "GET",    "path": "/api/v1/cards/{card_id}",                           "handler": "get_card"},
+    {"method": "PATCH",  "path": "/api/v1/cards/{card_id}",                           "handler": "update_card"},
+    {"method": "DELETE", "path": "/api/v1/cards/{card_id}",                           "handler": "delete_card"},
+    {"method": "POST",   "path": "/api/v1/cards/{card_id}/move",                      "handler": "move_card",     "body": {"target_column_id": "int", "target_position": "int"}, "emits": ["card.moved"]},
+    {"method": "PUT",    "path": "/api/v1/cards/{card_id}/assignee",                  "handler": "assign_card",   "body": {"assignee_id": "int|null"}, "emits": ["card.assigned"]},
+    {"method": "GET",    "path": "/api/v1/users/{user_id}/cards",                     "handler": "list_user_cards"}
+  ],
+  "test_contract": {
+    "auth": "jwt",
+    "auth_note": "collaborative feature — every mutating endpoint asserts 401 without bearer token and 403 when caller is not board owner/member",
+    "pagination": "envelope",
+    "error_shape": "fastapi_httpexception",
+    "must_assert": [
+      "401 on unauthenticated POST/PATCH/DELETE",
+      "POST /cards/{id}/move emits exactly one card.moved event with old_column_id != new_column_id",
+      "position uniqueness per column is preserved after concurrent moves",
+      "deleting a column cascades to its cards",
+      "assignee_id may be null and may be cleared"
+    ]
+  },
+  "wiring": {
+    "main_py": [
+      "include users_router",
+      "include boards_router",
+      "include columns_router",
+      "include cards_router",
+      "register event bus startup hook"
+    ],
+    "migrations": [
+      "alembic_001_users",
+      "alembic_002_kanban_boards",
+      "alembic_003_columns",
+      "alembic_004_cards",
+      "alembic_005_unique_position_per_column"
+    ]
+  },
+  "file_layout": [
+    "users/models.py",
+    "users/schemas.py",
+    "users/router.py",
+    "kanban/models.py",
+    "kanban/schemas.py",
+    "kanban/routers/boards.py",
+    "kanban/routers/columns.py",
+    "kanban/routers/cards.py",
+    "kanban/services/card_service.py",
+    "kanban/services/events.py",
+    "tests/test_kanban_boards.py",
+    "tests/test_kanban_columns.py",
+    "tests/test_kanban_cards.py",
+    "tests/test_card_move.py"
+  ],
+  "low_confidence_notes": [
+    "confidence: 0.7 — User stub is created here, but a real auth/user module may already exist under a different name; implementer should grep before creating.",
+    "confidence: 0.75 — chose dense integer position over fractional ranks (LexoRank); simpler but requires renumbering on every move. Acceptable for boards < ~10k cards/column.",
+    "confidence: 0.8 — card.moved emitted via in-process sync bus; upgrade to async/outbox if external consumers appear."
+  ]
+}

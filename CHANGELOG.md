@@ -7,7 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.0.0] — 2026-05-18 (Current) — Production Release
+## [4.1.0] — 2026-05-18 (Current) — Empirical Calibration + Community
+
+Closes every empirical gap that can be closed without external users.
+Adds the launch infrastructure that turns "ready for users" into
+"discoverable by users".
+
+### Added — Empirical evidence
+
+- 4 new architect agent runs (parallel via Task tool) producing real
+  spec.json across diverse feature types:
+    - signup-flow (auth intent, 3 entities, 17 invariants, 27.2K tokens)
+    - blog-posts-comments (5 entities incl. PostTag join, 25.5K tokens)
+    - kanban-board (4 entities + Card.position invariant, 27.3K tokens)
+    - subscription-billing (Plan/Subscription/Invoice, 26.4K tokens)
+  Mean: 26,621 tokens / 60.4s — within 5% of pre-empirical estimate.
+- All 4 specs persisted as `tests/evals/agentic_replays/architect-*.json`
+  → agentic eval count grows 2 → 6, all scoring ≥ 0.93.
+- 4 new learnings logged for `local/architect` agent in
+  `.claude/registry/learnings.jsonl`.
+- 6 total cost observations now in `.beads/cost_observations.jsonl`.
+
+### Added — Real OTel validation
+
+- `opentelemetry-sdk` 1.40.0 installed + validated end-to-end.
+- Confirmed `@traced` decorator on `extract_domain_model` emits a real
+  span with `entities_count`, `confidence`, `intent` attributes
+  through ConsoleSpanExporter.
+- Trace ID, span ID, attributes all populated correctly with
+  `OSP_OTEL_ENABLED=1`.
+
+### Added — Community + launch infrastructure
+
+- `DIRECTORY_SUBMISSION_FORM.md` — fillable form data for Anthropic
+  Software Directory submission. All required fields present.
+- `.github/ISSUE_TEMPLATE/bug_report.yml`, `feature_request.yml`,
+  `agent_registry_proposal.yml`.
+- `CONTRIBUTING.md` — quick start, code style, test policy, agent
+  policy, PR checklist.
+- `CODE_OF_CONDUCT.md` — Contributor Covenant 2.1 adoption.
+- `docs/launch/discord-announcement.md` — short / medium / long
+  versions for Discord / HN Show / Reddit / Twitter / LinkedIn, with
+  staggered posting cadence.
+
+### Changed
+
+- `plugin.json` v4.0.0 → 4.1.0.
+- Architect-agent observations now anchor the empirical cost model.
+- Agentic replay eval count 2 → 6.
+
+### Tests
+
+143/143 green. Agentic replays: 6/6 ≥ 0.93. Deterministic: 3/3 at 1.00.
+pass^k=1.0. Smoke: 8/8.
+
+### What's left (still requires external users)
+
+- First 10 real `/one-shot --apply` invocations in user projects
+- Anthropic Software Directory listing (post-review)
+- 50+ live agentic fan-outs for full empirical cost calibration
+- Community feedback loop activation (Discord launch ready)
+
+---
+
+## [4.0.0] — 2026-05-18 — Production Release
 
 The all-night push that turns scaffolding into production. Tier 7A–10
 delivered every gap that could close without external users.
