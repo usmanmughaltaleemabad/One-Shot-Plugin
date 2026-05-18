@@ -159,6 +159,16 @@ def _topo_sort(deps: Dict[str, Set[str]]) -> Tuple[List[str], List[str]]:
 
 # ─── Slice emission ────────────────────────────────────────────────────────
 
+def _pascal_to_snake(pascal: str) -> str:
+    """PascalCase -> snake_case ('UserProfile' -> 'user_profile')."""
+    out: List[str] = []
+    for i, ch in enumerate(pascal):
+        if i > 0 and ch.isupper():
+            out.append("_")
+        out.append(ch.lower())
+    return "".join(out)
+
+
 def _slug(s: str) -> str:
     return s.replace("_", "-").lower()
 
@@ -234,8 +244,50 @@ def plan(spec: Dict, *, out_dir: Optional[Path] = None) -> Dict:
     deps = _build_dep_graph(new_entities, spec.get("relationships") or [])
     order, cycle = _topo_sort(deps)
 
+    # v4.13: cycle-breaking via deferred FK
+    # When entities have circular FKs (User ↔ Profile, common in legacy
+    # systems), the original behaviour was hard-fail. New behaviour:
+    # automatically downgrade ONE FK to nullable, slice the rest normally,
+    # and emit a "deferred_fk" instruction the orchestrator turns into a
+    # secondary migration after initial tables exist.
+    #
+    # Strategy:
+    #   1. Identify the "back edge" — the cycle's lexicographically later
+    #      entity's FK to the earlier one. That's the FK we defer.
+    #   2. Drop the back edge from the dependency graph; rerun topo sort.
+    #   3. Emit `deferred_fks` field on the result so the orchestrator
+    #      knows which FK to make nullable initially + apply via
+    #      secondary migration.
+    deferred_fks: List[Dict[str, str]] = []
+    cycle_breaking_applied = False
+
     if cycle:
-        # Don't even try to slice — surface the cycle for the user to break.
+        # Sort cycle members alphabetically; back edge runs from LAST to FIRST.
+        cycle_sorted = sorted(cycle)
+        back_from = cycle_sorted[-1]   # later entity (e.g. "Profile")
+        back_to   = cycle_sorted[0]    # earlier entity (e.g. "User")
+        # Drop the cycle dep (back_from -> back_to)
+        if back_to in deps.get(back_from, set()):
+            deps[back_from].discard(back_to)
+            cycle_breaking_applied = True
+            deferred_fks.append({
+                "from_entity": _pascal_to_snake(back_from),
+                "to_entity": _pascal_to_snake(back_to),
+                "rationale": (
+                    f"Detected FK cycle between "
+                    f"{', '.join(cycle_sorted)}. Made the "
+                    f"{back_from}.{_pascal_to_snake(back_to)}_id column "
+                    f"nullable initially; apply NOT NULL constraint via "
+                    f"a secondary migration after both tables exist."
+                ),
+                "migration_stage": "6.7-deferred-fk",
+            })
+            # Re-run topo sort with the cycle broken
+            order, cycle = _topo_sort(deps)
+
+    if cycle:
+        # Still a cycle (3-way or larger that one edge-drop can't fix) —
+        # surface to the user as before.
         return {
             "feature": spec.get("feature", ""),
             "framework": spec.get("framework", "fastapi"),
@@ -243,7 +295,9 @@ def plan(spec: Dict, *, out_dir: Optional[Path] = None) -> Dict:
             "slices": [],
             "cycle_detected": True,
             "cycle_members": cycle,
-            "skip_reason": "fk_cycle_detected",
+            "skip_reason": "fk_cycle_detected_multi_edge",
+            "note": ("Tried to break the cycle by deferring one FK but "
+                      "the cycle has 3+ edges. Redesign the relationships."),
         }
 
     total = len(order)
@@ -275,6 +329,8 @@ def plan(spec: Dict, *, out_dir: Optional[Path] = None) -> Dict:
         "slices": slices,
         "cycle_detected": False,
         "cycle_members": [],
+        "cycle_breaking_applied": cycle_breaking_applied,
+        "deferred_fks": deferred_fks,
     }
 
 

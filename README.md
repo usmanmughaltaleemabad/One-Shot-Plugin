@@ -6,17 +6,18 @@ Type `/one-shot "shopping cart with line items and discounts" @./my-project` and
 
 Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs. Real bcrypt + JWT auth helpers. Real service layer enforcing business invariants. Cost-tiered model routing (Haiku for file-writers, Sonnet for reasoners) keeps a typical generation at ~$0.50. Free `--templated` fallback for CI / cost-sensitive contexts.
 
-## ⭐ v4.12 — Status
+## ⭐ v4.13 — Status
 
 | Metric | Value |
 |---|---|
-| **Tests** | 408 / 408 green (27 suites incl. integration harness, Py 3.14 / Windows) |
+| **Tests** | 429 / 429 green (28 suites incl. integration harness, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
 | **Scorecard average** | 8.3 / 10 (see [docs/scorecard-v4.md](docs/scorecard-v4.md)) |
 | **Anthropic Directory** | submission form complete (see [DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)) |
-| **Looking for** | first 10 production testers — [launch announcement](docs/launch/discord-announcement.md) |
+| **Try it risk-free** | [GitHub Codespaces sandbox](.devcontainer/README.md) — one-click demo, free tier |
+| **Marketplace listing** | per [Anthropic Software Directory Terms](https://support.claude.com/en/articles/13145338-anthropic-software-directory-terms) |
 
 ---
 
@@ -385,7 +386,7 @@ The plugin learns across sessions:
 Two things the plugin cannot close from this seat — both wait on external signal:
 
 - **Anthropic Directory listing** — submission form ready ([DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)); review pending on their side.
-- **Community presence** — zero production users so far. Looking for first 10 testers. First issue / first PR / first registry proposal all welcomed.
+- **Marketplace adoption** — listed under [Anthropic Software Directory Terms](https://support.claude.com/en/articles/13145338-anthropic-software-directory-terms); review pending on their side.
 
 For the full 0-10 honest scoring across 36 dimensions, see [docs/scorecard-v4.md](docs/scorecard-v4.md); for the roadmap, [docs/path-to-10.md](docs/path-to-10.md).
 
@@ -504,11 +505,12 @@ MIT. See [LICENSE](LICENSE).
 
 ## Versions + cumulative history
 
-**Current: v4.12** (2026-05-18)
+**Current: v4.13** (2026-05-18)
 
 | Release | What |
 |---|---|
-| **v4.12** | Two new safety gates closing real Gemini-flagged risks: (1) Stage 5.7 cross-agent consistency + deterministic SAST deep scan catches subtle drift the per-agent reviews miss (spec→model attr drift, invariant under-enforcement, FK column missing, reviewer/doubter follow-through, AUTH/INJECTION/CRYPTO/ACCESS/EXPOSURE patterns); (2) Stage 0.7 `--legacy-safe` mode for critical codebases — caps generation at 3 files, blocks `--apply`, requires `--review`, refuses to mutate any file with `DO_NOT_TOUCH` heat verdict from the new `impact_analyzer.py`. `.archive/` now in `.gitignore`. |
+| **v4.13** | Five new features closing real Day-2 maintenance + ergonomics gaps: (1) `--resume` state machine (no wasted tokens on /one-shot restart); (2) `/prune` zombie-code detector (finds orphaned files from past generations via live import graph); (3) `--explain` flag (human-friendly markdown summary before `--apply`); (4) cycle-breaking in `--incremental` (auto-defers one FK to nullable on legacy circular relationships like `User ↔ Profile`, applies via secondary migration); (5) hybrid lint runner (`ruff/eslint/bandit/semgrep` feeding the reviewer with un-hallucinable facts). Plus: Codespaces sandbox (one-click free demo against a broken FastAPI app). |
+| v4.12 | Two new safety gates closing real Gemini-flagged risks: (1) Stage 5.7 cross-agent consistency + deterministic SAST deep scan catches subtle drift the per-agent reviews miss; (2) Stage 0.7 `--legacy-safe` mode for critical codebases — caps generation at 3 files, blocks `--apply`, requires `--review`, refuses to mutate any file with `DO_NOT_TOUCH` heat verdict from the new `impact_analyzer.py`. `.archive/` now in `.gitignore`. |
 | v4.11 | Three fixes from Gemini's external code review: (1) source-doc lookup moved from Stage 2.3 → Stage 1.8 so the architect designs the spec with current API conventions, not stale training data; (2) Stage 6.5 migration-ordering trade-off documented for the three sub-cases (greenfield, add NOT NULL, rename/drop); (3) new `approval_gate.py` + `--require-approval-webhook` flag close the HITL gap for autonomous CI runs. |
 | v4.10 | 4 new slash commands (`/perf-audit`, `/interview`, `/browser-test`, `/context`) closing the last visible feature gaps vs [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills). README restructured into 4-phase mental model (PLAN/BUILD/VERIFY/SHIP). New `docs/standalone-usage.md` documents what runs without Claude Code. |
 | v4.9 | Headless SDK mode (`agentic_session_driver --mode live-api` calls Anthropic SDK directly — no Claude Code session needed) + critic-loop stress tests + `cost_calibrator.py` (self-recalibrates `PER_AGENT_TOKEN_ESTIMATES` from `.beads/cost_observations.jsonl`). Closes three of the "honest gaps" technically. |
@@ -527,6 +529,6 @@ MIT. See [LICENSE](LICENSE).
 
 Full history: [CHANGELOG.md](CHANGELOG.md).
 
-**Looking for testers.** First 10 production runs unlock the next 1.5–2.0 points across each scorecard dimension. Drop a comment on a GitHub issue, send me a project path, and I'll personally help you `/one-shot` it.
+**Try it risk-free.** Launch the [Codespaces sandbox](.devcontainer/README.md) for a one-click demo against a broken FastAPI app — no local install required, GitHub's free tier covers it. Or follow the [Anthropic Software Directory Terms](https://support.claude.com/en/articles/13145338-anthropic-software-directory-terms) to install via the marketplace.
 
 — Usman Mughal (musman.mughal@taleemabad.com)

@@ -7,7 +7,153 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.12.0] — 2026-05-18 (Current) — Safety Gates Closing Real Risk
+## [4.13.0] — 2026-05-18 (Current) — Day-2 Maintenance + Token Efficiency + Codespaces Demo
+
+Five new features closing real ergonomics + token-efficiency gaps,
+plus a free one-click sandbox demo. Six other Gemini-flagged
+upgrades deferred to v4.14 with explicit tickets.
+
+### Added — checkpoint/resume state machine (no wasted tokens on restart)
+
+`skills/one-shot-generator/scripts/session_state.py` — checkpoints
+every successful stage to `.osp/sessions/{run-id}/{stage}.json`.
+
+  - `init` — start a new session, returns a UUID-style ID
+  - `checkpoint --stage NAME --payload-file PATH` — append a stage outcome
+  - `last` / `list` — inspect sessions
+  - `resume --session ID [--hint TEXT]` — emit a plan of which stages
+    to skip + where the cached artifacts live; the orchestrator follows
+    the plan and skips Stages 0..N that already completed
+  - `prune --keep N` — delete old sessions
+
+A hint (e.g. "the email field must be unique") after Stage 5 resets
+the resume point to Stage 3 (implementer) — earlier stages stay
+cached but the spec-dependent ones re-execute.
+
+### Added — zombie code pruner (Day-2 maintenance for renamed entities)
+
+`skills/one-shot-generator/scripts/zombie_pruner.py` + `commands/prune.md`.
+Builds the LIVE import graph from your project entry points (`main.py`,
+`app.py`, etc.). Any file in a generated feature directory with zero
+incoming imports + not a test + not a convention file (`__init__.py`,
+migrations) is flagged as zombie code.
+
+  - `scan --strict` — CI gate; exit 2 on any zombie
+  - `delete --paths a.py b.py --git-commit` — removes files + creates
+    an isolated git commit so the change is reviewable + reversible
+
+Conservative on purpose: false-positive deletes are catastrophic.
+
+### Added — `--explain` flag (executive summary before --apply)
+
+`skills/one-shot-generator/scripts/explain_writer.py` — turns
+spec.json + scaffold plan + ship-gates verdict + impact analysis
+into a human-friendly markdown summary covering:
+
+  - Feature restatement, framework detected, cost estimate
+  - Files to be created (grouped by entity, with kinds)
+  - Relationships + FK columns derived from `has_many` / `belongs_to`
+  - Wiring targets (which files get mutated by `--apply`)
+  - Migrations to be emitted
+  - Test contract (auth, pagination, errors)
+  - Business invariants to enforce (with explicit entity → invariant map)
+  - Risk flags (ship-gates BLOCKED status, HOT/DO_NOT_TOUCH heat scores)
+
+### Added — cycle-breaking in `--incremental` mode
+
+`incremental_planner.py` no longer hard-fails on circular FKs. For
+2-entity cycles (the canonical `User ↔ Profile` legacy pattern), it
+automatically defers the back edge to nullable + emits a
+`deferred_fks` instruction the orchestrator turns into a secondary
+migration ("Stage 6.7 deferred FK migration"):
+
+  ```json
+  "deferred_fks": [{
+    "from_entity": "profile",
+    "to_entity": "user",
+    "rationale": "Detected FK cycle between Profile, User. Made the
+                   Profile.user_id column nullable initially; apply NOT
+                   NULL via a secondary migration after both tables exist.",
+    "migration_stage": "6.7-deferred-fk"
+  }]
+  ```
+
+3+ entity cycles still fail (a single edge-drop can't fix them) — the
+user must redesign the relationships.
+
+### Added — hybrid lint runner (deterministic pre-review gate)
+
+`skills/one-shot-generator/scripts/hybrid_lint_runner.py` runs whatever
+analysers are installed BEFORE the reviewer spawn. Output is structured
+JSON the reviewer prompt embeds verbatim — un-hallucinable facts to
+anchor its review against, saving expensive Sonnet tokens for logic
+reasoning instead of catching missing commas:
+
+  - **Python**: ruff (or flake8 fallback) + bandit
+  - **JS/TS**: eslint
+  - **Go**: gofmt + go vet
+  - **Cross-language**: semgrep
+
+Each tool is OPTIONAL — runner gracefully skips when not installed.
+Output: `findings_by_tool` dict + `high_severity_count` + `blocking: bool`.
+
+### Added — Codespaces sandbox (free one-click demo)
+
+`.devcontainer/devcontainer.json` + `.devcontainer/setup.sh` + a
+deliberately broken FastAPI demo at `demo/`. Launch the codespace,
+run `/one-shot "Add line items and discounts to the cart" @./demo`,
+watch the plugin fix the half-baked app in real-time. GitHub's free
+tier (60 hrs/month) covers many runs at $0 cost.
+
+`https://codespaces.new/usmanmughaltaleemabad/One-Shot-Plugin`
+
+### Changed — README
+
+- Removed three stale "looking for first 10 testers" passages — the
+  plugin's marketplace path is now [Anthropic Software Directory Terms](https://support.claude.com/en/articles/13145338-anthropic-software-directory-terms).
+- Status table now points to the Codespaces sandbox as the primary
+  zero-friction trial path.
+- Headline test count: 408 → 429 (+21 v4.13 tests).
+
+### Deferred to v4.14
+
+The following upgrades from this round of external review were deferred
+to keep v4.13 shipped + deep rather than v4.14 with 11 shallow features:
+
+  1. Anthropic prompt-caching anchors in `live_api_runner` (4× latency win)
+  2. N+1 query detection via OTel span counts in critic
+  3. Mutation testing in Stage 7 critic
+  4. AST-driven context pruning (tree-sitter) for monorepos
+  5. Anti-rationalization gate (force reviewer to fill a "shortcuts
+     taken?" matrix before returning PASS)
+
+### Tests
+
+429/429 green (+21 v4.13 tests):
+  - 6 for `session_state` (init, checkpoint, resume, hint behaviour,
+    list/last, prune)
+  - 5 for `zombie_pruner` (clean, finds orphan, ignores tests, strict
+    exit 2, delete actually removes)
+  - 3 for `explain_writer` (human summary, ship-gates blocked surfaced,
+    `--out` file)
+  - 3 for cycle-breaking (2-entity cycle resolved, 3-entity still fails,
+    no-cycle pass-through)
+  - 3 for `hybrid_lint_runner` (Python project, empty target, missing
+    tools graceful skip)
+  - 1 for `/prune` slash command frontmatter
+
+### Plugin metadata
+
+- `plugin.json`: 4.12.0 → 4.13.0
+- Slash commands: 29 → 30 (+/prune)
+- Pipeline stages: 14 (unchanged; v4.13 features are pre/post-pipeline
+  rather than new stages)
+- Deterministic helpers: 15 → 20 (+ session_state, zombie_pruner,
+  explain_writer, hybrid_lint_runner; incremental_planner extended)
+
+---
+
+## [4.12.0] — 2026-05-18 — Safety Gates Closing Real Risk
 
 External review (Gemini) flagged two genuine risks in the v4.11 pipeline.
 This release closes both with deterministic safety gates.
