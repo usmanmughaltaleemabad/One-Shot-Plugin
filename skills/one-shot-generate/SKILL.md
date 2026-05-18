@@ -180,6 +180,58 @@ the highest discovery score.
 
 ---
 
+## Stage 1.8 — Source-driven doc lookup (BEFORE architect)
+
+> **Order matters.** This stage runs BEFORE the architect (Stage 2),
+> not after. The architect needs the current framework's API
+> conventions while designing the spec — not after. Otherwise the
+> spec may bake in deprecated patterns (pre-0.95 FastAPI Depends,
+> legacy SQLAlchemy Column, Spring Boot 2 javax.* package names) that
+> the implementer then faithfully replicates.
+
+Implementer + architect emit code from training data + body_hints. For
+post-cutoff API drift (Pydantic v2 quirks, FastAPI 0.110+ Annotated
+deps, Spring Boot 3 javax→jakarta rename, TypeORM 0.3 DataSource,
+GORM v2 Session API, …) training data can be wrong. This stage
+verifies against current official docs.
+
+```!
+python "./scripts/source_docs_fetcher.py" --project <project-path> > /tmp/osp-doc-plan.json
+```
+
+The script detects the framework + exact pinned version from the
+project's manifest (requirements.txt / pom.xml / package.json / go.mod)
+and emits a doc-lookup plan — one entry per topic the architect + each
+implementer needs to verify, with the official-doc URL + anchor keywords.
+
+For each entry in `lookups[]`, call WebFetch:
+
+```text
+WebFetch({
+  url: <entry.url>,
+  prompt: "Extract idiomatic example signatures involving:
+           <comma-separated entry.anchor_keywords>.
+           Return code examples only, under 40 lines total."
+})
+```
+
+Bundle the responses into a `source_excerpts` field on **BOTH the
+architect's prompt (Stage 2) AND each implementer's prompt (Stage 3)**.
+They treat the excerpts as canonical truth, overriding anything in
+body_hints that conflicts.
+
+**Skip conditions**: `skip_reason: no_manifest_found` (greenfield project),
+`framework_not_recognised`, or `version_pin_missing` (best-effort, no
+version-gated lookups available). On skip, log a warning and proceed —
+training data is the fallback.
+
+Why this matters: lookups are cheap (~$0.005 each via WebFetch) and
+catch a bug class our reviewer + critic can't catch (API drift inside
+syntactically-correct code). Caught EARLY (before spec design), they
+prevent the spec from baking in deprecated patterns.
+
+---
+
 ## Stage 2 — Architect agent
 
 Spawn the architect agent via Task. Give it:
@@ -187,6 +239,7 @@ Spawn the architect agent via Task. Give it:
 - The domain model JSON from Stage 1
 - The codebase graph summary from Stage 1
 - The curriculum hits from Stage 0 (if any)
+- **The source_excerpts from Stage 1.8** (canonical framework patterns)
 
 ```text
 Agent({
@@ -205,6 +258,11 @@ Agent({
 
     Past failures matching this task (from beads_curriculum):
     <paste curriculum hits, or 'none'>
+
+    Official-doc excerpts at the project's pinned framework version
+    (from Stage 1.8 source-driven lookup — treat as canonical, override
+    any conflicting training-data instinct):
+    <paste WebFetch responses, or "(none — no manifest detected)">
 
     Produce spec.json following the architect.md schema. Write it to
     /tmp/osp-spec.json. Append a 2-3 sentence summary of your decisions
@@ -240,46 +298,17 @@ the design constraints survive memory churn.
 
 ---
 
-## Stage 2.3 — Source-driven doc lookup
+## Stage 2.3 — Source-driven doc lookup (DEPRECATED — moved to Stage 1.8)
 
-Implementer agents emit code from training data + body_hints. For
-post-cutoff API drift (Pydantic v2 quirks, FastAPI 0.110+ Annotated
-deps, Spring Boot 3 javax→jakarta rename, TypeORM 0.3 DataSource,
-GORM v2 Session API, …) training data can be wrong. This stage
-verifies against current official docs.
+> **As of v4.11, this stage was moved to [Stage 1.8](#stage-18--source-driven-doc-lookup-before-architect)
+> so the architect benefits from the doc excerpts too** (per Gemini
+> review — the architect was previously designing specs without seeing
+> current API conventions, baking in deprecated patterns the implementer
+> faithfully replicated). This anchor stays for backward compatibility
+> with bookmarks / external references.
 
-```!
-python "./scripts/source_docs_fetcher.py" --project <project-path> > /tmp/osp-doc-plan.json
-```
-
-The script detects the framework + exact pinned version from the
-project's manifest (requirements.txt / pom.xml / package.json / go.mod)
-and emits a doc-lookup plan — one entry per topic the implementer needs
-to verify, with the official-doc URL + anchor keywords to look for.
-
-For each entry in `lookups[]`, call WebFetch:
-
-```text
-WebFetch({
-  url: <entry.url>,
-  prompt: "Extract idiomatic example signatures involving:
-           <comma-separated entry.anchor_keywords>.
-           Return code examples only, under 40 lines total."
-})
-```
-
-Bundle the responses into a `source_excerpts` field on each implementer
-agent's prompt — they treat the excerpts as canonical truth, overriding
-anything in body_hints that conflicts.
-
-**Skip conditions**: `skip_reason: no_manifest_found` (greenfield project),
-`framework_not_recognised`, or `version_pin_missing` (best-effort, no
-version-gated lookups available). On skip, log a warning and proceed —
-training data is the fallback.
-
-Why this matters: lookups are cheap (~$0.005 each via WebFetch) and
-catch a bug class our reviewer + critic can't catch (API drift inside
-syntactically-correct code).
+The source_excerpts from Stage 1.8 are bundled into BOTH the architect's
+prompt (Stage 2) AND each implementer's prompt (Stage 3).
 
 ---
 
@@ -597,6 +626,47 @@ bodies derived from spec.json's entities and relationships. The user
 runs `alembic upgrade head` when ready. For Django projects, the
 script emits `MIGRATION_RUNBOOK.md` (Django generates migrations via
 introspection).
+
+#### Why migration AFTER implementer code (not before)
+
+A reasonable critique (Gemini, v4.11): shouldn't the schema be decided
+BEFORE the implementer writes code, since the database structure
+dictates how the code is written?
+
+**For greenfield entities** (the dominant `/one-shot` use case): no.
+Both the implementer's `models.py` AND the Alembic migration derive
+from the **same source** — `spec.json`. The implementer writes models;
+Alembic's `--autogenerate` then compares those models to the current
+DB and emits the migration. spec.json is the single source of truth;
+there's no possibility of code/migration drift because both are
+projections of the same spec.
+
+**For modifying existing entities** (add column to existing table):
+the order matters more. Three sub-cases:
+
+1. **Spec adds a column to an existing entity.** Stage 1 codebase
+   scan already loaded the existing model. The architect's spec
+   reflects the merged shape (existing + new fields). Implementer
+   updates the model accordingly. Migration is emitted last and
+   captures only the delta. **No drift risk.**
+
+2. **Spec adds a column with a NOT NULL constraint + default.** The
+   migration MUST include a `server_default` + backfill step, OR be
+   split into two revisions (add nullable → backfill → set NOT NULL).
+   Stage 6.5 inspects spec.json for new NOT NULL columns and surfaces
+   this as a `MIGRATION_RUNBOOK.md` warning — never silently emits a
+   migration that would lock prod or fail mid-deploy.
+
+3. **Spec renames or drops an existing column.** Stage 6.5 refuses to
+   auto-emit destructive migrations. It emits a `MIGRATION_RUNBOOK.md`
+   with the manual two-step expand/contract pattern; the user runs
+   the operations explicitly during a maintenance window.
+
+**Bottom line**: the order works because spec.json drives both code
+and DDL. The trade-off is only visible in case 2 / case 3, where Stage
+6.5 deliberately produces a *runbook* rather than an auto-applied
+migration. See [docs/cookbook.md](../docs/cookbook.md) §
+"Modifying-existing-entity migrations" for worked examples.
 
 ---
 

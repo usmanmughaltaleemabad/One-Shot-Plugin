@@ -7,7 +7,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.10.0] — 2026-05-18 (Current) — Cleaner Mental Model + 4 New Skill Gaps Closed
+## [4.11.0] — 2026-05-18 (Current) — Gemini Review Fixes (Pipeline Ordering + HITL Gate)
+
+External code review by Gemini surfaced three real flaws in the v4.10
+pipeline. All three closed in this release.
+
+### Changed — Stage 1.8 source-driven doc lookup (was Stage 2.3)
+
+The architect previously designed `spec.json` from training-data
+instinct, then the doc-lookup stage ran AFTER — so the implementer
+got current API conventions but the architect didn't. Result: specs
+could bake in pre-0.95 FastAPI Depends syntax, legacy SQLAlchemy
+Column, Spring Boot 2 javax.* package names, etc.
+
+**Fix**: Stage 2.3 moved to Stage 1.8 (between Stage 1 codebase scan
+and Stage 2 architect). Doc excerpts now flow into BOTH the architect
+prompt AND each implementer prompt. The `live_api_runner._architect_prompt`
+builder gains a `source_excerpts` field; when absent (greenfield project),
+falls back to a clear "(none — no manifest detected)" marker.
+
+Stage 2.3 anchor preserved with a deprecation note for bookmark
+backward-compat.
+
+### Documented — Stage 6.5 migration ordering rationale
+
+A reasonable critique: shouldn't the schema be decided BEFORE the
+implementer writes code? `SKILL.md` Stage 6.5 now documents the
+three sub-cases explicitly:
+
+  1. **Greenfield entity** — no drift risk; spec.json is single source
+     of truth, models + Alembic both derive from it.
+  2. **Add NOT NULL column to existing entity** — Stage 6.5 surfaces
+     this as a `MIGRATION_RUNBOOK.md` warning (server_default + backfill
+     OR split into two revisions); never silently emits a migration
+     that would lock prod.
+  3. **Rename / drop existing column** — Stage 6.5 refuses to
+     auto-emit destructive migrations; emits a runbook with the manual
+     two-step expand/contract pattern.
+
+### Added — Stage 5.9 webhook approval gate (HITL for autonomous runs)
+
+In interactive `/one-shot` use, HITL is implicit (`--apply` opt-in,
+`/ship-check` runs first, user types "y"). In autonomous CI runs
+(GitHub Actions, scheduled jobs, `--mode live-api`) there's no terminal.
+
+**Added**: `skills/one-shot-generator/scripts/approval_gate.py` —
+POSTs a generic JSON payload to a webhook (Slack / GitHub PR comment /
+custom portal / PagerDuty / Opsgenie) with the wire plan + ship-gates
+verdict + run summary. Two modes:
+
+  - **Emit-only** (`--emit-only`): returns immediately with
+    `status: pending` + a `request_id`. A separate process resumes
+    via `approval_gate.py resume --request-id <id> --approved true`.
+    Good for slow-loop GitHub PR-comment workflows.
+  - **Poll** (`--callback-url`): blocks while polling the callback URL
+    every 5s; returns when it receives `{request_id, approved, approver,
+    reason}` OR `--timeout-minutes` elapses.
+
+State lives in `.beads/approvals/{request_id}.json` so resume works
+across processes / restarts. New subcommands: `request`, `resume`,
+`status`, `list`.
+
+**Added**: `--require-approval-webhook`, `--approval-callback-url`,
+`--approval-timeout-minutes` flags on `agentic_session_driver.py`.
+The `--mode live-api` flow now optionally POSTs to the approval webhook
+between the run and the implicit "ship" step.
+
+### Tests
+
+382/382 green (+15 v4.11 tests). Coverage:
+  - 5 for Fix #1 (SKILL.md Stage 1.8 ordering, deprecation note, architect
+    prompt builder injects excerpts, graceful no-excerpts fallback)
+  - 1 for Fix #2 (Stage 6.5 documents three sub-cases)
+  - 9 for Fix #3 (emit-only, polling-approved, polling-denied,
+    resume-approves, resume-denies, list, unreachable-webhook,
+    resume-rejects-non-pending, session driver flags exist)
+
+### Plugin metadata
+
+  - `plugin.json`: 4.10.0 → 4.11.0
+
+---
+
+## [4.10.0] — 2026-05-18 — Cleaner Mental Model + 4 New Skill Gaps Closed
 
 After the comparison with addyosmani/agent-skills, we identified four
 genuinely closeable gaps. This release ships them — plus a structural

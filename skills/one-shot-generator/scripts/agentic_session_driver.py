@@ -261,6 +261,18 @@ def main():
                         help="Recordings dir for --mode replay")
     parser.add_argument("--agents-dir", default=".claude/agents",
                         help="Agents directory for --mode live-api")
+    parser.add_argument("--require-approval-webhook", default=None,
+                        help="POST a pre-ship approval payload to this URL "
+                             "and wait for callback. Required for autonomous "
+                             "CI runs that go through --mode live-api. See "
+                             "approval_gate.py for the callback contract.")
+    parser.add_argument("--approval-callback-url", default=None,
+                        help="If --require-approval-webhook is set, poll "
+                             "this URL for the decision. If unset, the "
+                             "webhook fires and the run exits with "
+                             "status=pending (caller resumes later).")
+    parser.add_argument("--approval-timeout-minutes", type=int, default=60,
+                        help="Maximum wait time for the approval decision.")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -326,6 +338,85 @@ def main():
                 sum(r.get("cost_usd", 0) for r in results), 6),
             "results": results,
         }
+
+        # v4.11 Stage 5.9 — HITL approval gate for autonomous runs.
+        # POSTs the wire plan + run summary to the webhook; either polls
+        # for callback OR returns pending immediately (caller resumes).
+        if args.require_approval_webhook:
+            from approval_gate import (
+                _post_webhook, _get_callback, _build_payload,
+                _write_state, _now_iso, POLL_INTERVAL_SECONDS,
+            )
+            import secrets, time
+            request_id = "ap_" + secrets.token_hex(8)
+            payload = _build_payload(
+                request_id, plan=None, ship_gates=None,
+                summary=f"/one-shot live-api run completed: "
+                        f"{len(results)} spawns, "
+                        f"${summary['total_cost_usd']:.4f}, "
+                        f"awaiting human approval before ship",
+            )
+            payload["live_api_summary"] = summary
+            post_resp = _post_webhook(args.require_approval_webhook, payload)
+            approval_state = {
+                "request_id": request_id, "created_at": _now_iso(),
+                "webhook_url": args.require_approval_webhook,
+                "callback_url": args.approval_callback_url,
+                "status": "pending",
+                "payload": payload,
+                "approver": None, "approved_at": None, "denial_reason": None,
+            }
+            _write_state(Path.cwd(), request_id, approval_state)
+
+            if not post_resp["ok"]:
+                summary["approval_gate"] = {
+                    "status": "error",
+                    "request_id": request_id,
+                    "error": f"webhook returned {post_resp['status_code']}",
+                }
+                print(json.dumps(summary, indent=2))
+                return
+
+            if not args.approval_callback_url:
+                # Emit-only: caller will resume out-of-band
+                summary["approval_gate"] = {
+                    "status": "pending",
+                    "request_id": request_id,
+                    "resume_with":
+                        f"approval_gate.py resume "
+                        f"--request-id {request_id} --approved true",
+                }
+                print(json.dumps(summary, indent=2))
+                return
+
+            # Poll for decision
+            deadline = time.time() + (args.approval_timeout_minutes * 60)
+            decision = {"status": "timed_out"}
+            while time.time() < deadline:
+                cb = _get_callback(args.approval_callback_url)
+                if cb["ok"] and isinstance(cb["body"], dict):
+                    body = cb["body"]
+                    if body.get("request_id") == request_id:
+                        if body.get("approved") is True:
+                            decision = {
+                                "status": "approved",
+                                "approver": body.get("approver", "(unknown)"),
+                                "approved_at": _now_iso(),
+                            }
+                            break
+                        if body.get("approved") is False:
+                            decision = {
+                                "status": "denied",
+                                "denial_reason":
+                                    body.get("reason", "(no reason given)"),
+                            }
+                            break
+                time.sleep(POLL_INTERVAL_SECONDS)
+            summary["approval_gate"] = {
+                "request_id": request_id,
+                **decision,
+            }
+
         print(json.dumps(summary, indent=2))
         return
 

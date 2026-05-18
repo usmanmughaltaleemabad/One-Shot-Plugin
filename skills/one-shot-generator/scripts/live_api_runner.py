@@ -149,12 +149,22 @@ def _architect_prompt(spawn_input: Dict[str, Any], context: Dict[str, Any]) -> s
     graph_summary = context.get("graph_summary", "(no codebase graph)")
     domain_model = context.get("domain_model", {})
     curriculum = context.get("curriculum_hits", "none")
+    # v4.11: source_excerpts now flow into the architect (was implementer-only).
+    # Caught by Gemini review — architect needs current API conventions WHILE
+    # designing the spec, not after.
+    source_excerpts = context.get(
+        "source_excerpts",
+        "(none — Stage 1.8 source-driven lookup skipped or no manifest detected)",
+    )
     return (
         f"Task: {task}\n\n"
         f"Domain model (from extract_domain_model.py):\n"
         f"{json.dumps(domain_model, indent=2)}\n\n"
         f"Existing codebase (summary):\n{graph_summary}\n\n"
         f"Past failures matching this task:\n{curriculum}\n\n"
+        f"Official-doc excerpts at the project's pinned framework version "
+        f"(treat as canonical, override any conflicting training-data instinct):\n"
+        f"{source_excerpts}\n\n"
         f"Produce spec.json following the architect.md schema. Return ONLY "
         f"the JSON object — no prose, no Markdown fences. Validate that "
         f"every entity has 'name', 'snake_name', 'plural', 'action', "
