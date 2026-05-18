@@ -9,6 +9,11 @@ owner: claude
 Run Jaeger + Prometheus locally so the plugin's OpenTelemetry spans land
 somewhere visible.
 
+> **For production:** see [production-collector.md](production-collector.md)
+> — covers sidecar vs gateway topologies, memory_limiter, tail-based
+> sampling, PII scrubbing, queue persistence, vendor-specific exporter
+> snippets (Honeycomb / Grafana / Datadog / New Relic), and collector SLOs.
+
 ## 1. Start the stack
 
 ```bash
