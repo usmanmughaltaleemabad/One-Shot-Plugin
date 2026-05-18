@@ -347,6 +347,37 @@ Key safety properties:
 
 ---
 
+## Support & Maintenance
+
+```bash
+/one-shot --help                       # Built-in help + examples
+/support                               # Support channels + response times
+```
+
+### Community + contribution
+
+- **Bug reports**: Use the [bug report template](.github/ISSUE_TEMPLATE/bug_report.yml)
+- **Feature requests**: [Feature request template](.github/ISSUE_TEMPLATE/feature_request.yml)
+- **Agent proposals**: [Agent registry proposal template](.github/ISSUE_TEMPLATE/agent_registry_proposal.yml)
+- **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md) for code style, tests, and PR checklist
+- **Code of conduct**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Contributor Covenant 2.1
+
+### Anthropic Software Directory
+
+This plugin is submitted for inclusion in the Anthropic Software Directory under the [Anthropic Software Directory Policy](https://support.claude.com/en/articles/13145338-anthropic-software-directory-terms).
+
+**Submission contact:**
+
+| Field | Value |
+|---|---|
+| **Author** | Usman Mughal |
+| **Email** | musman.mughal@taleemabad.com |
+| **GitHub** | [usmanmughaltaleemabad/One-Shot-Plugin](https://github.com/usmanmughaltaleemabad/One-Shot-Plugin) |
+| **Response commitment** | < 48 hours on GitHub issues during review |
+| **Documentation** | [Complete README](README.md) + [Directory submission form](DIRECTORY_SUBMISSION_FORM.md) |
+
+---
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
