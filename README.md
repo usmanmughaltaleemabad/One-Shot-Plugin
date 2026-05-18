@@ -2,11 +2,13 @@
 
 **Production agentic one-shot code generation for existing codebases.** Claude conducts a 9-stage pipeline through 10 specialist agents (architect → service-author → implementer×N + test-author → reviewer → wirer → migration → critic, with extractor + docs-author + rollback on the side) to take a natural-language feature request and ship verified, FK-aware, migration-emitting, cost-gated code into your project. Multi-entity, relationship-aware, with a free templated fallback for CI use.
 
-## ⭐ v4.0.0 — Production Release (Tier 10)
+## ⭐ v4.1.0 — Empirical Calibration + Community Launch (current)
 
-**Status**: Production-ready. 133 tests passing. service-layer enforces invariants, real Alembic migrations, OpenAPI docs, rate-limit + cache hints, OpenTelemetry tracing, autonomy-level gating, learnings-hub agent ratings.
+**Status**: 143 tests passing. 6 agentic eval recordings at ≥0.93. Real OpenTelemetry end-to-end validated against `opentelemetry-sdk` 1.40.0. Anthropic Directory submission form complete (`DIRECTORY_SUBMISSION_FORM.md`). Looking for first 10 production testers — see [docs/launch/discord-announcement.md](docs/launch/discord-announcement.md).
 
-The v4.0 release closes every gap that can be closed without external users — what's left is empirical (Anthropic Directory listing + community adoption).
+**Cost calibration anchor**: 6 real architect runs (mean 26,621 tokens / 60.4s / ~$0.10), within 5% of the v3.5 pre-empirical estimate.
+
+The v4.1 release closes every empirical gap that can be closed without external users. What's left is community adoption + first 10 production runs.
 
 ```bash
 # Primary entry point (agentic) — Claude reasons, scripts execute
