@@ -4,10 +4,11 @@ last_verified: 2026-05-18
 owner: claude
 ---
 
-# one-shot-prompting Plugin — v4.1.0
+# one-shot-prompting Plugin — v4.9.0
 
-Production agentic one-shot generation. Claude conducts 9-stage
-pipeline → 10 specialist agents → 25+ deterministic tools.
+Production agentic one-shot generation. Claude conducts a 12-stage
+pipeline → 11 specialist agents → 30+ deterministic tools. **340 tests
+green**, 101 body hints catalogue, 25 slash commands.
 
 ## Quick Navigation
 
@@ -27,33 +28,45 @@ pipeline → 10 specialist agents → 25+ deterministic tools.
 | Cookbook | `docs/cookbook.md` |
 | Marketplace submission | `MARKETPLACE_SUBMISSION.md` |
 
-## Structure (v4.1.0)
+## Structure (v4.9.0)
 
 ```
-.claude/    hooks, 10 agents, standards, registry, beads
+.claude/    hooks, 11 agents (incl. doubter), standards, registry, beads
 skills/     9 skills
-commands/   20 slash commands
+commands/   25 slash commands (incl. /adr, /dashboard, /ship-check, /refine, /learnings)
 docs/       per-tier reference + observability + cookbook + scorecards
-tests/      133 invocation tests + evals + agentic replays
+tests/      340 invocation tests + evals + agentic replays
 ```
 
-## Agentic pipeline stages (9 total)
+## Agentic pipeline stages (12 total — 9 default-on)
 
 ```
 0    curriculum + predictive failure scan
 0.5  external discovery (registry + curator)
 1    scan + extract domain model
 1.5  cost-budget gate
-2    architect → spec.json
+2    architect → spec.json (+ adr_writer emits docs/adr/NNNN-*.md)
+2.3  source-driven doc lookup (WebFetch official docs)        ← v4.6
 2.5  spec review (--review flag)
+2.6  incremental slicing (--incremental flag)                  ← v4.8
 2.7  service-author (when invariants exist)
 3    implementer×N + test-author (parallel)
 4    verify + auto-patch
 5    reviewer
-6    wire + 6.5 migration
-7    critic (N-iter loop, max 3)
-8    record (graph + beads)
+5.5  doubt-driven adversarial review (DEFAULT ON; --no-doubt)  ← v4.6/4.7
+6    ship-gates → wire + 6.5 migration (DEFAULT ON; --no-ship-check)
+7    critic (multi-iter loop, max 3; deterministic driver)
+8    record (graph + beads + learnings.jsonl via run_finalize)
 ```
+
+## v4.9 additions
+
+- `--mode live-api` on `agentic_session_driver.py` — headless SDK runs
+  via Anthropic SDK directly (no Claude Code session needed). Graceful
+  no-op when key/SDK missing. Unlocks CI / batch / scheduled runs.
+- `cost_calibrator.py` — self-recalibrates `PER_AGENT_TOKEN_ESTIMATES`
+  from `.beads/cost_observations.jsonl` (p50 median). `--apply`
+  rewrites the dict in place; `--check --threshold 0.20` is a CI gate.
 
 ## Critical Rules
 
@@ -86,4 +99,4 @@ python tests/evals/pass_k_runner.py --mode deterministic-replay --k 5
 
 ---
 
-Updated 2026-05-18 (v4.1.0)
+Updated 2026-05-18 (v4.9.0)
