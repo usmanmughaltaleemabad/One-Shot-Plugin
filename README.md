@@ -6,7 +6,7 @@ Type `/one-shot "shopping cart with line items and discounts" @./my-project` and
 
 Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs. Real bcrypt + JWT auth helpers. Real service layer enforcing business invariants. Cost-tiered model routing (Haiku for file-writers, Sonnet for reasoners) keeps a typical generation at ~$0.50. Free `--templated` fallback for CI / cost-sensitive contexts.
 
-## ⭐ v4.9 — Status
+## ⭐ v4.10 — Status
 
 | Metric | Value |
 |---|---|
@@ -504,11 +504,12 @@ MIT. See [LICENSE](LICENSE).
 
 ## Versions + cumulative history
 
-**Current: v4.9** (2026-05-18)
+**Current: v4.10** (2026-05-18)
 
 | Release | What |
 |---|---|
-| **v4.9** | Headless SDK mode (`agentic_session_driver --mode live-api` calls Anthropic SDK directly — no Claude Code session needed) + critic-loop stress tests + `cost_calibrator.py` (self-recalibrates `PER_AGENT_TOKEN_ESTIMATES` from `.beads/cost_observations.jsonl`). Closes three of the "honest gaps" technically. |
+| **v4.10** | 4 new slash commands (`/perf-audit`, `/interview`, `/browser-test`, `/context`) closing the last visible feature gaps vs [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills). README restructured into 4-phase mental model (PLAN/BUILD/VERIFY/SHIP). New `docs/standalone-usage.md` documents what runs without Claude Code. |
+| v4.9 | Headless SDK mode (`agentic_session_driver --mode live-api` calls Anthropic SDK directly — no Claude Code session needed) + critic-loop stress tests + `cost_calibrator.py` (self-recalibrates `PER_AGENT_TOKEN_ESTIMATES` from `.beads/cost_observations.jsonl`). Closes three of the "honest gaps" technically. |
 | v4.8 | `--incremental` slicing — ship entities one at a time with green tests + git commit between (Kahn's topo sort, FK-cycle detection) |
 | v4.7 | Integration tightening — Stage 5.5 doubt, Stage 6 ship-check, Stage 2 ADR are DEFAULT ON. /adr + /dashboard slash commands. 4 hints (perf, error_recovery, debug, git_workflow). |
 | v4.6 | Absorbed [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) — Stage 2.3 source-driven, Stage 5.5 doubt-driven, /ship-check, ADR writer, /refine, 6 common hints. |

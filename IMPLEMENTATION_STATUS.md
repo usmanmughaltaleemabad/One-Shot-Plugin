@@ -4,27 +4,28 @@ last_verified: 2026-05-18
 owner: claude
 ---
 
-# Implementation Status — v4.9 (Headless SDK + Stress Tests + Self-Calibrating Cost Model)
+# Implementation Status — v4.10 (Cleaner Mental Model + 4 New Skill Gaps Closed)
 
-**Last audit: 2026-05-18 — through v4.9**
+**Last audit: 2026-05-18 — through v4.10**
 
 ## Headline numbers
 
 | Metric | Value |
 |---|---|
 | Body hints catalogue | **101** (10 × FastAPI · 13 × Django · 10 × Spring · 10 × NestJS · 10 × Go · 10 × Node.js · 38 × common) |
-| Test suite | **340 / 340 green** (23 suites, Py 3.14 / Windows) |
-| Slash commands | **25** |
+| Test suite | **367 / 367 green** (25 suites incl. integration harness, Py 3.14 / Windows) |
+| Slash commands | **29** (28 user-facing + commands/CLAUDE.md) |
 | Specialist agents | **11** |
 | Pipeline stages in `/one-shot` | **12** (9 default-on) |
-| `agentic_session_driver` modes | **4** (dry-run · record · replay · **live-api**) |
-| Deterministic orchestration helpers | critic_loop_driver, doubt_driver, incremental_planner, source_docs_fetcher, ship_gates, adr_writer, run_finalize, live_api_runner, cost_calibrator |
+| `agentic_session_driver` modes | **4** (dry-run · record · replay · live-api) |
+| Deterministic orchestration helpers | critic_loop_driver, doubt_driver, incremental_planner, source_docs_fetcher, ship_gates, adr_writer, run_finalize, live_api_runner, cost_calibrator, perf_audit, context_writer |
 
 ## v4.x progression
 
 | Version | Headline |
 |---|---|
-| **v4.9** | **Headless SDK mode** (`--mode live-api`) + **critic-loop stress tests** + **self-calibrating cost model** (`cost_calibrator.py` rewrites `PER_AGENT_TOKEN_ESTIMATES` from `.beads/cost_observations.jsonl`). Closes 3 of the 6 "honest gaps" technically. |
+| **v4.10** | **4 new slash commands** (`/perf-audit`, `/interview`, `/browser-test`, `/context`) closing the last visible feature gaps vs addyosmani/agent-skills. README restructured into 4-phase mental model (PLAN/BUILD/VERIFY/SHIP). New `docs/standalone-usage.md` documents the ~90% of the plugin that runs without Claude Code. |
+| v4.9 | Headless SDK mode (`--mode live-api`) + critic-loop stress tests + self-calibrating cost model (`cost_calibrator.py`). Closes 3 of the 6 "honest gaps" technically. |
 | v4.8 | `--incremental` slicing — ship one entity per slice with green tests + git commit between |
 | **v4.7** | Integration tightening — Stage 5.5 doubt, Stage 6 ship-check, Stage 2 ADR are DEFAULT ON. /adr + /dashboard slash commands. 4 new hints (perf, error_recovery, debug, git_workflow). |
 | **v4.6** | Absorbed [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) — Stage 2.3 source-driven, Stage 5.5 doubt-driven, /ship-check, ADR writer, /refine, 6 common hints. |

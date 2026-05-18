@@ -6,18 +6,18 @@ owner: claude
 
 # Scorecard — v4.0.0 (after Tier 6 + 7A + 8 + 9 + 10)
 
-> **Update for v4.9 (2026-05-18):** the v4.0 baseline below remains the
-> reference point. Since then v4.1 → v4.9 closed every gap that didn't
-> require external user signal. Current state (v4.9): **101 body hints**,
-> **340/340 tests green**, **12 pipeline stages** (9 default-on),
-> 25 slash commands, 11 specialist agents. New since v4.0:
+> **Update for v4.10 (2026-05-18):** the v4.0 baseline below remains the
+> reference point. Since then v4.1 → v4.10 closed every gap that didn't
+> require external user signal. Current state (v4.10): **101 body hints**,
+> **367/367 tests green**, **12 pipeline stages** (9 default-on),
+> 29 slash commands, 11 specialist agents. New since v4.0:
 > framework parity (v4.2), Tier-1/2/3 production concerns (v4.3-4.5),
 > critic-loop driver (v4.4), Osmani-skill absorptions (v4.6), default-on
 > discipline (v4.7), `--incremental` slicing (v4.8), headless SDK mode +
-> self-calibrating cost model (v4.9). See `IMPLEMENTATION_STATUS.md`
+> self-calibrating cost model (v4.10). See `IMPLEMENTATION_STATUS.md`
 > for the full progression; `CHANGELOG.md` for per-release detail.
 
-**Weighted overall: 8.2 / 10** (v4.0 baseline; v4.9 has not been re-scored
+**Weighted overall: 8.2 / 10** (v4.0 baseline; v4.10 has not been re-scored
 end-to-end — would benefit from another scorecard pass once we have real
 production runs.)
 

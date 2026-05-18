@@ -4,11 +4,11 @@ last_verified: 2026-05-18
 owner: claude
 ---
 
-# one-shot-prompting Plugin — v4.9.0
+# one-shot-prompting Plugin — v4.10.0
 
 Production agentic one-shot generation. Claude conducts a 12-stage
-pipeline → 11 specialist agents → 30+ deterministic tools. **340 tests
-green**, 101 body hints catalogue, 25 slash commands.
+pipeline → 11 specialist agents → 30+ deterministic tools. **367 tests
+green**, 101 body hints catalogue, 29 slash commands.
 
 ## Quick Navigation
 
@@ -28,14 +28,14 @@ green**, 101 body hints catalogue, 25 slash commands.
 | Cookbook | `docs/cookbook.md` |
 | Marketplace submission | `MARKETPLACE_SUBMISSION.md` |
 
-## Structure (v4.9.0)
+## Structure (v4.10.0)
 
 ```
 .claude/    hooks, 11 agents (incl. doubter), standards, registry, beads
 skills/     9 skills
-commands/   25 slash commands (incl. /adr, /dashboard, /ship-check, /refine, /learnings)
-docs/       per-tier reference + observability + cookbook + scorecards
-tests/      340 invocation tests + evals + agentic replays
+commands/   29 slash commands (v4.10 +/perf-audit, /interview, /browser-test, /context)
+docs/       per-tier reference + observability + cookbook + scorecards + standalone-usage
+tests/      367 invocation tests + evals + agentic replays + integration harness
 ```
 
 ## Agentic pipeline stages (12 total — 9 default-on)
@@ -59,14 +59,26 @@ tests/      340 invocation tests + evals + agentic replays
 8    record (graph + beads + learnings.jsonl via run_finalize)
 ```
 
-## v4.9 additions
+## v4.10 additions
+
+- `/perf-audit` + `perf_audit.py` — Anti-pattern scanner (N+1 queries,
+  hot-path blockers, memory hazards) + per-framework profiler map.
+- `/interview` — Pre-`/refine` 3-round structured interview (max 6 questions)
+  for vague feature requests.
+- `/browser-test` — Drives chrome-devtools MCP for FE end-to-end testing.
+- `/context` + `context_writer.py` — Generates `CLAUDE.md` skeleton
+  from a project's detected stack + tooling.
+- `docs/standalone-usage.md` — Maps which 90% of the plugin runs
+  WITHOUT Claude Code (Cursor / Gemini / GitHub Actions integration).
+- README restructured into 4-phase mental model (PLAN/BUILD/VERIFY/SHIP).
+
+## v4.9 additions (kept for reference)
 
 - `--mode live-api` on `agentic_session_driver.py` — headless SDK runs
-  via Anthropic SDK directly (no Claude Code session needed). Graceful
-  no-op when key/SDK missing. Unlocks CI / batch / scheduled runs.
+  via Anthropic SDK directly. Graceful no-op when key/SDK missing.
+  Unlocks CI / batch / scheduled runs.
 - `cost_calibrator.py` — self-recalibrates `PER_AGENT_TOKEN_ESTIMATES`
-  from `.beads/cost_observations.jsonl` (p50 median). `--apply`
-  rewrites the dict in place; `--check --threshold 0.20` is a CI gate.
+  from `.beads/cost_observations.jsonl` (p50 median).
 
 ## Critical Rules
 
@@ -99,4 +111,4 @@ python tests/evals/pass_k_runner.py --mode deterministic-replay --k 5
 
 ---
 
-Updated 2026-05-18 (v4.9.0)
+Updated 2026-05-18 (v4.10.0)

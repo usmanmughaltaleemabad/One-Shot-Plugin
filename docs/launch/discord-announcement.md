@@ -13,7 +13,7 @@ For the Anthropic Discord `#community-showcase` (or equivalent) channel.
 ## Short version (1 paragraph, for Twitter / quick share)
 
 ```
-Just shipped v4.9 of ONE SHOT PLUGIN for Claude Code: production
+Just shipped v4.10 of ONE SHOT PLUGIN for Claude Code: production
 agentic code-gen for existing projects. 9-stage pipeline, 10
 specialist agents (architect → service-author → implementer × N +
 test-author in parallel → reviewer → wirer → critic), real Alembic
@@ -27,8 +27,8 @@ GitHub: https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
 ## Medium version (Discord post, ~200 words)
 
 ```
-**ONE SHOT PLUGIN v4.9 — production agentic code generation for
-Claude Code** (340/340 tests green · 101 body hints · 25 slash commands
+**ONE SHOT PLUGIN v4.10 — production agentic code generation for
+Claude Code** (367/367 tests green · 101 body hints · 29 slash commands
 · 12-stage pipeline with 9 default-on rigour gates)
 
 A few months building, all-night production push last night, now
