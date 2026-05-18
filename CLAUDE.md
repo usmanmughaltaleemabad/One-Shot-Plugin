@@ -4,7 +4,7 @@ last_verified: 2026-05-18
 owner: claude
 ---
 
-# one-shot-prompting Plugin — v4.0.0
+# one-shot-prompting Plugin — v4.1.0
 
 Production agentic one-shot generation. Claude conducts 9-stage
 pipeline → 10 specialist agents → 25+ deterministic tools.
@@ -27,7 +27,7 @@ pipeline → 10 specialist agents → 25+ deterministic tools.
 | Cookbook | `docs/cookbook.md` |
 | Marketplace submission | `MARKETPLACE_SUBMISSION.md` |
 
-## Structure (v4.0.0)
+## Structure (v4.1.0)
 
 ```
 .claude/    hooks, 10 agents, standards, registry, beads
@@ -86,4 +86,4 @@ python tests/evals/pass_k_runner.py --mode deterministic-replay --k 5
 
 ---
 
-Updated 2026-05-18 (v4.0.0)
+Updated 2026-05-18 (v4.1.0)
