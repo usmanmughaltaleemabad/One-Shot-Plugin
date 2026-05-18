@@ -2,6 +2,8 @@
 description: Discover external agents, skills, or MCP servers that could improve the plugin's capabilities for the current task. Searches the web, presents candidates, adds approved ones to the registry. Never mutates without user approval.
 argument-hint: "[topic or recent task]"
 allowed-tools: WebSearch, WebFetch, Read, Write, Edit, Bash, Glob, Grep
+destructive: true
+read-only: false
 ---
 
 Invoke the **curator** skill:

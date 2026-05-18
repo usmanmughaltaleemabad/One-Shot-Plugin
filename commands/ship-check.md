@@ -2,6 +2,8 @@
 description: Run production-readiness gates against a project before --apply. Verifies tests pass, no secrets in diff, no unresolved TODOs, migration is reversible, env vars are documented, health endpoints exist, feature flags are wired, rollback path is present, canary plan is documented. Inspired by Addy Osmani's shipping-and-launch skill.
 argument-hint: "--project <dir> [--strict]"
 allowed-tools: Bash
+destructive: true
+read-only: false
 ---
 
 Run the 10-gate production-readiness checklist:

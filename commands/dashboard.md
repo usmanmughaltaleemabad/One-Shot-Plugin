@@ -2,6 +2,8 @@
 description: Cross-agent learning hub dashboard — trend analysis + drift detection over a rolling window. Shows which agents are degrading (success rate dropping vs prior window) so you investigate before the next big run. Drives off .claude/registry/learnings.jsonl which run_finalize.py writes after every /one-shot.
 argument-hint: "[--window-days N] [--drift-threshold F]"
 allowed-tools: Bash
+destructive: false
+read-only: true
 ---
 
 Surface trends + drift warnings across the cross-agent learnings hub:

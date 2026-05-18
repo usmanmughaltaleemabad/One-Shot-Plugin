@@ -2,6 +2,8 @@
 description: Detect documentation drift and propose updates. Runs codebase_diff + spawns the docs-author agent to write a proposal at .tmp/docs-drift-{timestamp}.md. Never mutates docs directly — you review and merge.
 argument-hint: "[--since <git-rev>] [--target README|all]"
 allowed-tools: Read, Grep, Glob, Bash, Task
+destructive: true
+read-only: false
 ---
 
 Invoke the **docs-author** agent:

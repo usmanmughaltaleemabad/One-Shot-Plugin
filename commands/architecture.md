@@ -2,6 +2,8 @@
 description: Produce a lightweight architecture blueprint (services, events, file structure, open questions) before generating code.
 argument-hint: "<problem statement> [--async] [--kafka|--rabbitmq]"
 allowed-tools: Bash(python *)
+destructive: false
+read-only: true
 ---
 
 ```!

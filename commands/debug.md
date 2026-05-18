@@ -2,6 +2,8 @@
 description: Pattern-match an error / stack trace and return ranked fixes plus a repro snippet (event-driven failure modes).
 argument-hint: "<paste error or stack trace>"
 allowed-tools: Bash(python *)
+destructive: false
+read-only: true
 ---
 
 Pipe the user's error text to the debugging helper:

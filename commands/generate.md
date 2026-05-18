@@ -1,5 +1,9 @@
 ---
 description: Generate a complete sidecar feature module in one response. No approval gate. Claude makes decisions, states assumptions, ships the code. Rerun with constraints if you disagree.
+argument-hint: "[feature description]"
+allowed-tools: Read, Write, Glob, Grep
+destructive: false
+read-only: true
 ---
 
 Generate a complete sidecar feature module for this request.

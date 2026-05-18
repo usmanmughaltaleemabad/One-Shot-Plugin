@@ -2,6 +2,8 @@
 description: Undo the most recent /one-shot --apply mutation. Restores .osp.bak files, git-stashes uncommitted work first, asks before reverting migrations. Spawns the rollback agent to execute. Safe — never edits beyond what the last session mutated.
 argument-hint: "[--session-id <id>] [--keep-stash]"
 allowed-tools: Read, Bash, Edit, Task
+destructive: true
+read-only: false
 ---
 
 Invoke the **rollback** agent:

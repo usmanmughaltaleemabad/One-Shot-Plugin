@@ -162,7 +162,10 @@ def test_three_level_chain_orders_correctly(tmp_path):
 
 # ─── cycle detection ──────────────────────────────────────────────────────
 
-def test_mutual_fk_detected_as_cycle(tmp_path):
+def test_mutual_fk_two_entity_cycle_now_breaks_cleanly(tmp_path):
+    """v4.13: two-entity FK cycles are no longer a hard-fail. Planner
+    auto-defers the back edge to nullable + emits a deferred_fks
+    instruction the orchestrator applies as a secondary migration."""
     spec = {
         "feature": "user profile",
         "framework": "fastapi",
@@ -178,14 +181,20 @@ def test_mutual_fk_detected_as_cycle(tmp_path):
     spec_path = tmp_path / "spec.json"
     spec_path.write_text(json.dumps(spec), encoding="utf-8")
     proc = _run("--spec", str(spec_path), check=False)
-    assert proc.returncode == 2
+    # Exit 0 now — cycle was handled, not aborted
+    assert proc.returncode == 0
     data = json.loads(proc.stdout)
-    assert data["cycle_detected"] is True
-    assert sorted(data["cycle_members"]) == ["Profile", "User"]
-    assert data["total_slices"] == 0
+    assert data["cycle_detected"] is False
+    assert data["cycle_breaking_applied"] is True
+    assert data["total_slices"] == 2
+    assert len(data["deferred_fks"]) == 1
+    dfk = data["deferred_fks"][0]
+    assert dfk["migration_stage"] == "6.7-deferred-fk"
 
 
-def test_validate_mode_exits_2_on_cycle(tmp_path):
+def test_validate_mode_two_entity_cycle_now_exits_0(tmp_path):
+    """v4.13: --validate on a 2-entity cycle returns exit 0 because the
+    planner auto-resolves it. Three-or-more-entity cycles still exit 2."""
     spec = {
         "feature": "x",
         "framework": "fastapi",
@@ -198,8 +207,7 @@ def test_validate_mode_exits_2_on_cycle(tmp_path):
     spec_path = tmp_path / "spec.json"
     spec_path.write_text(json.dumps(spec), encoding="utf-8")
     proc = _run("--spec", str(spec_path), "--validate", check=False)
-    assert proc.returncode == 2
-    assert "cycle" in proc.stderr.lower()
+    assert proc.returncode == 0   # auto-resolved 2-entity cycle
 
 
 def test_validate_mode_exits_0_when_clean(tmp_path):

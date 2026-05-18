@@ -2,6 +2,8 @@
 description: Scan a project for known performance anti-patterns (N+1 queries, hot-path blockers, memory hazards) and surface the right framework-specific profiler invocation. Implements the `performance_optimization` body-hint contract. Run before optimising — measure first, then act.
 argument-hint: "--project <dir> [--severity info|warning] [--json] [--strict]"
 allowed-tools: Bash
+destructive: false
+read-only: true
 ---
 
 Scan + report:

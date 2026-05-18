@@ -2,6 +2,8 @@
 description: Run the automated code-review gates (lint / security / performance / type / test coverage) over a file.
 argument-hint: "<path/to/file>"
 allowed-tools: Bash(python *)
+destructive: false
+read-only: true
 ---
 
 ```!

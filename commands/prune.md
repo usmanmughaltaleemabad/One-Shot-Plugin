@@ -2,6 +2,8 @@
 description: Find files in generated feature directories with zero incoming imports — "zombie code" left behind from past /one-shot iterations when a user renamed an entity or changed direction. Maps the LIVE import graph from main.py / app.py and flags orphaned artifacts. Default mode reports only; --delete actually removes (with an isolated git commit so it's reviewable + reversible).
 argument-hint: "scan --project <dir> [--entry main.py] [--json] [--strict]  |  delete --project <dir> --paths <file1> <file2> [--git-commit]"
 allowed-tools: Bash
+destructive: true
+read-only: false
 ---
 
 Find / clean orphaned files from past /one-shot generations:

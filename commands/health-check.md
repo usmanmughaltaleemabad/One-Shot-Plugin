@@ -2,6 +2,8 @@
 description: Scan the current project and report what one-shot-prompting can generate for it (framework, bus, testing, IaC, migrations).
 argument-hint: "[@path/to/project]"
 allowed-tools: Bash(python *)
+destructive: false
+read-only: true
 ---
 
 Run a capability scan over the project at $ARGUMENTS (or the current directory if no path is given) and produce a compact health report.

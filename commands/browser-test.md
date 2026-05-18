@@ -2,6 +2,8 @@
 description: Drive a real Chrome instance via the chrome-devtools MCP server to test frontend features end-to-end. Catches what unit/integration tests miss: actual rendering, keyboard navigation, real network behaviour, console errors, accessibility violations. Inspired by addyosmani/agent-skills' browser-testing-with-devtools skill.
 argument-hint: "<url> [--scenario <name>]  |  --feature <description>"
 allowed-tools: Bash
+destructive: true
+read-only: false
 ---
 
 # /browser-test — drive a real browser, not a headless mock

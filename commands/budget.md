@@ -2,6 +2,8 @@
 description: Manage the monthly token budget (set, check usage, preflight a generation).
 argument-hint: "{set-budget|usage|preflight} [--monthly N] [--tokens N] [--label name]"
 allowed-tools: Bash(python *)
+destructive: false
+read-only: true
 ---
 
 ```!

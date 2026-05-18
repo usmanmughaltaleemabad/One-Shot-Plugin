@@ -2,6 +2,8 @@
 description: Manage your plugin autonomy level (operator → collaborator → consultant → approver → observer). Each level relaxes user-approval gates. Promotion is suggested after 5/20/50 clean sessions.
 argument-hint: "[get-level | suggest-next | set-level --level <name> [--lock]]"
 allowed-tools: Bash
+destructive: true
+read-only: false
 ---
 
 Manage autonomy level:

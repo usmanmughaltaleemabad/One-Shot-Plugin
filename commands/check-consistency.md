@@ -2,6 +2,8 @@
 description: Scan the project for cross-module inconsistencies (mixed serializers / loggers / error handling) and propose a shared library.
 argument-hint: "[@path/to/project]"
 allowed-tools: Bash(python *)
+destructive: false
+read-only: true
 ---
 
 ```!

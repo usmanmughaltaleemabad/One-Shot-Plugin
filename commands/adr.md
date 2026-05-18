@@ -2,6 +2,8 @@
 description: Create or list Architecture Decision Records (MADR format). ADRs capture the WHY behind a design choice — sequentially numbered under docs/adr/. Use for non-trivial decisions (DB choice, framework upgrade, multi-tenancy model) so future-you understands the constraints. Inspired by Addy Osmani's documentation-and-adrs skill.
 argument-hint: "emit --project <dir> --title <text> [--status proposed|accepted|deprecated|superseded] [--context <text>] [--decision <text>] [--consequences <text>] [--alternatives <text>]  |  list --project <dir>"
 allowed-tools: Bash, Read
+destructive: true
+read-only: false
 ---
 
 Manage Architecture Decision Records:

@@ -17,7 +17,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 | **Scorecard average** | 8.3 / 10 (see [docs/scorecard-v4.md](docs/scorecard-v4.md)) |
 | **Anthropic Directory** | submission form complete (see [DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)) |
 | **Try it risk-free** | [GitHub Codespaces sandbox](.devcontainer/README.md) — one-click demo, free tier |
-| **Marketplace listing** | per [Anthropic Software Directory Terms](https://support.claude.com/en/articles/13145338-anthropic-software-directory-terms) |
+| **Directory compliance** | 15/15 PASS · 0 WARN · 0 FAIL ([`compliance_audit.py`](skills/one-shot-generator/scripts/compliance_audit.py)) |
 
 ---
 
@@ -386,7 +386,7 @@ The plugin learns across sessions:
 Two things the plugin cannot close from this seat — both wait on external signal:
 
 - **Anthropic Directory listing** — submission form ready ([DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)); review pending on their side.
-- **Marketplace adoption** — listed under [Anthropic Software Directory Terms](https://support.claude.com/en/articles/13145338-anthropic-software-directory-terms); review pending on their side.
+- **Marketplace adoption** — submission ready ([`compliance_audit.py`](skills/one-shot-generator/scripts/compliance_audit.py) reports 15/15 PASS against the directory policy); waiting on review.
 
 For the full 0-10 honest scoring across 36 dimensions, see [docs/scorecard-v4.md](docs/scorecard-v4.md); for the roadmap, [docs/path-to-10.md](docs/path-to-10.md).
 
@@ -481,9 +481,30 @@ Key safety properties:
 - **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md) for code style, tests, and PR checklist
 - **Code of conduct**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Contributor Covenant 2.1
 
-### Anthropic Software Directory
+### Anthropic Software Directory — compliance
 
-This plugin is submitted for inclusion in the Anthropic Software Directory under the [Anthropic Software Directory Policy](https://support.claude.com/en/articles/13145338-anthropic-software-directory-terms).
+Audited continuously against the directory policy via `compliance_audit.py`.
+Current state: **15 PASS · 0 WARN · 0 FAIL → READY_FOR_DIRECTORY**.
+
+| Requirement (per directory policy) | How we satisfy it |
+|---|---|
+| Privacy disclosure | [PRIVACY.md](PRIVACY.md) — data-handling policy |
+| Support channels + verified contact | [SUPPORT.md](SUPPORT.md) — channels + maintenance schedule |
+| Product documentation | [README.md](README.md), [docs/cookbook.md](docs/cookbook.md), [docs/production-deployment.md](docs/production-deployment.md) |
+| Troubleshooting guidance | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
+| Vulnerability disclosure | [SECURITY.md](SECURITY.md) |
+| Open-source license | [LICENSE](LICENSE) (MIT) |
+| Release history | [CHANGELOG.md](CHANGELOG.md) |
+| ≥ 3 working example prompts | [docs/cookbook.md](docs/cookbook.md) + [DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md) |
+| Testing account + sample data | [.devcontainer/](.devcontainer/) — free Codespaces sandbox |
+| Graceful error handling | every script returns structured JSON skip/error on missing deps |
+| Token usage proportional to task | `cost_budget.py` + `cost_calibrator.py` (self-recalibrating) |
+| Tool names ≤ 64 chars | longest slash command: `check-consistency` (17 chars) |
+| Tool annotations (read-only / destructive) | every command's frontmatter declares both |
+| Plugin manifest fields | [plugin.json](.claude-plugin/plugin.json) — name, version, author, license, description |
+| No unauthorised Anthropic endorsement claim | `compliance_audit.py` greps all `.md` for forbidden phrasing |
+
+Run the audit yourself: `python skills/one-shot-generator/scripts/compliance_audit.py`
 
 **Submission contact:**
 
@@ -529,6 +550,6 @@ MIT. See [LICENSE](LICENSE).
 
 Full history: [CHANGELOG.md](CHANGELOG.md).
 
-**Try it risk-free.** Launch the [Codespaces sandbox](.devcontainer/README.md) for a one-click demo against a broken FastAPI app — no local install required, GitHub's free tier covers it. Or follow the [Anthropic Software Directory Terms](https://support.claude.com/en/articles/13145338-anthropic-software-directory-terms) to install via the marketplace.
+**Try it risk-free.** Launch the [Codespaces sandbox](.devcontainer/README.md) for a one-click demo against a broken FastAPI app — no local install required, GitHub's free tier covers it.
 
 — Usman Mughal (musman.mughal@taleemabad.com)

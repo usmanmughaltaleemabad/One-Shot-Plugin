@@ -2,6 +2,8 @@
 description: Pre-`/refine` workflow. When a user's feature idea is genuinely ambiguous (multiple plausible interpretations, missing scale + auth + tenancy assumptions), conduct a SHORT structured interview to extract just the questions that materially change the spec. Output: a tighter restatement of the feature ready for `/refine`. Inspired by addyosmani/agent-skills' interview-me skill.
 argument-hint: "<vague feature idea in quotes>"
 allowed-tools: Read, Grep, Write
+destructive: false
+read-only: true
 ---
 
 # /interview — extract the questions that change the answer

@@ -1,6 +1,9 @@
 ---
 description: Interactive tour that walks the user through one-shot-prompting capabilities and recommends a starting template.
+argument-hint: "[choice — pass empty for the main menu]"
 allowed-tools: Bash(python *)
+destructive: false
+read-only: true
 ---
 
 Render the initial tour state. The user picks an option, you call back into this script with their choice.

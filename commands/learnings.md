@@ -2,6 +2,8 @@
 description: Show empirical track record of local + external agents. Surfaces top-rated agents, recent failures, and drift detection — driven by .claude/registry/learnings.jsonl which run_finalize.py writes after every /one-shot.
 argument-hint: "[top-agents [--limit N] | rate --agent <id> | export-anonymized]"
 allowed-tools: Bash
+destructive: true
+read-only: false
 ---
 
 Inspect the cross-agent learnings registry:

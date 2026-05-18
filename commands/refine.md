@@ -2,6 +2,8 @@
 description: Transform a vague feature idea into a sharp one-pager BEFORE /one-shot fires. Output is a problem statement + MVP scope + "not doing" list + key assumptions. Cuts /one-shot iteration cost by making sure the architect agent gets a concrete contract. Inspired by Addy Osmani's idea-refine skill.
 argument-hint: "<vague feature idea in quotes>"
 allowed-tools: Read, Write, Grep
+destructive: true
+read-only: false
 ---
 
 # /refine — sharpen a vague idea before /one-shot

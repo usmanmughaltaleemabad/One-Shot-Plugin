@@ -2,6 +2,8 @@
 description: Generate a CLAUDE.md skeleton from a project's detected stack + tooling. Captures the rules-files-first context-engineering ethos as an explicit artifact every Claude session will load. Inspired by addyosmani/agent-skills' context-engineering skill.
 argument-hint: "--project <dir> [--out <path>] [--json] [--force | --append]"
 allowed-tools: Bash
+destructive: true
+read-only: false
 ---
 
 Generate or refresh a project's CLAUDE.md:
