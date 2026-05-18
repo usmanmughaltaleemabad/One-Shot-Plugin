@@ -818,6 +818,243 @@ HINTS: Dict[tuple, Dict] = {
         },
     },
 
+    # ─── Tier-3 specialized concerns (v4.5) ─────────────────────────────────
+    # GraphQL, gRPC, saga orchestration, dead-letter queue, GDPR
+    # export/delete, internationalization. Specialised — ship when the
+    # codebase already uses these patterns OR the user asks for them.
+
+    ("common", "graphql_resolver"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Code-first resolver, NOT schema-first SDL strings. Detect "
+            "GraphQL library via codebase_graph: Strawberry (Python), "
+            "Graphene (Python), graphql-java + DGS (Spring), TypeGraphQL "
+            "or Nexus (Node), gqlgen (Go). Resolvers delegate to the "
+            "service layer — never embed business logic in resolvers. "
+            "DataLoader pattern is mandatory for any field that fans out "
+            "to another entity (N+1 query killer). Authorisation: same "
+            "RBAC guards as REST, applied per resolver."
+        ),
+        "must_emit": [
+            "Type definitions co-located with the entity (cart/graphql.py)",
+            "Resolvers delegate: return service.list(...) / service.create(...)",
+            "DataLoader for every parent→child relationship fetch",
+            "Mutations return the affected object (not just an id) — clients update cache",
+            "Subscription support if codebase already runs WebSockets",
+        ],
+        "anti_patterns": [
+            "Never write business logic in a resolver — call the service",
+            "Never fetch parent→child without DataLoader — N+1 across the API",
+            "Never expose internal IDs without considering opaque global IDs (Relay spec)",
+            "Never let resolvers return raw ORM objects — map to GraphQL types explicitly",
+            "Never trust depth-of-query limits as a security boundary — add cost analysis",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "Strawberry: @strawberry.type, @strawberry.field; mounted via strawberry.fastapi.GraphQLRouter",
+            "django":  "Graphene-Django: graphene.relay.Node + DjangoObjectType; or strawberry-django",
+            "spring":  "Netflix DGS or graphql-java-spring; @DgsComponent + @DgsQuery + DataLoaderRegistry",
+            "nestjs":  "@nestjs/graphql code-first: @ObjectType, @Resolver, @Query, @Mutation",
+            "go":      "gqlgen with schema.graphql + generated resolver stubs; dataloaden for N+1",
+            "nodejs":  "TypeGraphQL or Nexus; apollo-server-express; dataloader npm for N+1",
+        },
+    },
+
+    ("common", "grpc_service"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Define .proto first, generate stubs at build time. Service "
+            "implementation delegates to the SAME service layer used by "
+            "REST — gRPC is a transport, not a parallel domain. Use "
+            "interceptors for auth + logging + tracing (same shape as "
+            "REST middlewares). Always: unary for queries, server-streaming "
+            "for paginated lists over RPC, bidi-streaming only for "
+            "real-time use cases. TLS in production; mTLS for "
+            "service-to-service."
+        ),
+        "must_emit": [
+            "proto/{snake}.proto — service definition + request/response messages",
+            "Generated stubs in build/gen/ (never hand-edit)",
+            "Server implementation that delegates to the existing Service",
+            "Interceptors: auth, logging, error mapping (DomainError → status.Code)",
+            "Reflection enabled in dev for grpcurl debugging; disabled in prod",
+        ],
+        "anti_patterns": [
+            "Never duplicate business logic between REST handler and gRPC servicer",
+            "Never expose internal exceptions over the wire — map to canonical "
+            "grpc.StatusCode (NOT_FOUND, ALREADY_EXISTS, PERMISSION_DENIED, ...)",
+            "Never run gRPC without keepalive — long-lived connections die silently behind LBs",
+            "Never use plaintext in production — TLS + mTLS for east-west",
+            "Never break the proto schema in place — add new fields, mark old fields reserved",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "grpcio + grpcio-tools; or asyncio-flavored grpc.aio; not actually FastAPI-coupled",
+            "django":  "django-grpc-framework or run a separate grpc process sharing the ORM",
+            "spring":  "grpc-spring-boot-starter; @GrpcService on the servicer implementation",
+            "nestjs":  "@nestjs/microservices with Transport.GRPC; @GrpcMethod decorators",
+            "go":      "google.golang.org/grpc; protoc-gen-go-grpc; idiomatic Go land",
+            "nodejs":  "@grpc/grpc-js + @grpc/proto-loader (dynamic) OR ts-proto (static)",
+        },
+    },
+
+    ("common", "saga_orchestrator"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Distributed transactions across services WITHOUT 2PC. Two "
+            "patterns: ORCHESTRATION (a saga coordinator decides each "
+            "step, easier to reason about) vs CHOREOGRAPHY (each service "
+            "reacts to events, simpler infra but harder to debug). Default "
+            "to orchestration for >3 steps. Every step has a COMPENSATING "
+            "action — if step 4 fails, run compensations for steps 1-3 "
+            "in reverse. Store saga state in DB (saga_instances table) "
+            "so a restart resumes mid-flight. Idempotency keys on every "
+            "step so retries don't double-execute."
+        ),
+        "must_emit": [
+            "saga_instances table: id, saga_type, current_step, state JSON, "
+            "started_at, completed_at NULL, status (running/succeeded/compensating/failed)",
+            "Saga definition: ordered list of (forward_action, compensation) tuples",
+            "Orchestrator loop: pick next step based on current_step, run forward, "
+            "on success advance; on failure trigger compensation chain in reverse",
+            "Persist state AFTER every step transition (crash-safe)",
+            "Every step idempotent — same input + same instance_id = same effect",
+        ],
+        "anti_patterns": [
+            "Never use distributed-transaction (XA / 2PC) — operational nightmare at scale",
+            "Never write a saga step without its compensation — partial failures stick",
+            "Never assume in-order step execution after a crash — read current_step "
+            "from DB, don't trust in-memory state",
+            "Never run compensations in random order — strict LIFO (reverse of forward)",
+            "Never lose the correlation id — every step + compensation logs it",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "Roll your own with SQLAlchemy + Celery for step execution; or use temporal-sdk-python",
+            "django":  "django-saga or roll your own with Celery + saga_instances table",
+            "spring":  "Axon Framework (full event-sourcing + saga support) or Eventuate Tram Sagas",
+            "nestjs":  "@nestjs/cqrs + nestjs-saga; or temporal-sdk via custom integration",
+            "go":      "temporal-sdk-go (workflows == sagas with built-in compensation)",
+            "nodejs":  "temporal-sdk-typescript or roll your own with BullMQ + saga_instances table",
+        },
+    },
+
+    ("common", "dead_letter_queue"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Failed background jobs land in a DLQ after exhausting retries "
+            "(not silently dropped). DLQ rows carry: original_queue, job_type, "
+            "payload, attempt_count, last_error, failed_at. Ops surfaces "
+            "(an admin route or queue UI) lets engineers inspect, re-enqueue, "
+            "or discard. Alert on DLQ growth rate, NOT absolute size — "
+            "size grows naturally as deploys happen. Distinct from the "
+            "outbox table: outbox = 'event waiting to publish'; DLQ = "
+            "'job that failed permanently.'"
+        ),
+        "must_emit": [
+            "dead_letter_queue table: id, original_queue, job_type, payload JSON, "
+            "attempt_count, last_error TEXT, failed_at, requeued_at NULL",
+            "Worker: on final retry failure, INSERT into DLQ + ACK from source queue",
+            "Admin endpoint: GET /admin/dlq (paginated), POST /admin/dlq/{{id}}/requeue, "
+            "DELETE /admin/dlq/{{id}}",
+            "Metric: dlq.size, dlq.growth_rate_5m — alert when growth > N/min",
+            "Backpressure: pause source queue when DLQ size > threshold to avoid floods",
+        ],
+        "anti_patterns": [
+            "Never auto-requeue from DLQ — that's how you get infinite retry loops",
+            "Never let the DLQ grow unbounded — partition by age; alert + auto-prune > 30 days",
+            "Never re-enqueue without inspecting the error — same input will fail again",
+            "Never grant DLQ admin access broadly — it can re-trigger side-effects",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "Celery: task_routes + autoretry_for=(...) + max_retries; on_failure → INSERT dlq row",
+            "django":  "Celery (same) or django-rq with custom failure handler",
+            "spring":  "Spring Cloud Stream with DLQ binding OR Spring Batch with skip + DLQ writer",
+            "nestjs":  "BullMQ: failed event listener writes to dlq; or @nestjs/microservices DLQ pattern",
+            "go":      "Asynq: built-in failed-task archive; or NATS JetStream with max-deliver + DLQ subject",
+            "nodejs":  "BullMQ: same as nestjs; FailedJobs.add() in 'failed' event handler",
+        },
+    },
+
+    ("common", "gdpr_export_delete"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Two user-facing rights from GDPR Articles 17 (erasure) + 20 "
+            "(portability). Export: gather all user-linked rows across "
+            "every table that references user_id and emit a structured "
+            "archive (JSON + CSV; signed URL with short TTL). Delete: "
+            "either hard-delete OR anonymise (PII fields → '[redacted]', "
+            "user_id retained for referential integrity in audit + invoices "
+            "for tax law). Both are SLOW — run as background jobs, email "
+            "the user when ready. Always audit-log who requested + who "
+            "fulfilled. Tax/financial records often have legal retention "
+            "periods that override delete — anonymise rather than delete those."
+        ),
+        "must_emit": [
+            "gdpr_requests table: id, user_id, request_type (export/delete), "
+            "status, requested_at, fulfilled_at NULL, archive_url NULL",
+            "Background job: gather_user_data(user_id) → walks every "
+            "user-linked table, emits archive to object storage, signs URL",
+            "Background job: erase_user_data(user_id) → per-table policy "
+            "(hard_delete | anonymise | retain_for_law)",
+            "Verification step: re-fetch after erase, assert PII gone",
+            "Audit log entry per request (who requested + fulfilled + when)",
+        ],
+        "anti_patterns": [
+            "Never hard-delete without checking legal-retention obligations "
+            "(invoices, tax records) — anonymise those instead",
+            "Never run export/delete inline — they touch every table, run as job",
+            "Never email the data — return a signed URL with short TTL (15 min)",
+            "Never forget the audit_log table — exporting it is itself a privacy concern",
+            "Never delete the gdpr_requests row after fulfilling — that's your proof of compliance",
+            "Never include other users' PII in the archive (messages they sent to this user "
+            "may include third-party identifiers — review per-table policy)",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "common/gdpr.py + Celery jobs; tables walked via SQLAlchemy metadata",
+            "django":  "django-gdpr-assist OR custom with apps.get_models() walk",
+            "spring":  "Custom @Service with EntityManager metamodel walk; @Async export job",
+            "nestjs":  "Custom service with TypeORM connection.entityMetadatas walk + BullMQ jobs",
+            "go":      "Custom — walk GORM model registry; emit archive via aws-sdk-go-v2",
+            "nodejs":  "Custom — walk Sequelize.models registry; emit archive via aws-sdk v3",
+        },
+    },
+
+    ("common", "i18n"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Translate user-facing strings via message catalogues. Resolution "
+            "order per request: 1) explicit ?lang= query param, 2) "
+            "Accept-Language header (parsed with q-values), 3) user.locale "
+            "from profile, 4) site default. Translatable units: API error "
+            "messages, email subjects/bodies, user-visible labels. Store "
+            "translation in the framework's native format (gettext .po for "
+            "Python, ResourceBundle .properties for Spring, i18next JSON "
+            "for JS). Date / number / currency formatting goes through "
+            "the locale's CLDR data, NEVER hand-rolled f-strings. Avoid "
+            "string concatenation across languages — sentence order differs."
+        ),
+        "must_emit": [
+            "Locale resolver middleware: parse Accept-Language with q-values",
+            "translate(key, *, locale=None, **vars) -> str — interpolates safely",
+            "Message catalogues per locale (locales/en.json, locales/es.json, ...)",
+            "Email templates per locale (templates/email/{locale}/verification.j2)",
+            "Number / date formatting via stdlib (babel, ICU, Intl, x/text)",
+        ],
+        "anti_patterns": [
+            "Never concatenate translated fragments — full sentences per key",
+            "Never hard-code English messages in service / model layer — emit keys + interpolation vars",
+            "Never assume left-to-right — RTL locales (ar, he, fa) flip layout direction",
+            "Never store translated content in the DB without a source-of-truth language",
+            "Never ship a fallback chain that quietly drops to a default — log every miss",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "Babel + lazy_gettext; locale resolver as a FastAPI dependency",
+            "django":  "Built-in django.utils.translation (gettext) + LocaleMiddleware",
+            "spring":  "MessageSource + LocaleResolver bean; ResourceBundleMessageSource",
+            "nestjs":  "nestjs-i18n module with JSON catalogues + AcceptLanguageResolver",
+            "go":      "golang.org/x/text/message + text/language; or nicksnyder/go-i18n",
+            "nodejs":  "i18next + i18next-http-middleware; locale catalogues in JSON",
+        },
+    },
+
     ("common", "data_migration"): {
         "scope": "cross-framework",
         "guidance": (
