@@ -189,16 +189,24 @@ See [docs/cookbook.md](docs/cookbook.md) for full traces with stage-by-stage out
 
 ## Framework support
 
-| Framework | Agentic body hints | Templated fallback | Scaffold paths |
-|---|---|---|---|
-| **FastAPI** | ✅ full (8 hints — incl. service layer + auth + events + background tasks) | ✅ | ✅ |
-| Django | ✅ CRUD complete (8 hints — model, DRF serializer/viewset, urls, admin, tests; service layer queued) | ✅ | ✅ |
-| Spring Boot | ✅ CRUD complete (6 hints — controller, entity, DTO, repository, service, test; auth + events queued) | ✅ | ✅ |
-| NestJS | ✅ CRUD complete (6 hints — controller, entity, DTO, module, service, spec; auth + events queued) | ✅ | ✅ |
-| Go | ⚠️ basic CRUD only (4 hints — handler, model, repository, test; no service layer / auth / DTOs) | ✅ | ✅ |
-| Node.js | ❌ scaffold paths only (0 body hints — implementer falls back to templated) | ✅ | ✅ |
+As of **v4.2**, all six frameworks have full parity — each ships the same
+8-hint shape (init/model/schema/service/router/auth/background/test) plus
+framework-specific extras. Total catalogue: **56 hints** (8 × FastAPI,
+11 × Django, 8 × Spring, 8 × NestJS, 8 × Go, 8 × Node.js, 5 × common).
 
-Missing hints (Go service layer, Node.js everything, cross-framework auth/events) are queued in [docs/path-to-10.md](docs/path-to-10.md) § Tier B.
+| Framework | Body hints | Scaffold paths | Migration tool |
+|---|---|---|---|
+| **FastAPI** | ✅ 8 hints (incl. service layer + bcrypt/JWT auth + BackgroundTasks) | ✅ | Alembic |
+| **Django** | ✅ 11 hints (incl. service layer + django.contrib.auth/simplejwt + Celery) | ✅ | `manage.py makemigrations` |
+| **Spring Boot** | ✅ 8 hints (incl. service layer + Spring Security/JWT + @Async/@Scheduled) | ✅ | Flyway or Liquibase |
+| **NestJS** | ✅ 8 hints (incl. service layer + Passport+bcrypt + BullMQ processor) | ✅ | TypeORM migration:generate |
+| **Go** | ✅ 8 hints (incl. service layer + DTOs + bcrypt/golang-jwt + goroutine workers) | ✅ | golang-migrate |
+| **Node.js** | ✅ 8 hints (Express + Sequelize + Joi + bcrypt/jsonwebtoken + BullMQ + Jest) | ✅ | sequelize-cli migration |
+
+All frameworks emit business-logic-bearing services with invariant enforcement,
+real auth helpers (never plain-text passwords), and a retryable background-task
+pattern matched to the ecosystem (Celery / @Async / BullMQ / Asynq / etc).
+Coverage verified by [tests/test_framework_parity.py](tests/test_framework_parity.py) (22 tests).
 
 ---
 

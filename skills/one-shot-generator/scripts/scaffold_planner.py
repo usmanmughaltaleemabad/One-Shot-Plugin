@@ -51,7 +51,7 @@ import json
 import sys
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from lib.base_script import bootstrap_runtime, setup_logging
 bootstrap_runtime()
@@ -173,15 +173,18 @@ def _files_fastapi(snake: str) -> List[Tuple[str, str]]:
 
 
 def _files_django(snake: str) -> List[Tuple[str, str]]:
-    # Django convention: each entity is its own app (with models.py /
-    # views.py / urls.py / serializers.py / tests.py / admin.py + migrations dir).
+    # Django convention: each entity is its own app. Service / auth / tasks
+    # added at v4.2 to match FastAPI's parity (business logic + auth + Celery).
     return [
         (f"{snake}/__init__.py",        "python_init"),
         (f"{snake}/apps.py",            "django_appconfig"),
         (f"{snake}/models.py",          "django_model"),
         (f"{snake}/serializers.py",     "drf_serializer"),
+        (f"{snake}/services.py",        "django_service"),
         (f"{snake}/views.py",           "drf_viewset"),
         (f"{snake}/urls.py",            "django_urls"),
+        (f"{snake}/auth.py",            "django_auth"),
+        (f"{snake}/tasks.py",           "django_background_task"),
         (f"{snake}/admin.py",           "django_admin"),
         (f"{snake}/tests.py",           "django_tests"),
         (f"{snake}/migrations/__init__.py", "python_init"),
@@ -190,6 +193,7 @@ def _files_django(snake: str) -> List[Tuple[str, str]]:
 
 def _files_spring(snake: str) -> List[Tuple[str, str]]:
     # Spring Boot Java layout: domain / repository / service / controller / dto.
+    # Auth + background added at v4.2 to match FastAPI's parity.
     pkg = snake.replace("_", "")
     cap = "".join(p.capitalize() for p in snake.split("_"))
     base = f"src/main/java/com/example/{pkg}"
@@ -200,31 +204,55 @@ def _files_spring(snake: str) -> List[Tuple[str, str]]:
         (f"{base}/{cap}Service.java",      "spring_service"),
         (f"{base}/{cap}Controller.java",   "spring_controller"),
         (f"{base}/{cap}Dto.java",          "spring_dto"),
+        (f"{base}/{cap}AuthService.java",  "spring_auth"),
+        (f"{base}/{cap}BackgroundJob.java", "spring_background"),
         (f"{test_base}/{cap}ControllerTest.java", "spring_test"),
     ]
 
 
 def _files_go(snake: str) -> List[Tuple[str, str]]:
-    # Go layout: each entity is a package directory; handler/model/repo/test files.
+    # Go layout: each entity is a package directory. Service / dto / auth /
+    # background added at v4.2 to match FastAPI's parity.
     return [
         (f"internal/{snake}/{snake}.go",         "go_model"),
+        (f"internal/{snake}/dto.go",             "go_dto"),
         (f"internal/{snake}/repository.go",      "go_repository"),
+        (f"internal/{snake}/service.go",         "go_service"),
         (f"internal/{snake}/handler.go",         "go_handler"),
+        (f"internal/{snake}/auth.go",            "go_auth"),
+        (f"internal/{snake}/background.go",      "go_background"),
         (f"internal/{snake}/{snake}_test.go",    "go_test"),
     ]
 
 
 def _files_nestjs(snake: str) -> List[Tuple[str, str]]:
-    # NestJS layout: module / controller / service / dto / entity, plus spec.
+    # NestJS layout. Auth + background processor added at v4.2 for parity.
     kebab = snake.replace("_", "-")
     return [
         (f"src/{kebab}/{kebab}.module.ts",          "nestjs_module"),
         (f"src/{kebab}/{kebab}.controller.ts",      "nestjs_controller"),
         (f"src/{kebab}/{kebab}.service.ts",         "nestjs_service"),
+        (f"src/{kebab}/{kebab}.auth.service.ts",    "nestjs_auth"),
+        (f"src/{kebab}/{kebab}.processor.ts",       "nestjs_background"),
         (f"src/{kebab}/dto/create-{kebab}.dto.ts",  "nestjs_dto"),
         (f"src/{kebab}/dto/update-{kebab}.dto.ts",  "nestjs_dto"),
         (f"src/{kebab}/entities/{kebab}.entity.ts", "nestjs_entity"),
         (f"src/{kebab}/{kebab}.controller.spec.ts", "nestjs_spec"),
+    ]
+
+
+def _files_nodejs(snake: str) -> List[Tuple[str, str]]:
+    # Node.js (Express + Sequelize) layout — added at v4.2. Mirrors FastAPI's
+    # 8-hint shape: init / model / schema / service / router / auth / background / test.
+    return [
+        (f"src/{snake}/index.js",        "nodejs_init"),
+        (f"src/{snake}/model.js",        "nodejs_model"),
+        (f"src/{snake}/schema.js",       "nodejs_schema"),
+        (f"src/{snake}/service.js",      "nodejs_service"),
+        (f"src/{snake}/router.js",       "nodejs_router"),
+        (f"src/{snake}/auth.js",         "nodejs_auth"),
+        (f"src/{snake}/background.js",   "nodejs_background"),
+        (f"tests/{snake}.test.js",       "nodejs_test"),
     ]
 
 
@@ -234,6 +262,7 @@ _FILE_DISPATCHERS = {
     "spring":  _files_spring,
     "go":      _files_go,
     "nestjs":  _files_nestjs,
+    "nodejs":  _files_nodejs,
 }
 
 
@@ -263,6 +292,11 @@ def _stubs_for_framework(framework: str, graph_imports: Dict,
     elif framework == "nestjs":
         # AppModule already exists; nothing to stub.
         pass
+    elif framework == "nodejs":
+        if "db_session_getter" not in graph_imports:
+            out.append("src/db.js")
+        if "model_base" not in graph_imports:
+            out.append("src/common/errors.js")
     return out
 
 
@@ -273,6 +307,7 @@ def _wiring_targets_for(framework: str) -> List[str]:
         "spring":  [],   # autowiring via @SpringBootApplication scanning
         "go":      ["cmd/server/main.go"],
         "nestjs":  ["src/app.module.ts"],
+        "nodejs":  ["src/app.js"],
     }.get(framework, ["main"])
 
 
@@ -283,6 +318,7 @@ def _migrations_for(framework: str) -> List[str]:
         "spring":  ["flyway_or_liquibase"],
         "go":      ["golang-migrate_revision"],
         "nestjs":  ["typeorm_migration_generate"],
+        "nodejs":  ["sequelize-cli_migration_generate"],
     }.get(framework, [])
 
 
