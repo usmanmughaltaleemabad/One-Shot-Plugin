@@ -157,6 +157,55 @@ HINTS: Dict[tuple, Dict] = {
             "Never accept verification tokens older than 24h",
         ],
     },
+    ("fastapi", "soft_delete"): {
+        "language": "python",
+        "guidance": (
+            "SQLAlchemy mixin pattern. Add deleted_at DateTime column (nullable). "
+            "Default query helpers filter where deleted_at IS NULL. .delete() sets "
+            "deleted_at = utcnow() instead of issuing DELETE. .hard_delete() still "
+            "available for GDPR / admin operations."
+        ),
+        "must_emit": [
+            "class SoftDeleteMixin: deleted_at = Column(DateTime, nullable=True, index=True)",
+            "Service.list() — filter .where({Pascal}.deleted_at.is_(None)) by default",
+            "Service.delete() — sets deleted_at = datetime.now(timezone.utc); commits",
+            "Service.hard_delete() — issues real DELETE (admin only)",
+        ],
+        "anti_patterns": [
+            "Don't forget the partial index on deleted_at — full-table scans otherwise",
+            "Don't allow soft-deleted rows in UNIQUE constraints — use partial unique index WHERE deleted_at IS NULL",
+            "Don't soft-delete audit_log rows — audit must be append-only",
+        ],
+    },
+    ("fastapi", "file_upload"): {
+        "language": "python",
+        "imports_must_include": [
+            "from fastapi import UploadFile, File, HTTPException, status",
+            "import hashlib, os",
+        ],
+        "must_emit_endpoints": [
+            "POST /{{plural}}/{{id}}/upload  body=multipart/form-data  field='file: UploadFile'",
+        ],
+        "guidance": (
+            "Validate: content_type allowlist, max size (read in chunks; never load "
+            "entire body into memory), virus scan stub. Storage: S3 presigned PUT "
+            "preferred (client uploads direct to S3, server only signs); local disk "
+            "only for dev. Store the storage_key + content_type + size + sha256 in "
+            "DB; never store the bytes in the DB row."
+        ),
+        "must_emit": [
+            "MAX_FILE_BYTES constant from env (default 10 MB)",
+            "ALLOWED_CONTENT_TYPES set",
+            "Chunked read loop: while chunk := await file.read(64*1024): hasher.update(chunk); size += len(chunk); abort if size > MAX",
+            "Helper: presign_s3_put(key, content_type, expires_in=900) -> {url, fields}",
+        ],
+        "anti_patterns": [
+            "Never trust client-supplied content_type — sniff first bytes",
+            "Never await file.read() without a size cap — denial-of-service via huge upload",
+            "Never store bytes in the DB row (BLOB) — separate object storage",
+            "Never use the original filename as the storage key — generate UUID-based keys",
+        ],
+    },
     ("fastapi", "background_task"): {
         "language": "python",
         "imports_must_include": ["from fastapi import BackgroundTasks"],
@@ -255,6 +304,279 @@ HINTS: Dict[tuple, Dict] = {
             "def configure_logging(level: str = 'INFO') -> None",
             "class JsonFormatter(logging.Formatter)",
         ],
+    },
+
+    # ─── Tier-1 production concerns (v4.3) ──────────────────────────────────
+    # Cross-framework contracts. Each implementer agent reads the contract
+    # and translates to the host framework's idiomatic patterns.
+
+    ("common", "pagination_contract"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Two pagination strategies; pick per route based on spec.test_contract.pagination. "
+            "OFFSET: query params skip + limit (max 100). Response: {items: [...], total: int, "
+            "skip: int, limit: int}. KEYSET (cursor): query param cursor (opaque base64 of "
+            "{last_id, last_ts}). Response: {items, next_cursor: str|null}. Keyset is required "
+            "for any list that may exceed 10k rows or is sorted by created_at desc."
+        ),
+        "must_emit": [
+            "encode_cursor(last_id, last_ts) -> str  (base64 of JSON)",
+            "decode_cursor(cursor) -> dict | None",
+            "paginate_offset(query, skip, limit, *, max_limit=100) -> dict",
+            "paginate_keyset(query, cursor, limit, *, max_limit=100, key='created_at') -> dict",
+        ],
+        "anti_patterns": [
+            "Never accept unbounded limit — clamp to max_limit",
+            "Never expose raw DB cursors — encode opaque so we can change them later",
+            "Never use OFFSET on tables that grow without bound — pagination cost grows O(skip)",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "common/pagination.py",
+            "django":  "common/pagination.py (or use rest_framework.pagination.CursorPagination)",
+            "spring":  "src/main/java/com/example/common/Pagination.java + Pageable (Spring Data)",
+            "nestjs":  "src/common/pagination/  (or nestjs-paginate package)",
+            "go":      "internal/common/pagination.go",
+            "nodejs":  "src/common/pagination.js",
+        },
+    },
+
+    ("common", "idempotency_keys"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Stripe-style idempotency for POST/PUT mutations. Client sends "
+            "Idempotency-Key header (UUID); server stores {key, request_hash, "
+            "response_status, response_body, created_at} in idempotency_keys "
+            "table (24h TTL). On replay with same key + same hash: return cached "
+            "response. Same key + different hash: 422 (conflict)."
+        ),
+        "must_emit": [
+            "idempotency_keys table: key VARCHAR PK, request_hash VARCHAR, "
+            "response_status INT, response_body TEXT, created_at TIMESTAMP, expires_at TIMESTAMP",
+            "Middleware/decorator: idempotent(ttl_hours=24)",
+            "Hash function: SHA-256 of (method, path, sorted_body_json)",
+            "Background cleanup job: delete WHERE expires_at < now()",
+        ],
+        "anti_patterns": [
+            "Never trust client-supplied keys without scope (combine with user_id)",
+            "Never apply to GET — GETs are already idempotent",
+            "Never cache 5xx — only 2xx/4xx (5xx may be transient)",
+            "Never store the full request body in plain text if it contains secrets",
+        ],
+    },
+
+    ("common", "audit_log"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Append-only audit trail for every mutation. Captured: who (actor_id, actor_role), "
+            "what (entity_type, entity_id, action: create/update/delete), when (timestamp), "
+            "old_value (JSON snapshot before), new_value (JSON snapshot after), source (api/admin/job), "
+            "request_id (correlates with logs). Emitted by service layer (NOT router) so background "
+            "jobs and admin actions also audit. Storage: separate audit_log table, never DELETE rows."
+        ),
+        "must_emit": [
+            "audit_log table: id, actor_id, actor_role, entity_type, entity_id, action, "
+            "old_value JSON, new_value JSON, source, request_id, created_at",
+            "audit(actor, entity, action, *, old=None, new=None, source='api') -> None",
+            "Hook: emit from service.create/update/delete via the events module",
+        ],
+        "anti_patterns": [
+            "Never DELETE from audit_log — partition / archive old rows instead",
+            "Never log full payloads if they contain secrets (passwords, tokens, PII) — redact",
+            "Never let an audit failure abort the business write — log and continue",
+            "Never write the audit row in a separate transaction from the business write — use outbox",
+        ],
+    },
+
+    ("common", "email_template"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Templated email with HTML + plain-text fallback. Templates live in "
+            "templates/email/{{template_name}}.{{html,txt}}.j2. Subject is the "
+            "first line; body follows. Variables passed as a dict. Always send "
+            "BOTH HTML and plain text (Multipart/Alternative). Subject/body are "
+            "rendered server-side; never accept raw HTML from users."
+        ),
+        "must_emit": [
+            "render_email(template_name, ctx) -> {subject: str, html: str, text: str}",
+            "send_email(to, template_name, ctx, *, from_addr=None) -> None  "
+            "(delegates to provider: SES/SendGrid/Mailgun — detected via codebase_graph)",
+            "Background-task wrapper so request handler doesn't block on SMTP",
+        ],
+        "must_have_templates": [
+            "verification_email.{html,txt}.j2",
+            "password_reset.{html,txt}.j2",
+        ],
+        "anti_patterns": [
+            "Never call SMTP from a request handler — always enqueue via background task",
+            "Never interpolate user-supplied HTML into templates — escape always",
+            "Never put the verification token in the email subject (subjects are often logged)",
+            "Never put the SMTP password in source — env var or secret manager",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "common/email.py + templates/email/",
+            "django":  "use django.core.mail with templated body via render_to_string",
+            "spring":  "JavaMailSender + Thymeleaf templates under resources/templates/email/",
+            "nestjs":  "@nestjs-modules/mailer + Handlebars/Pug under templates/",
+            "go":      "internal/common/email.go + text/template + html/template",
+            "nodejs":  "src/common/email.js + nodemailer + Handlebars templates",
+        },
+    },
+
+    ("common", "outbox_pattern"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Transactional outbox for reliable event publishing. Business write + "
+            "outbox row written in SAME DB transaction. A poller process reads "
+            "unprocessed outbox rows and publishes to the real broker (Kafka/SNS/"
+            "RabbitMQ/Redis Streams). Marks processed_at on success; retries with "
+            "exponential backoff on failure. Guarantees at-least-once delivery "
+            "without 2PC. The events.emit() function writes to outbox, not directly to broker."
+        ),
+        "must_emit": [
+            "outbox table: id BIGINT PK, event_name VARCHAR, payload JSON, "
+            "aggregate_type VARCHAR, aggregate_id VARCHAR, created_at, "
+            "processed_at NULL, attempt_count INT DEFAULT 0, last_error TEXT NULL",
+            "write_outbox(session, event_name, payload, aggregate_type, aggregate_id) — runs inside the business tx",
+            "Worker process: poll WHERE processed_at IS NULL ORDER BY id LIMIT N; "
+            "publish; UPDATE processed_at OR increment attempt_count + last_error",
+            "Index: (processed_at, id) for poller; (aggregate_type, aggregate_id) for replay",
+        ],
+        "anti_patterns": [
+            "Never publish to the broker inside the business request — that's what the outbox prevents",
+            "Never DELETE processed outbox rows immediately — keep for N days for replay",
+            "Never lose ordering for the same aggregate_id — single-threaded per aggregate or use partitioned queue",
+            "Never poll without LIMIT — full-table scans kill performance",
+        ],
+    },
+
+    ("common", "health_check_contract"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Three endpoints, distinct semantics: "
+            "/livez — process alive (200 if app is responding; no dependency checks). "
+            "/readyz — ready to serve traffic (200 only if DB + broker + cache are reachable). "
+            "/healthz — alias for /readyz (legacy / k8s convention). "
+            "Kubernetes liveness probe hits /livez; readiness probe hits /readyz. "
+            "Failing /readyz removes the pod from service; failing /livez restarts it."
+        ),
+        "must_emit_endpoints": [
+            "GET /livez -> 200 {'status': 'ok'}  (NO dependency checks)",
+            "GET /readyz -> 200 {'status': 'ok', 'checks': {db: true, broker: true, cache: true}} OR 503 with failing checks",
+            "GET /healthz -> alias for /readyz",
+        ],
+        "anti_patterns": [
+            "Never check external APIs (third parties) in /readyz — they'll flap and remove your pod from rotation",
+            "Never put auth on these endpoints — load balancers + k8s probes are unauthenticated",
+            "Never make /livez do anything slow or fallible — it must respond < 100ms",
+            "Never return 200 from /readyz when DB is down — the orchestrator can't shed load if you lie",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "common/health.py (router @ /  )",
+            "django":  "common/health.py (urls.py route) — or use django-health-check",
+            "spring":  "Spring Boot Actuator: management.endpoints.web.exposure.include=health,info; add custom HealthIndicator beans",
+            "nestjs":  "@nestjs/terminus — HealthController with TypeOrmHealthIndicator, MemoryHealthIndicator",
+            "go":      "internal/common/health.go (http handlers)",
+            "nodejs":  "src/common/health.js (Express handlers)",
+        },
+    },
+
+    ("common", "rbac_contract"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Role-based access control above plain authentication. Users carry "
+            "one OR more roles (Role enum or role table). Routes declare required "
+            "role/permission; framework guard enforces. Common roles: admin, "
+            "owner, member, viewer. Permission strings: '{resource}:{action}' "
+            "e.g. 'cart:write', 'invoice:read'. Service layer can re-check via "
+            "actor.has_permission('cart:write')."
+        ),
+        "must_emit": [
+            "Role enum / table with admin/owner/member/viewer (configurable)",
+            "Permission table: role_name VARCHAR, permission VARCHAR (e.g. 'cart:write')",
+            "Decorator/guard: @requires_permission('cart:write') for routes",
+            "actor.has_permission(perm) -> bool — used by service for in-band checks",
+        ],
+        "anti_patterns": [
+            "Never check roles by string comparison scattered across handlers — centralise in a guard/decorator",
+            "Never let admin bypass audit logging — admins must audit MORE not less",
+            "Never grant permissions by negation ('NOT admin') — explicit allow-lists only",
+            "Never check authorization in the model layer — service or router only",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "common/permissions.py (Depends-based guards + Role enum)",
+            "django":  "DRF permission_classes — IsAuthenticated + custom HasRole permission",
+            "spring":  "Spring Security @PreAuthorize(\"hasRole('ADMIN')\") on controller methods",
+            "nestjs":  "RolesGuard + @Roles('admin') decorator (@nestjs/passport + custom)",
+            "go":      "internal/common/permissions.go (middleware that reads claims)",
+            "nodejs":  "src/common/permissions.js (Express middleware factory)",
+        },
+    },
+
+    ("common", "api_versioning_contract"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "URL-path versioning (/api/v1, /api/v2). New version is a separate "
+            "router/module that COEXISTS with the old; never break v1 once shipped. "
+            "Deprecation: add Deprecation + Sunset headers to v1 responses 6 months "
+            "before removal. Versioning applies at the routing layer, not the "
+            "model/service layer — services are version-agnostic; routers translate. "
+            "When introducing v2: copy v1's router file to v2/, change the import + "
+            "schema imports, mount under /api/v2."
+        ),
+        "must_emit": [
+            "Router prefix: /api/v{N}/{plural}",
+            "Schema layout: {entity}/v1/schemas.py vs {entity}/v2/schemas.py (one per version)",
+            "Service layer SHARED across versions — never duplicate business logic",
+            "Deprecation response header on v1 once v2 ships: Deprecation: true; Sunset: <RFC1123 date>",
+        ],
+        "anti_patterns": [
+            "Never use a single shared schema across versions — schema breaks are why you versioned",
+            "Never put version logic inside the service — the service speaks the current canonical model only",
+            "Never use query-param versioning (?version=2) — breaks caches and middlewares",
+            "Never remove v1 routes without 6+ months of Sunset header + customer comms",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "Mount routers: app.include_router(v1.router, prefix='/api/v1'); app.include_router(v2.router, prefix='/api/v2')",
+            "django":  "urls.py: path('api/v1/', include('myapp.urls_v1')) and path('api/v2/', include('myapp.urls_v2'))",
+            "spring":  "@RestController @RequestMapping(\"/api/v1/...\") + separate controller class per version",
+            "nestjs":  "@Controller({ path: 'carts', version: '1' }) — use built-in URI versioning, enable in main.ts",
+            "go":      "Separate sub-routers: v1 := router.PathPrefix(\"/api/v1\").Subrouter()",
+            "nodejs":  "app.use('/api/v1', require('./v1/router')); app.use('/api/v2', require('./v2/router'))",
+        },
+    },
+
+    ("common", "data_migration"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Data migrations are DISTINCT from schema migrations. Schema migrations "
+            "change DDL; data migrations rewrite rows under a new schema. Rules: "
+            "(1) always reversible (provide downgrade), (2) batched (LIMIT N per "
+            "iteration, never one big UPDATE on a hot table), (3) idempotent "
+            "(safe to re-run if partially completed), (4) separate revision from "
+            "the schema migration that adds the column being backfilled — deploy "
+            "schema first, then data, so partial deploys don't break."
+        ),
+        "must_emit": [
+            "Empty-then-fill pattern: (1) add column nullable in revision N, "
+            "(2) backfill in revision N+1 (data migration), "
+            "(3) add NOT NULL constraint in revision N+2",
+            "Batch loop: WHILE rows_remaining: UPDATE ... LIMIT 1000; COMMIT; SLEEP 100ms",
+            "Progress logging: every batch, log {processed, remaining, eta}",
+        ],
+        "anti_patterns": [
+            "Never UPDATE without LIMIT on tables > 1M rows — locks + replication lag",
+            "Never combine schema + data in one revision — partial deploy will leave you stranded",
+            "Never write data migrations as raw SQL — use the ORM so testing + rollback work",
+            "Never mark a data migration complete without a verification query (COUNT WHERE new_col IS NULL)",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "Alembic data migration: op.execute() + Session via op.get_bind(); use chunked update",
+            "django":  "RunPython operation: python manage.py makemigrations --empty appname",
+            "spring":  "Flyway: V{N}__backfill_{description}.sql with batched DML; or Java migrations for ORM access",
+            "nestjs":  "TypeORM: queryRunner-based migration with manual chunked update + commit per batch",
+            "go":      "golang-migrate: separate .up.sql / .down.sql file; or programmatic via goose for ORM access",
+            "nodejs":  "sequelize-cli: queryInterface.bulkUpdate in batches OR raw queryInterface.sequelize.query with LIMIT",
+        },
     },
 
     # ─── Django ──────────────────────────────────────────────────────────
@@ -376,6 +698,55 @@ HINTS: Dict[tuple, Dict] = {
             "Never trust verification tokens older than 24h (1h for password reset)",
         ],
     },
+    ("django", "soft_delete"): {
+        "language": "python",
+        "guidance": (
+            "Custom Manager pattern. Add deleted_at DateTimeField(null=True, "
+            "db_index=True). Override default Manager to filter deleted_at__isnull=True; "
+            "expose .all_with_deleted() for admin. Override .delete() on QuerySet "
+            "to UPDATE deleted_at instead of DELETE. Keep .hard_delete() for GDPR."
+        ),
+        "must_emit": [
+            "deleted_at = models.DateTimeField(null=True, blank=True, db_index=True)",
+            "class {Pascal}Manager(models.Manager): get_queryset(self) returns super().get_queryset().filter(deleted_at__isnull=True)",
+            "objects = {Pascal}Manager(); all_objects = models.Manager()",
+            "soft_delete(self): self.deleted_at = timezone.now(); self.save(update_fields=['deleted_at'])",
+        ],
+        "anti_patterns": [
+            "Don't forget UniqueConstraint(condition=Q(deleted_at__isnull=True))",
+            "Don't let ON_DELETE=CASCADE cascade through soft-deleted rows — write a signal",
+            "Don't soft-delete LogEntry / audit rows",
+        ],
+    },
+    ("django", "file_upload"): {
+        "language": "python",
+        "imports_must_include": [
+            "from rest_framework import status",
+            "from rest_framework.decorators import action",
+            "from rest_framework.parsers import MultiPartParser",
+        ],
+        "must_emit_endpoints": [
+            "@action(detail=True, methods=['post'], parser_classes=[MultiPartParser]) def upload(...)",
+        ],
+        "guidance": (
+            "FileField with upload_to= a path resolver that namespaces by entity "
+            "type + UUID. Configure DEFAULT_FILE_STORAGE = "
+            "'storages.backends.s3boto3.S3Boto3Storage' for S3. Validate "
+            "content_type + size in serializer.validate_file(). Use "
+            "django-storages package for cloud storage."
+        ),
+        "must_emit": [
+            "file = models.FileField(upload_to=_upload_path)",
+            "_upload_path(instance, filename) -> f'{type(instance).__name__.lower()}/{instance.id}/{uuid4()}'",
+            "FILE_UPLOAD_MAX_MEMORY_SIZE in settings (forces streaming above this)",
+            "Allowlist of content_types validated in serializer",
+        ],
+        "anti_patterns": [
+            "Never use MEDIA_ROOT on disk in production — use S3/GCS via django-storages",
+            "Never trust request.FILES['x'].content_type — sniff via python-magic",
+            "Never accept files without a size cap (DATA_UPLOAD_MAX_MEMORY_SIZE)",
+        ],
+    },
     ("django", "django_background_task"): {
         "language": "python",
         "imports_must_include": [
@@ -481,6 +852,63 @@ HINTS: Dict[tuple, Dict] = {
             "Never store plain passwords — always BCryptPasswordEncoder",
             "Never put JWT secret in source — read from @Value(\"${jwt.secret}\") / env",
             "Never accept verification tokens older than 24h",
+        ],
+    },
+    ("spring", "soft_delete"): {
+        "language": "java",
+        "guidance": (
+            "Hibernate @SQLDelete + @Where annotations. @SQLDelete rewrites "
+            "DELETE statements to UPDATE deletedAt = now(). @Where("
+            "clause = \"deleted_at IS NULL\") filters every read. Keep a "
+            "@Repository method named hardDelete(id) that uses native query "
+            "for GDPR / admin cleanup."
+        ),
+        "imports_must_include": [
+            "import org.hibernate.annotations.SQLDelete;",
+            "import org.hibernate.annotations.Where;",
+            "import java.time.Instant;",
+        ],
+        "must_emit": [
+            "@SQLDelete(sql = \"UPDATE {plural} SET deleted_at = NOW() WHERE id = ?\")",
+            "@Where(clause = \"deleted_at IS NULL\")",
+            "@Column(name = \"deleted_at\") private Instant deletedAt;  // nullable",
+            "Repository: @Modifying @Query(value = \"DELETE FROM {plural} WHERE id = :id\", nativeQuery = true) void hardDelete(@Param(\"id\") Long id);",
+        ],
+        "anti_patterns": [
+            "Don't index deleted_at without a partial index — many rows will be NULL",
+            "Don't @Where on JpaRepository.findAll() — you may want all rows for admin; expose a separate method",
+            "Don't soft-delete entities referenced by hard FKs without ON DELETE handling",
+            "Don't expect unique constraints to ignore soft-deleted rows — they still occupy the value; use a partial unique index (Postgres) or composite (deleted_at, value)",
+            "Don't soft-delete audit_log entries — audit must remain append-only",
+        ],
+    },
+    ("spring", "file_upload"): {
+        "language": "java",
+        "imports_must_include": [
+            "import org.springframework.web.multipart.MultipartFile;",
+            "import org.springframework.web.bind.annotation.PostMapping;",
+            "import org.springframework.web.bind.annotation.RequestParam;",
+        ],
+        "must_emit_endpoints": [
+            "@PostMapping(value = \"/{{id}}/upload\", consumes = \"multipart/form-data\") public ResponseEntity<?> upload(@PathVariable Long id, @RequestParam(\"file\") MultipartFile file)",
+        ],
+        "guidance": (
+            "Validate file.getSize() against spring.servlet.multipart.max-file-size. "
+            "Validate file.getContentType() against allowlist. Stream to S3 via "
+            "AWS SDK v2 TransferManager or to local disk via Files.copy(); never "
+            "load full byte[] into memory for files > 10 MB. Store metadata (key, "
+            "size, sha256, content_type) in DB; bytes in object storage."
+        ),
+        "must_emit": [
+            "spring.servlet.multipart.max-file-size in application.properties",
+            "ALLOWED_CONTENT_TYPES Set<String> constant",
+            "Chunked SHA-256 of input stream during streaming",
+            "S3 presigned URL helper for direct client upload (preferred over proxying)",
+        ],
+        "anti_patterns": [
+            "Don't call file.getBytes() — loads entire file into memory",
+            "Don't trust file.getContentType() — clients lie; sniff first bytes",
+            "Don't save with original filename as key — generate UUID",
         ],
     },
     ("spring", "spring_background"): {
@@ -601,6 +1029,56 @@ HINTS: Dict[tuple, Dict] = {
             "Never accept verification tokens older than 24h (1h for password reset)",
         ],
     },
+    ("go", "soft_delete"): {
+        "language": "go",
+        "guidance": (
+            "GORM ships gorm.DeletedAt support out of the box. Embed gorm.Model "
+            "OR add `DeletedAt gorm.DeletedAt `gorm:\"index\"``. db.Delete(&row) "
+            "becomes an UPDATE deletedAt = now(). db.Unscoped().Delete() does a "
+            "real DELETE. For non-GORM projects: write a deletedAt *time.Time "
+            "column + custom repository methods that add WHERE deleted_at IS NULL."
+        ),
+        "imports_must_include": [
+            "gorm.io/gorm",
+        ],
+        "must_emit": [
+            "DeletedAt gorm.DeletedAt `gorm:\"index\"`  (or embed gorm.Model)",
+            "Repository.SoftDelete(ctx, id) — db.WithContext(ctx).Delete(&{Pascal}{ID: id})",
+            "Repository.HardDelete(ctx, id) — db.WithContext(ctx).Unscoped().Delete(...)",
+            "Repository.Restore(ctx, id) — db.Unscoped().Model(...).Update(\"deleted_at\", nil)",
+        ],
+        "anti_patterns": [
+            "Don't forget the `gorm:\"index\"` tag — soft-delete filters scan otherwise",
+            "Don't use UNIQUE without partial index — soft-deleted rows still hold the value",
+            "Don't expose Unscoped operations to non-admin handlers",
+        ],
+    },
+    ("go", "file_upload"): {
+        "language": "go",
+        "imports_must_include": [
+            "net/http",
+            "io",
+            "crypto/sha256",
+            "github.com/google/uuid",
+        ],
+        "must_emit": (
+            "POST /{plural}/{id}/upload handler: r.ParseMultipartForm(maxMemory); "
+            "file, header, err := r.FormFile(\"file\"); defer file.Close(); validate "
+            "header.Size <= MAX_FILE_BYTES; validate header.Header.Get(\"Content-Type\") "
+            "in allowlist; stream to S3 via aws-sdk-go-v2 manager.NewUploader; store "
+            "metadata (key, size, sha256, content_type) in DB."
+        ),
+        "guidance": (
+            "Use io.LimitReader to enforce size cap mid-stream. Use multipart.Reader "
+            "(not ParseMultipartForm) for very large files to avoid memory pressure. "
+            "Prefer direct-to-S3 via presigned PUT URLs over proxying."
+        ),
+        "anti_patterns": [
+            "Don't use ParseMultipartForm without a maxMemory arg — defaults to 32 MB in RAM",
+            "Don't trust header.Header.Get(\"Content-Type\") — sniff first 512 bytes via http.DetectContentType",
+            "Don't use header.Filename as the storage key — generate uuid.New().String()",
+        ],
+    },
     ("go", "go_background"): {
         "language": "go",
         "package_decl": "package {snake}",
@@ -696,6 +1174,57 @@ HINTS: Dict[tuple, Dict] = {
             "Never put JWT secret in source — read from ConfigService / process.env",
             "Never accept verification tokens older than 24h (1h for password reset)",
             "Don't use synchronous bcrypt.hashSync in a request handler — blocks event loop",
+        ],
+    },
+    ("nestjs", "soft_delete"): {
+        "language": "typescript",
+        "guidance": (
+            "TypeORM built-in @DeleteDateColumn. Repository.softDelete(id) issues "
+            "UPDATE deletedAt = NOW(). Repository.restore(id) clears it. Default "
+            "find() excludes soft-deleted; pass { withDeleted: true } to include. "
+            "Service exposes both softDelete() and a separate hardDelete() for "
+            "GDPR / admin paths."
+        ),
+        "imports_must_include": [
+            "import { DeleteDateColumn, Repository } from 'typeorm';",
+        ],
+        "must_emit": [
+            "@DeleteDateColumn() deletedAt?: Date;",
+            "service.softDelete(id): await repo.softDelete(id)",
+            "service.restore(id): await repo.restore(id)",
+            "service.hardDelete(id, *, actor): admin-only; await repo.delete(id)",
+        ],
+        "anti_patterns": [
+            "Don't forget unique constraints with @Index({ unique: true, where: 'deletedAt IS NULL' })",
+            "Don't return restore() / hardDelete() to non-admin actors",
+            "Don't soft-delete audit_log entries — audit must be append-only",
+        ],
+    },
+    ("nestjs", "file_upload"): {
+        "language": "typescript",
+        "imports_must_include": [
+            "import { Post, Param, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';",
+            "import { FileInterceptor } from '@nestjs/platform-express';",
+        ],
+        "decorators": [
+            "@Post(':id/upload')",
+            "@UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_FILE_BYTES }, fileFilter: contentTypeFilter }))",
+        ],
+        "guidance": (
+            "Multer via @nestjs/platform-express. Configure { limits, fileFilter, "
+            "storage } at the interceptor level. For S3: use multer-s3 OR upload "
+            "the buffer via aws-sdk v3 PutObjectCommand. For direct-to-S3: return "
+            "a presigned PUT URL from a separate endpoint."
+        ),
+        "must_emit": [
+            "MAX_FILE_BYTES constant (from ConfigService)",
+            "ALLOWED_CONTENT_TYPES Set<string> + contentTypeFilter function",
+            "Helper: getPresignedPutUrl(key, contentType, expiresIn = 900): Promise<string>",
+        ],
+        "anti_patterns": [
+            "Don't use multer's default disk storage in production — use multer-s3 or stream",
+            "Don't trust file.mimetype — clients can lie; sniff via file-type package",
+            "Don't await an unbounded buffer — enforce limits at the interceptor",
         ],
     },
     ("nestjs", "nestjs_background"): {
@@ -876,6 +1405,57 @@ HINTS: Dict[tuple, Dict] = {
             "Don't pass model instances as job data — pass IDs",
             "Don't forget idempotency — retried jobs must be safe",
             "Don't share a Redis connection across Queue and Worker without { connection } config — leads to leaks",
+        ],
+    },
+    ("nodejs", "soft_delete"): {
+        "language": "javascript",
+        "guidance": (
+            "Sequelize supports `paranoid: true` on the model definition. This adds "
+            "a deletedAt timestamp column and changes destroy() to set the column "
+            "instead of DELETEing. force: true restores normal DELETE. include "
+            "`paranoid: false` in find options to include soft-deleted rows. For "
+            "Mongoose: use mongoose-delete plugin or implement deletedAt + a query "
+            "middleware."
+        ),
+        "must_emit": [
+            "Model.init({...}, { sequelize, paranoid: true, timestamps: true })",
+            "service.softDelete(id): await {Pascal}.destroy({ where: { id } })",
+            "service.hardDelete(id, { actor }): admin-only; await {Pascal}.destroy({ where: { id }, force: true })",
+            "service.restore(id): await {Pascal}.restore({ where: { id } })",
+        ],
+        "anti_patterns": [
+            "Don't forget partial UNIQUE constraints — Sequelize 'unique' indexes still trip on soft-deleted rows on most engines",
+            "Don't expose .restore / hardDelete via the public API",
+            "Don't soft-delete audit rows",
+        ],
+    },
+    ("nodejs", "file_upload"): {
+        "language": "javascript",
+        "imports_must_include": [
+            "const multer = require('multer');",
+            "const crypto = require('crypto');",
+        ],
+        "must_emit_endpoints": [
+            "POST /{plural}/:id/upload  (multer.single('file') middleware)",
+        ],
+        "guidance": (
+            "Multer for multipart parsing. For S3: multer-s3 OR aws-sdk v3 "
+            "PutObjectCommand on the buffer. Configure { limits: { fileSize }, "
+            "fileFilter } per route. Compute SHA-256 of the buffer / stream during "
+            "upload. Prefer presigned PUT URLs for files > 5 MB so the API server "
+            "doesn't proxy bytes."
+        ),
+        "must_emit": [
+            "MAX_FILE_BYTES from process.env.MAX_FILE_BYTES",
+            "ALLOWED_CONTENT_TYPES Set + fileFilter(req, file, cb) function",
+            "Helper: getPresignedPutUrl(key, contentType, expiresIn = 900) -> string",
+            "Storage key generator: `${entityType}/${entityId}/${crypto.randomUUID()}`",
+        ],
+        "anti_patterns": [
+            "Never use multer.diskStorage in production — files vanish on container restart",
+            "Never trust file.mimetype — clients lie; sniff via file-type npm package",
+            "Never await large upload buffers without limits.fileSize — DoS",
+            "Never use file.originalname as the storage key — generate UUID",
         ],
     },
     ("nodejs", "nodejs_test"): {

@@ -189,24 +189,47 @@ See [docs/cookbook.md](docs/cookbook.md) for full traces with stage-by-stage out
 
 ## Framework support
 
-As of **v4.2**, all six frameworks have full parity — each ships the same
+As of **v4.3**, all six frameworks have full parity — each ships the same
 8-hint shape (init/model/schema/service/router/auth/background/test) plus
-framework-specific extras. Total catalogue: **56 hints** (8 × FastAPI,
-11 × Django, 8 × Spring, 8 × NestJS, 8 × Go, 8 × Node.js, 5 × common).
+framework-specific extras AND the Tier-1 production-concerns set
+(soft delete + file upload, plus 9 cross-framework contracts: pagination,
+idempotency keys, audit log, email templates, outbox pattern, health checks,
+RBAC, API versioning, data migrations).
+
+Total catalogue: **77 hints** (10 × FastAPI, 13 × Django, 10 × Spring,
+10 × NestJS, 10 × Go, 10 × Node.js, 14 × common).
 
 | Framework | Body hints | Scaffold paths | Migration tool |
 |---|---|---|---|
-| **FastAPI** | ✅ 8 hints (incl. service layer + bcrypt/JWT auth + BackgroundTasks) | ✅ | Alembic |
-| **Django** | ✅ 11 hints (incl. service layer + django.contrib.auth/simplejwt + Celery) | ✅ | `manage.py makemigrations` |
-| **Spring Boot** | ✅ 8 hints (incl. service layer + Spring Security/JWT + @Async/@Scheduled) | ✅ | Flyway or Liquibase |
-| **NestJS** | ✅ 8 hints (incl. service layer + Passport+bcrypt + BullMQ processor) | ✅ | TypeORM migration:generate |
-| **Go** | ✅ 8 hints (incl. service layer + DTOs + bcrypt/golang-jwt + goroutine workers) | ✅ | golang-migrate |
-| **Node.js** | ✅ 8 hints (Express + Sequelize + Joi + bcrypt/jsonwebtoken + BullMQ + Jest) | ✅ | sequelize-cli migration |
+| **FastAPI** | ✅ 10 hints (service layer + bcrypt/JWT auth + BackgroundTasks + soft_delete + file_upload) | ✅ | Alembic |
+| **Django** | ✅ 13 hints (service layer + simplejwt + Celery + soft_delete + file_upload) | ✅ | `manage.py makemigrations` |
+| **Spring Boot** | ✅ 10 hints (service + Spring Security/JWT + @Async/@Scheduled + @SQLDelete + MultipartFile) | ✅ | Flyway or Liquibase |
+| **NestJS** | ✅ 10 hints (service + Passport+bcrypt + BullMQ + @DeleteDateColumn + FileInterceptor) | ✅ | TypeORM migration:generate |
+| **Go** | ✅ 10 hints (service + DTOs + bcrypt/golang-jwt + goroutine workers + gorm.DeletedAt + r.FormFile) | ✅ | golang-migrate |
+| **Node.js** | ✅ 10 hints (Express + Sequelize + Joi + bcrypt/JWT + BullMQ + Jest + paranoid + multer) | ✅ | sequelize-cli migration |
+
+### Tier-1 production concerns (cross-framework, under `common` namespace)
+
+Every implementer agent has access to these contracts regardless of host framework:
+
+| Contract | What it guarantees |
+|---|---|
+| **pagination_contract** | Offset + keyset (cursor) strategies with `max_limit` enforcement |
+| **idempotency_keys** | Stripe-style `Idempotency-Key` header replay protection (24h TTL, hash-based) |
+| **audit_log** | Append-only `who/what/when/old/new` trail, redact secrets, never DELETE |
+| **email_template** | Jinja2/Handlebars HTML + plain-text fallback; never SMTP in request handler |
+| **outbox_pattern** | Atomic business-write + event-row in same tx; poller publishes to broker |
+| **health_check_contract** | `/livez` (no deps) vs `/readyz` (DB+broker+cache) — distinct semantics |
+| **rbac_contract** | Centralised role/permission guards; `'{resource}:{action}'` strings |
+| **api_versioning_contract** | URL-path versioning, shared service layer, Sunset+Deprecation headers |
+| **data_migration** | Reversible + batched + idempotent; separate revision from schema change |
 
 All frameworks emit business-logic-bearing services with invariant enforcement,
-real auth helpers (never plain-text passwords), and a retryable background-task
-pattern matched to the ecosystem (Celery / @Async / BullMQ / Asynq / etc).
-Coverage verified by [tests/test_framework_parity.py](tests/test_framework_parity.py) (22 tests).
+real auth helpers (never plain-text passwords), retryable background-task patterns
+matched to the ecosystem (Celery / @Async / BullMQ / Asynq), and the production
+concerns above. Coverage verified by
+[tests/test_framework_parity.py](tests/test_framework_parity.py) (22 tests) +
+[tests/test_tier1_production_concerns.py](tests/test_tier1_production_concerns.py) (25 tests).
 
 ---
 
