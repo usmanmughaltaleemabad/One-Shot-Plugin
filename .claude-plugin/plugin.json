@@ -1,7 +1,7 @@
 {
   "name": "ONE SHOT PLUGIN (CLAUDE CODE STUDIO)",
   "description": "Production agentic one-shot code generation for existing codebases. Claude conducts a 9-stage pipeline — curriculum check, predictive failure scan, codebase graph + extractor (with LLM fallback for ambiguous prose), architect → service-author → implementer×N + test-author (parallel) → reviewer → wirer → migration → critic — using cost-tiered model routing (Haiku for file-writers, Sonnet for reasoners). Self-extending registry of external agents/skills/MCP, autonomy-level gating (operator → observer), learnings-hub agent ratings, OpenTelemetry tracing, auto-patch repair loop, automatic Alembic migrations, OpenAPI doc generation. Multi-entity, FK-aware, cost-budget-gated, with a templated zero-token fallback. Supports FastAPI, Django, Spring, Go, Node, NestJS.",
-  "version": "4.9.0",
+  "version": "4.10.0",
   "author": {
     "name": "Usman Mughal",
     "url": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin"

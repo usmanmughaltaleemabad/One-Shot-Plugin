@@ -10,7 +10,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 346 / 346 green (24 suites incl. integration harness, Py 3.14 / Windows) |
+| **Tests** | 367 / 367 green (25 suites incl. integration harness, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
@@ -38,28 +38,60 @@ That's it. Claude takes over from here — scans your project, designs the spec,
 
 ---
 
-## What `/one-shot` actually does
+## How it works (30-second mental model)
 
-Each invocation runs **9 stages** orchestrated by Claude:
+Four phases. You only ever type one command; the plugin does the rest.
 
 ```
-Stage 0   curriculum + predictive failure scan        (free)
-Stage 0.5 external agent discovery (registry)         (free)
-Stage 1   scan codebase + extract domain model        (free)
-Stage 1.5 cost-budget gate (halts if over --budget)   (free)
-Stage 2   architect agent → spec.json                 ~$0.10
-Stage 2.5 spec review (--review flag)                 (free, gates user approval)
-Stage 2.7 service-author (when invariants exist)      ~$0.08
-Stage 3   implementer × N + test-author (parallel)    ~$0.20
-Stage 4   verify + auto-patch (4 deterministic rules) (free)
-Stage 5   reviewer agent                              ~$0.09
-Stage 6   wirer (mutates main.py with .osp.bak)       (free)
-Stage 6.5 migration_generator (real Alembic revision) (free)
-Stage 7   critic agent (runs pytest, ship-or-loop)    ~$0.03
-Stage 8   record (graph refresh + beads on failure)   (free)
+┌──────────────────┬──────────────────┬──────────────────┬──────────────────┐
+│      PLAN        │      BUILD       │     VERIFY       │       SHIP       │
+├──────────────────┼──────────────────┼──────────────────┼──────────────────┤
+│ scan codebase    │ implementer × N  │ auto-patch       │ wire main.py     │
+│ extract entities │ + test-author    │ reviewer agent   │ ship-gates check │
+│ architect → spec │ (all parallel)   │ doubter agent    │ Alembic migration│
+│ source-doc fetch │                  │ (fresh-context)  │ critic runs tests│
+│ ADR emission     │                  │                  │ record learnings │
+└──────────────────┴──────────────────┴──────────────────┴──────────────────┘
+     ~$0.10              ~$0.20            ~$0.10            ~$0.05
 ```
 
-**Total: ~$0.30–0.80 per generation.** Free with `--templated`.
+**Total: ~$0.30–0.80 per multi-entity feature.** Free with `--templated`.
+
+### Under the hood — 12 stages (only if you care)
+
+<details>
+<summary>Click to expand the full stage breakdown</summary>
+
+```
+PLAN
+  Stage 0    curriculum + predictive failure scan      (free)
+  Stage 0.5  external-agent registry discovery         (free)
+  Stage 1    scan codebase + extract domain model      (free)
+  Stage 1.5  cost-budget gate (halts if over --budget) (free)
+  Stage 2    architect agent → spec.json + ADR         ~$0.10
+  Stage 2.3  source-driven doc lookup (WebFetch official docs)
+  Stage 2.5  spec review (--review flag)
+  Stage 2.6  incremental slicing (--incremental flag)
+  Stage 2.7  service-author (when invariants exist)    ~$0.08
+
+BUILD
+  Stage 3    implementer × N + test-author (parallel)  ~$0.20
+
+VERIFY
+  Stage 4    verify + auto-patch                       (free)
+  Stage 5    reviewer agent                            ~$0.09
+  Stage 5.5  doubt-driven adversarial pass (DEFAULT ON; --no-doubt)
+
+SHIP
+  Stage 6    ship-gates → wirer + 6.5 migration_generator
+  Stage 7    critic (runs pytest; deterministic multi-iter loop, max 3)
+  Stage 8    record (graph refresh + per-agent learnings)
+```
+
+Stages 5.5, 6, and 2 (ADR emission) are **default-on** — opt out with
+`--no-doubt`, `--no-ship-check`, `--no-adr`.
+
+</details>
 
 ### What ships for a typical multi-entity feature
 

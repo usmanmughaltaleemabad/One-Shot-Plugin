@@ -7,7 +7,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.9.0] — 2026-05-18 (Current) — Headless SDK Mode + Stress Tests + Self-Calibrating Cost Model
+## [4.10.0] — 2026-05-18 (Current) — Cleaner Mental Model + 4 New Skill Gaps Closed
+
+After the comparison with addyosmani/agent-skills, we identified four
+genuinely closeable gaps. This release ships them — plus a structural
+README rewrite that makes the 12-stage pipeline easier to teach.
+
+### Added — 4 new slash commands
+
+- **`/perf-audit`** + `scripts/perf_audit.py` — Anti-pattern scanner.
+  Detects N+1 queries (Django ORM, SQLAlchemy, Sequelize), hot-path
+  blockers (sync bcrypt, sync HTTP in async), memory hazards
+  (unbounded `.read()`, `SELECT *`, `len()` on QuerySets). Surfaces the
+  right profiler per framework (py-spy / clinic.js / pprof / JMH /
+  Micrometer). `--strict` exits 2 on warnings (CI gate).
+- **`/interview`** — Pre-`/refine` workflow. When a feature request is
+  too vague, runs a structured 3-round interview (max 6 questions),
+  produces a sharpened restatement, then hands off to `/refine`.
+- **`/browser-test`** — Drives `chrome-devtools` MCP for end-to-end
+  frontend testing. Walks navigate → snapshot → interact → console-check
+  → network-check → Lighthouse. Catches what unit tests can't (real
+  rendering, keyboard nav, a11y violations, runtime perf).
+- **`/context`** + `scripts/context_writer.py` — Generates a
+  `CLAUDE.md` skeleton from a project's detected stack. Scans
+  manifests, fingerprints framework + ORM + test runner + linter +
+  formatter + migration tool, emits framework-specific run commands.
+  `--force` / `--append` modes for refreshing existing files.
+
+### Added — Documentation
+
+- **`docs/standalone-usage.md`** — Maps what runs WITHOUT Claude Code
+  (~90% of the plugin: 30+ deterministic scripts, the live-api runner,
+  the body_hints catalogue, all the driver / gate / writer scripts).
+  Includes integration patterns for Cursor, Gemini CLI, GitHub Actions,
+  plain Python.
+
+### Changed — README
+
+- "What `/one-shot` actually does" section restructured into a
+  **4-phase mental model** (PLAN / BUILD / VERIFY / SHIP) with a hero
+  ASCII diagram. The full 12-stage breakdown is now in a `<details>`
+  block — visible when wanted, out of the way when not.
+
+### Tests
+
+367/367 green (+21 v4.10 tests). Coverage:
+  - 7 tests for perf_audit (framework detection + each anti-pattern
+    rule + severity filter + strict mode + clean-project no-findings)
+  - 1 test each for /interview, /browser-test slash command structure
+  - 9 tests for context_writer (detects FastAPI / Django / NestJS /
+    Spring; writes CLAUDE.md; refuses overwrite without --force;
+    --append preserves existing content; emits framework-specific
+    commands)
+  - 1 monotone-grow test asserting >= 28 user-facing slash commands
+
+### Numbers
+| Metric | v4.9 | v4.10 |
+|---|---|---|
+| Slash commands | 25 | **29** (incl. CLAUDE.md) / 28 user-facing |
+| Tests | 346 | 367 |
+| Test suites | 24 | 25 |
+| Body hints | 101 | 101 (unchanged) |
+| Lines of code added | — | ~1,400 |
+
+### Fixed during build
+- `context_writer.py`: NestJS detection set `language=javascript` and
+  never upgraded to `typescript` even when `"typescript"` was in
+  devDependencies. Fixed by detecting typescript BEFORE the default
+  javascript fallback.
+
+---
+
+## [4.9.0] — 2026-05-18 — Headless SDK Mode + Stress Tests + Self-Calibrating Cost Model
 
 Closes three "honest gaps" from earlier README sections technically rather
 than waiting on external signal:
