@@ -7,7 +7,103 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.11.0] — 2026-05-18 (Current) — Gemini Review Fixes (Pipeline Ordering + HITL Gate)
+## [4.12.0] — 2026-05-18 (Current) — Safety Gates Closing Real Risk
+
+External review (Gemini) flagged two genuine risks in the v4.11 pipeline.
+This release closes both with deterministic safety gates.
+
+### Risk #1 — Subtle drift between agents
+
+"Multi-agent complexity can backfire: when 10 different AI agents start
+talking to each other, passing specs, and writing code in parallel,
+things can go sideways. While it has a Critic agent to catch test
+failures, subtle logic bugs or security flaws could still slip through."
+
+**Fix**: New Stage 5.7 running TWO scanners after doubt (5.5) and before
+ship (6) — both default-on.
+
+- `skills/one-shot-generator/scripts/cross_agent_consistency.py` —
+  5 cross-agent checks that no single agent can see:
+  - `SPEC_ATTRS_MATCH_MODEL` — every spec entity attribute appears in models.py
+  - `INVARIANT_ENFORCED` — service.py has enough enforcement (raise/check signals)
+  - `SPEC_RELATIONSHIPS_MATCH_FKS` — FK columns exist for declared relationships
+  - `REVIEWER_FINDINGS_ADDRESSED` — flagged tokens absent after fix iteration
+  - `DOUBTER_FINDINGS_ADDRESSED` — doubt rounds shrink blocking findings
+
+- `skills/one-shot-generator/scripts/security_deep_scan.py` —
+  ~20 SAST rules across 5 categories (deterministic, ~1s):
+  - **AUTH**: hardcoded AWS/GitHub/Slack/Google tokens, RSA private keys,
+    JWT secret as literal
+  - **INJECTION**: SQL injection via f-string/format/concat/template literals;
+    `shell=True`; `os.system()`; path traversal patterns
+  - **CRYPTO**: MD5/SHA1 for security; bcrypt cost < 12; `random.*` for
+    tokens; hardcoded IV/salt
+  - **ACCESS**: `eval()`/`exec()` with user input; `pickle.load()` of
+    untrusted data; `yaml.load()` without SafeLoader
+  - **EXPOSURE**: `DEBUG=True` literal; CORS `allow_origins=['*']` (HIGH
+    if combined with `allow_credentials=True`)
+
+### Risk #2 — Auto-generating 17 files on a critical codebase
+
+"Do NOT use it if you are working on a massive, highly complex legacy
+codebase. With zero community battle-testing, letting a multi-agent
+system auto-generate 17 files and run database migrations on a critical
+app is a massive risk."
+
+**Fix**: New `--legacy-safe` mode enforced by Stage 0.7 gate.
+
+- `skills/one-shot-generator/scripts/legacy_guard.py` — `validate`
+  subcommand runs BEFORE any agent fires; aborts the run if:
+  - Spec produces > 3 files (legacy-safe cap)
+  - `--apply` / `--no-doubt` / `--no-ship-check` flags present (forbidden)
+  - `--review` flag missing (mandatory in legacy-safe)
+  - Working tree dirty (must be clean so `git diff` reads cleanly post-run)
+  - Any target file has heat verdict `DO_NOT_TOUCH` or `HOT`
+
+- `skills/one-shot-generator/scripts/impact_analyzer.py` — static-import
+  graph analysis:
+  - Counts direct importers + transitive fan-out per target file
+  - Heat score 0-100 based on importers + file size + test coverage +
+    recency; verdict in {COOL, WARM, HOT, DO_NOT_TOUCH}
+  - `DO_NOT_TOUCH` files in legacy-safe mode are an immediate abort
+  - Useful standalone (`--json`) for any tool needing import-graph data
+
+In legacy-safe mode, Stage 6 wirer is DRY-RUN ONLY (no main.py mutation),
+Stage 6.5 emits `MIGRATION_RUNBOOK.md` instead of running `alembic upgrade`,
+and Stage 5.7 runs with `--strict` (any WARN blocks ship).
+
+### Housekeeping
+
+- `.archive/` now in `.gitignore` — historical snapshots stay on disk
+  for reference but no longer track in git (was tracked since v4.7;
+  removed via `git rm -r --cached .archive/` in this commit).
+
+### Tests
+
+408/408 green (+26 v4.12 tests):
+  - 5 for `cross_agent_consistency` (missing attr, sparse invariants,
+    missing FK, clean-spec, strict-promotes-warn)
+  - 7 for `security_deep_scan` (AWS key, SQL injection, shell=True,
+    pickle.load, yaml.load, random-for-token, clean code; strict mode)
+  - 4 for `impact_analyzer` (direct importers, COOL verdict, escalation
+    on 60 importers, missing target)
+  - 8 for `legacy_guard` (file-count limit, --apply forbidden, --review
+    required, dirty tree, clean run allowed, DO_NOT_TOUCH blocks,
+    limits subcommand, SKILL.md wiring)
+  - 2 for SKILL.md (Stages 0.7 + 5.7 documented with right references)
+
+### Plugin metadata
+
+- `plugin.json`: 4.11.0 → 4.12.0
+- Slash commands: 29 (unchanged; both new gates are stage-internal, not
+  user-facing commands)
+- Pipeline stages: 12 → 14 (new: 0.7, 5.7)
+- Deterministic helpers: 11 → 15 (cross_agent_consistency,
+  security_deep_scan, impact_analyzer, legacy_guard)
+
+---
+
+## [4.11.0] — 2026-05-18 — Gemini Review Fixes (Pipeline Ordering + HITL Gate)
 
 External code review by Gemini surfaced three real flaws in the v4.10
 pipeline. All three closed in this release.

@@ -111,6 +111,50 @@ blocker.
 
 ---
 
+## Stage 0.7 — Legacy-safe gate (only if `--legacy-safe` was passed)
+
+For massive / critical / legacy codebases, the default 17-files-and-a-migration
+behaviour is too dangerous. `--legacy-safe` mode enforces a small blast
+radius. **Run the guard FIRST**, before any agent fires:
+
+```!
+python "./scripts/legacy_guard.py" validate \
+    --project <project-path> \
+    --planned-files <list of files spec will touch> \
+    --extra-flags=<comma-separated other flags, e.g. --apply,--review>
+```
+
+The guard enforces:
+
+| Rule | Effect when violated |
+|---|---|
+| **Max 3 files generated per run** (vs 17+ in default mode) | BLOCK |
+| `--apply` / `--no-doubt` / `--no-ship-check` forbidden | BLOCK |
+| `--review` flag required (spec must be approved before code gen) | BLOCK |
+| Git working tree must be clean at start (so `git diff` reads cleanly post-run) | BLOCK |
+| `impact_analyzer.py` heat verdict ≠ `DO_NOT_TOUCH` for every target | BLOCK |
+| `impact_analyzer.py` heat verdict ≠ `HOT` for every target | BLOCK (human review required) |
+
+If the guard returns `verdict: BLOCKED`, **abort the run** and surface
+the violations to the user. Do NOT proceed past Stage 0.7.
+
+If `ALLOWED`, set internal flags:
+- `apply_disabled = True` (Stage 6 wirer dry-run only)
+- `migration_auto_apply = False` (Stage 6.5 emits `MIGRATION_RUNBOOK.md`, never runs `alembic upgrade`)
+- `commit_per_file = True` (Stage 6 stages each generated file as a separate `git commit` for easier review)
+- `consistency_strict = True` (Stage 5.7 runs with `--strict`)
+- `security_strict = True` (Stage 5.7 security scan runs with `--strict`)
+
+The remaining stages run as normal but inherit these flags.
+
+**This stage exists because of Gemini's review of v4.10**: auto-generating
+17 files + running migrations on a critical app is a massive risk
+without community battle-testing. Until that battle-testing exists,
+`--legacy-safe` is the answer for "I want the benefits of /one-shot
+but I can't afford runaway behaviour on a critical codebase."
+
+---
+
 ## Stage 1 — Deterministic scan + extraction
 
 Run the scanner and the domain extractor. Both are pure-Python and produce
@@ -570,6 +614,81 @@ The driver returns one of three decisions:
 
 This stage is bounded: max 2 doubt rounds per artifact, max ~$0.04 per
 round at sonnet pricing.
+
+---
+
+## Stage 5.7 — Cross-agent consistency + security deep scan (DEFAULT ON)
+
+Reviewer, doubter, and critic each look at ONE thing in isolation
+(code, contract-vs-artifact, tests). They miss subtle drift BETWEEN
+agents — the architect declares an invariant, the implementer doesn't
+enforce it, no single reviewer notices because each agent did its
+local job. This stage runs after Stage 5.5 and closes that gap.
+
+**Two checks run in parallel. Both default-on, opt out via
+`--no-consistency-check` / `--no-security-scan` respectively.**
+
+### 5.7a — Cross-agent consistency
+
+```!
+python "./scripts/cross_agent_consistency.py" \
+    --spec /tmp/osp-spec.json \
+    --generated-dir /tmp/osp-out \
+    --reviewer-verdict /tmp/osp-reviewer.json \
+    --doubt-state <sandbox>/.osp-doubt-state.json \
+    --strict
+```
+
+Verifies five invariants ACROSS agent outputs:
+
+| Check | Catches |
+|---|---|
+| `SPEC_ATTRS_MATCH_MODEL` | implementer dropped a field declared in spec.json |
+| `INVARIANT_ENFORCED` | service.py too sparse to honestly enforce N spec invariants |
+| `SPEC_RELATIONSHIPS_MATCH_FKS` | relationship in spec but FK column missing in model |
+| `REVIEWER_FINDINGS_ADDRESSED` | reviewer flagged X; X is still present after fix iteration |
+| `DOUBTER_FINDINGS_ADDRESSED` | doubt rounds didn't shrink blocking findings (theater) |
+
+Verdict `BLOCKED` → halt the run; surface the violations to the user.
+
+### 5.7b — Security deep scan (deterministic SAST)
+
+```!
+python "./scripts/security_deep_scan.py" \
+    --target /tmp/osp-out \
+    --strict
+```
+
+Runs ~20 SAST rules across AUTH / INJECTION / CRYPTO / ACCESS / EXPOSURE
+categories:
+
+- **AUTH**: hardcoded AWS/GitHub/Slack/Google tokens; RSA private keys
+  in source; JWT secret as literal string
+- **INJECTION**: SQL injection via f-string / format / concat / template
+  literals; `subprocess.run(..., shell=True)`; `os.system()`; path
+  traversal patterns
+- **CRYPTO**: MD5/SHA1 for security; bcrypt cost < 12; `random.*` for
+  tokens (must be `secrets.*`); hardcoded IV/salt
+- **ACCESS**: `eval()` / `exec()` with user input; `pickle.load()` from
+  untrusted source; `yaml.load()` without SafeLoader
+- **EXPOSURE**: `DEBUG=True` literal; CORS `allow_origins=['*']` (HIGH
+  if combined with `allow_credentials=True`)
+
+Any HIGH finding → BLOCK. MEDIUM with `--strict` → also BLOCK.
+
+### Why this stage matters (Gemini review):
+
+> Multi-agent complexity can backfire: when 10 different AI agents
+> start talking to each other, passing specs, and writing code in
+> parallel, things can go sideways. While it has a "Critic" agent to
+> catch test failures, subtle logic bugs or security flaws could still
+> slip through.
+
+This stage is the deterministic safety net for the "subtle logic bugs
+or security flaws" case. Critic runs tests (which the implementer
+also wrote — possible coverage gap). 5.7 runs cross-agent invariants
+and a fixed SAST ruleset — coverage NOT determined by what the
+implementer chose to test.
 
 ---
 

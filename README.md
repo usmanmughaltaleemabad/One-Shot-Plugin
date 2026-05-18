@@ -6,11 +6,11 @@ Type `/one-shot "shopping cart with line items and discounts" @./my-project` and
 
 Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs. Real bcrypt + JWT auth helpers. Real service layer enforcing business invariants. Cost-tiered model routing (Haiku for file-writers, Sonnet for reasoners) keeps a typical generation at ~$0.50. Free `--templated` fallback for CI / cost-sensitive contexts.
 
-## ⭐ v4.11 — Status
+## ⭐ v4.12 — Status
 
 | Metric | Value |
 |---|---|
-| **Tests** | 382 / 382 green (26 suites incl. integration harness, Py 3.14 / Windows) |
+| **Tests** | 408 / 408 green (27 suites incl. integration harness, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
@@ -504,11 +504,12 @@ MIT. See [LICENSE](LICENSE).
 
 ## Versions + cumulative history
 
-**Current: v4.11** (2026-05-18)
+**Current: v4.12** (2026-05-18)
 
 | Release | What |
 |---|---|
-| **v4.11** | Three fixes from Gemini's external code review: (1) source-doc lookup moved from Stage 2.3 → Stage 1.8 so the architect designs the spec with current API conventions, not stale training data; (2) Stage 6.5 migration-ordering trade-off documented for the three sub-cases (greenfield, add NOT NULL, rename/drop); (3) new `approval_gate.py` + `--require-approval-webhook` flag close the HITL gap for autonomous CI runs. |
+| **v4.12** | Two new safety gates closing real Gemini-flagged risks: (1) Stage 5.7 cross-agent consistency + deterministic SAST deep scan catches subtle drift the per-agent reviews miss (spec→model attr drift, invariant under-enforcement, FK column missing, reviewer/doubter follow-through, AUTH/INJECTION/CRYPTO/ACCESS/EXPOSURE patterns); (2) Stage 0.7 `--legacy-safe` mode for critical codebases — caps generation at 3 files, blocks `--apply`, requires `--review`, refuses to mutate any file with `DO_NOT_TOUCH` heat verdict from the new `impact_analyzer.py`. `.archive/` now in `.gitignore`. |
+| v4.11 | Three fixes from Gemini's external code review: (1) source-doc lookup moved from Stage 2.3 → Stage 1.8 so the architect designs the spec with current API conventions, not stale training data; (2) Stage 6.5 migration-ordering trade-off documented for the three sub-cases (greenfield, add NOT NULL, rename/drop); (3) new `approval_gate.py` + `--require-approval-webhook` flag close the HITL gap for autonomous CI runs. |
 | v4.10 | 4 new slash commands (`/perf-audit`, `/interview`, `/browser-test`, `/context`) closing the last visible feature gaps vs [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills). README restructured into 4-phase mental model (PLAN/BUILD/VERIFY/SHIP). New `docs/standalone-usage.md` documents what runs without Claude Code. |
 | v4.9 | Headless SDK mode (`agentic_session_driver --mode live-api` calls Anthropic SDK directly — no Claude Code session needed) + critic-loop stress tests + `cost_calibrator.py` (self-recalibrates `PER_AGENT_TOKEN_ESTIMATES` from `.beads/cost_observations.jsonl`). Closes three of the "honest gaps" technically. |
 | v4.8 | `--incremental` slicing — ship entities one at a time with green tests + git commit between (Kahn's topo sort, FK-cycle detection) |
