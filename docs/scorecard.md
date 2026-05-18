@@ -2,7 +2,13 @@
 type: reference
 last_verified: 2026-05-18
 owner: claude
+status: legacy
+supersedes_target: scorecard-v4.md
 ---
+
+> **⚠️ Legacy scorecard — v3.5.0 baseline.** Superseded by
+> [scorecard-v4.md](scorecard-v4.md) (the current honest 0-10 across
+> 36 dimensions). Kept here for historical comparison only.
 
 # Plugin Scorecard — v3.5.0
 

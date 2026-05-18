@@ -4,16 +4,34 @@ last_verified: 2026-05-18
 owner: claude
 ---
 
-# Implementation Status — v4.4 (Tier 2 Production Concerns + Critic Loop Driver)
+# Implementation Status — v4.8 (Incremental Mode)
 
-**Last audit: 2026-05-18 — v4.3 framework parity + Tier-1 production concerns + v4.4 Tier-2 + critic loop driver**
+**Last audit: 2026-05-18 — through v4.8 incremental slicing**
 
-**v4.x progression summary**:
-- v4.0: production polish (OpenAPI, deployment guide)
-- v4.1: empirical calibration + community launch infra
-- v4.2: full framework parity (Django/Spring/NestJS/Go/Node.js match FastAPI)
-- v4.3: Tier-1 production concerns (pagination, idempotency, audit, outbox, soft delete, file upload, …) — 21 new hints
-- v4.4: Tier-2 production concerns (webhooks, multi-tenancy, feature flags, optimistic locking, retry/CB, websockets, config) + multi-iteration critic loop driver
+## Headline numbers
+
+| Metric | Value |
+|---|---|
+| Body hints catalogue | **101** (10 × FastAPI · 13 × Django · 10 × Spring · 10 × NestJS · 10 × Go · 10 × Node.js · 38 × common) |
+| Test suite | **296 / 296 green** (20 suites, Py 3.14 / Windows) |
+| Slash commands | **25** |
+| Specialist agents | **11** |
+| Pipeline stages in `/one-shot` | **12** (9 default-on) |
+| Deterministic orchestration helpers | critic_loop_driver, doubt_driver, incremental_planner, source_docs_fetcher, ship_gates, adr_writer, run_finalize |
+
+## v4.x progression
+
+| Version | Headline |
+|---|---|
+| **v4.8** | `--incremental` slicing — ship one entity per slice with green tests + git commit between |
+| **v4.7** | Integration tightening — Stage 5.5 doubt, Stage 6 ship-check, Stage 2 ADR are DEFAULT ON. /adr + /dashboard slash commands. 4 new hints (perf, error_recovery, debug, git_workflow). |
+| **v4.6** | Absorbed [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) — Stage 2.3 source-driven, Stage 5.5 doubt-driven, /ship-check, ADR writer, /refine, 6 common hints. |
+| **v4.5** | Tier-3 specialised hints (GraphQL, gRPC, saga, DLQ, GDPR, i18n) + production OTel guide + cross-agent learning hub wired end-to-end. |
+| **v4.4** | Tier-2 production concerns (webhooks, multi-tenancy, feature flags, optimistic locking, retry/CB, websockets, config) + multi-iteration critic loop driver. |
+| **v4.3** | Tier-1 production concerns (pagination, idempotency, audit, outbox, soft delete, file upload, …). |
+| **v4.2** | Full framework parity — Django/Spring/NestJS/Go/Node.js match FastAPI's 8-hint baseline. |
+| **v4.1** | Empirical calibration + community launch infra. |
+| **v4.0** | Production polish — OpenAPI, deployment guide. |
 
 ---
 

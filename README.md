@@ -6,7 +6,7 @@ Type `/one-shot "shopping cart with line items and discounts" @./my-project` and
 
 Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs. Real bcrypt + JWT auth helpers. Real service layer enforcing business invariants. Cost-tiered model routing (Haiku for file-writers, Sonnet for reasoners) keeps a typical generation at ~$0.50. Free `--templated` fallback for CI / cost-sensitive contexts.
 
-## ⭐ v4.1.0 — Status
+## ⭐ v4.8 — Status
 
 | Metric | Value |
 |---|---|
@@ -476,15 +476,22 @@ MIT. See [LICENSE](LICENSE).
 
 ## Versions + cumulative history
 
-**Current: v4.1.0** (2026-05-18)
+**Current: v4.8** (2026-05-18)
 
 | Release | What |
 |---|---|
-| **v4.1** | Empirical calibration + community launch (4 architect runs, real OTel, directory form, community infra) |
-| v4.0 | Production polish — OpenAPI gen, rate-limit + cache hints, deployment guide |
-| v3.5 | Agentic restructure — skills > scripts, Claude > templates, 10 specialist agents |
-| v3.x | Tier 2 + 3 + 4 — closed loop, curriculum, self-extending registry |
-| v2.0 | Tier-1 foundations + harness |
+| **v4.8** | `--incremental` slicing — ship entities one at a time with green tests + git commit between (Kahn's topo sort, FK-cycle detection) |
+| v4.7 | Integration tightening — Stage 5.5 doubt, Stage 6 ship-check, Stage 2 ADR are DEFAULT ON. /adr + /dashboard slash commands. 4 hints (perf, error_recovery, debug, git_workflow). |
+| v4.6 | Absorbed [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) — Stage 2.3 source-driven, Stage 5.5 doubt-driven, /ship-check, ADR writer, /refine, 6 common hints. |
+| v4.5 | Tier-3 specialised hints (GraphQL, gRPC, saga, DLQ, GDPR, i18n) + production OTel guide + cross-agent learning hub wired end-to-end. |
+| v4.4 | Tier-2 production concerns (webhooks, multi-tenancy, feature flags, optimistic locking, retry/CB, websockets, config) + multi-iteration critic loop driver. |
+| v4.3 | Tier-1 production concerns (pagination, idempotency, audit, outbox, soft delete, file upload, ...). |
+| v4.2 | Full framework parity — Django/Spring/NestJS/Go/Node.js match FastAPI's 8-hint baseline. |
+| v4.1 | Empirical calibration + community launch infra. |
+| v4.0 | Production polish — OpenAPI gen, rate-limit + cache hints, deployment guide. |
+| v3.5 | Agentic restructure — skills > scripts, Claude > templates, 10 specialist agents. |
+| v3.x | Tier 2 + 3 + 4 — closed loop, curriculum, self-extending registry. |
+| v2.0 | Tier-1 foundations + harness. |
 
 Full history: [CHANGELOG.md](CHANGELOG.md).
 

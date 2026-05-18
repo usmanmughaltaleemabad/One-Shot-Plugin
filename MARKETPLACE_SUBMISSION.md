@@ -34,7 +34,7 @@ Everything an Anthropic Software Directory submission needs, in one place.
 
 | File | Purpose |
 |---|---|
-| [docs/scorecard.md](docs/scorecard.md) | Honest 0-10 scoring across 36+ dimensions |
+| [docs/scorecard-v4.md](docs/scorecard-v4.md) | Honest 0-10 scoring across 36+ dimensions (current) |
 | [docs/tier1-pipeline.md](docs/tier1-pipeline.md) | Foundations |
 | [docs/tier2-pipeline.md](docs/tier2-pipeline.md) | Closed loop |
 | [docs/tier25-pipeline.md](docs/tier25-pipeline.md) | Spec-driven |

@@ -427,6 +427,6 @@ git push
 ## Reference Files
 
 - Main harness spec: `.claude/HARNESS.md`
-- TIER 2 execution: `TIER2_EXECUTION_PLAN.md`
+- Current status: `IMPLEMENTATION_STATUS.md`  (historical tier-2 plan archived in `.archive/v3-snapshots/`)
 - ONE SHOT Plugin: `/one-shot-prompting:one-shot-generator`
 

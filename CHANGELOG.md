@@ -7,7 +7,185 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.1.0] — 2026-05-18 (Current) — Empirical Calibration + Community
+## [4.8.0] — 2026-05-18 (Current) — Incremental Mode
+
+`/one-shot --incremental` ships entities one at a time in FK-dependency
+order with green tests + a git commit between each. If slice 3 fails,
+slices 1+2 are already in the repo.
+
+### Added
+- `skills/one-shot-generator/scripts/incremental_planner.py` — Kahn's
+  topo sort with alphabetical tie-break; detects FK cycles and exits 2
+  with `cycle_members` listed so the user can break the cycle before
+  retrying.
+- SKILL.md Stage 2.6 — per-slice loop: Stages 2.3..7 per entity, git
+  commit on SHIPPED, light ship-gates sweep, halt-and-surface on
+  ESCALATE. Full `/ship-check` runs once on the final slice.
+- Self-references handled correctly (`Tree.parent_id → Tree.id` is one
+  slice, not a cycle).
+- Commit subjects: Conventional Commits format, kebab scope from first
+  3 feature words, hard-capped at 72 chars, no mid-word truncation.
+
+### Tests
+296/296 green (+16 incremental_planner tests, all on first run).
+
+---
+
+## [4.7.0] — 2026-05-18 — Integration Tightening + Final Osmani Absorptions
+
+Closed the gap between "we built it" and "every /one-shot uses it."
+The discipline machinery (doubt, ship-gates, ADR) is now DEFAULT ON
+rather than opt-in.
+
+### Added
+- `commands/adr.md` — standalone `/adr` slash command for ADR creation
+  outside `/one-shot`.
+- `commands/dashboard.md` + `learnings_hub.py dashboard` subcommand —
+  trend analysis + drift detection over rolling window. Flags
+  `degrading` agents when recent success rate drops > 15 points vs
+  prior window (tunable).
+- 4 new common contract hints absorbed from addyosmani/agent-skills:
+  `performance_optimization`, `error_recovery`, `debugging_strategy`,
+  `git_workflow`.
+
+### Changed
+- SKILL.md Stage 5.5 doubt-driven is now DEFAULT ON (opt out via
+  `--no-doubt`).
+- SKILL.md Stage 6 runs `ship_gates.py` before `--apply` mutates
+  anything (opt out via `--no-ship-check`).
+- SKILL.md Stage 2 emits ADR via `adr_writer.py` alongside spec.json
+  (opt out via `--no-adr`).
+
+### Tests
+280/280 green (+16 v4.7 tests, all on first run).
+
+---
+
+## [4.6.0] — 2026-05-18 — Absorbed addyosmani/agent-skills high-value pieces
+
+Five new deterministic pipeline pieces inspired by
+[Addy Osmani's agent-skills](https://github.com/addyosmani/agent-skills)
+repo. Kept our code-generation differentiator; absorbed the orthogonal
+process-discipline rails.
+
+### Added
+- **Stage 2.3 (source-driven)** — `source_docs_fetcher.py` detects
+  framework + pinned version from manifest, emits per-framework
+  doc-lookup plan. Orchestrator WebFetches official docs, inlines
+  excerpts into implementer prompts. Catches API drift bugs (Pydantic
+  v2, Spring Boot 3 jakarta, TypeORM v0.3 DataSource) that training
+  data can miss.
+- **Stage 5.5 (doubt-driven)** — `doubt_driver.py` +
+  `.claude/agents/doubter.md`. Fresh-context adversarial reviewer that
+  sees ONLY the artifact + contract (no spec reasoning, no implementer
+  notes). Information withholding prevents agreement bias. Max 2 rounds
+  + theater detection.
+- **`/ship-check`** — `ship_gates.py` runs 10 production-readiness
+  gates (tests_pass, no_secrets, no_TODO, migration_reversible,
+  env_documented, health_endpoint, openapi_doc, feature_flag,
+  rollback_path, canary_plan). Verdict: READY | READY_WITH_WARN |
+  BLOCKED. `--strict` promotes WARN to FAIL.
+- **`adr_writer.py`** — sequentially-numbered MADR-format Architecture
+  Decision Records under `docs/adr/`.
+- **`/refine`** — pre-`/one-shot` workflow producing a sharpened
+  one-pager (Problem / Recommended direction / MVP scope / **NOT
+  doing** / Key assumptions) from a vague feature request.
+
+### Added — 6 cross-cutting contract hints
+- `adr_record` — format + lifecycle + when-to-write rules
+- `source_verification` — cite official docs, never SO/blogs
+- `ci_cd_pipeline` — cache lockfile not output, never :latest tags
+- `api_design` — HTTP status codes (201/204/409/422)
+- `deprecation_policy` — RFC 8594 Sunset header, 6-month minimum
+- `frontend_ui_concerns` — WCAG 2.1 AA, never `outline: none`
+
+### Fixed
+- `doubt_driver`: max-rounds check ran before theater check — masked
+  the more useful `doubt_theater_same_findings` reason.
+- `ship_gates`: brittle regex for "is the alembic downgrade empty" —
+  replaced with proper function-body parser handling docstrings,
+  comments, `pass`, `...`.
+
+### Tests
+264/264 green (+32 v4.6 tests).
+
+---
+
+## [4.5.0] — 2026-05-18 — Tier 3 Specialised Concerns + Production OTel
+
+### Added
+- 6 Tier-3 cross-framework contract hints: `graphql_resolver`,
+  `grpc_service`, `saga_orchestrator`, `dead_letter_queue`,
+  `gdpr_export_delete`, `i18n`. Each with per-framework idiomatic
+  library map (Strawberry/Graphene/DGS, Temporal/Axon, etc.).
+- `docs/observability/production-collector.md` — production OTel
+  collector deployment guide. Sidecar vs agent+gateway topologies,
+  pipeline ordering, tail-based sampling, K8s manifests, SLOs,
+  vendor-specific exporters (Honeycomb / Tempo / Datadog / New Relic).
+- `skills/one-shot-generator/scripts/run_finalize.py` — closes the
+  loop between `critic_loop_driver` and `learnings_hub`: every
+  `/one-shot` run now records one row per spawned agent in
+  `.claude/registry/learnings.jsonl`.
+- `commands/learnings.md` — `/learnings` slash command surfacing
+  `top-agents` / `rate` / `export-anonymized`.
+
+### Tests
+232/232 green (+22 v4.5 tests).
+
+---
+
+## [4.4.0] — 2026-05-18 — Tier 2 Production Concerns + Critic Loop Driver
+
+### Added
+- 8 Tier-2 cross-framework contract hints: `webhook_sender`,
+  `webhook_receiver`, `multi_tenancy`, `feature_flags`,
+  `optimistic_locking`, `retry_circuit_breaker`,
+  `configuration_management`, `websocket_endpoint`.
+- `skills/one-shot-generator/scripts/critic_loop_driver.py` — the
+  Stage 7 multi-iteration loop driver. Enforces max 3 iterations,
+  5 min/iteration, escalates on regression (new failure nodeids in
+  iteration N that weren't in N-1). Routes bucketed by `route_to`
+  so the orchestrator re-spawns once per agent bucket, not once per
+  failure.
+
+### Tests
+206/206 green (+27 v4.4 tests).
+
+---
+
+## [4.3.0] — 2026-05-18 — Tier 1 Production Concerns
+
+### Added — 9 cross-framework contract hints
+`pagination_contract`, `idempotency_keys`, `audit_log`,
+`email_template`, `outbox_pattern`, `health_check_contract`,
+`rbac_contract`, `api_versioning_contract`, `data_migration`.
+
+### Added — 12 per-framework hints (ORM/HTTP-specific where syntax diverges)
+- `soft_delete` × 6 (SQLAlchemy mixin, Django Manager, @SQLDelete,
+  @DeleteDateColumn, gorm.DeletedAt, paranoid:true)
+- `file_upload` × 6 (UploadFile chunked, MultiPartParser,
+  MultipartFile, FileInterceptor, r.FormFile, multer)
+
+### Tests
+178/179 green (+25 Tier-1 tests; 1 pre-existing v4.0.0/v4.1.0 mismatch
+that was fixed in 4.7).
+
+---
+
+## [4.2.0] — 2026-05-18 — Full Framework Parity
+
+Brought every framework to FastAPI's 8-hint baseline. Catalogue grew
+34 → 56 hints (+22). New scripts: NestJS/Django/Spring/Go/Node.js
+auth + service + background hints; Node.js full from-scratch (was 0
+hints before). New file paths emitted from `scaffold_planner` for the
+new file kinds.
+
+### Tests
+153/153 green (no regressions).
+
+---
+
+## [4.1.0] — 2026-05-18 — Empirical Calibration + Community Launch Infrastructure
 
 Closes every empirical gap that can be closed without external users.
 Adds the launch infrastructure that turns "ready for users" into
