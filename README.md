@@ -10,7 +10,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 206 / 206 green (14 suites, Py 3.14 / Windows) |
+| **Tests** | 232 / 232 green (17 suites, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
@@ -196,14 +196,22 @@ framework-specific extras AND the Tier-1 production-concerns set
 idempotency keys, audit log, email templates, outbox pattern, health checks,
 RBAC, API versioning, data migrations).
 
-Total catalogue: **85 hints** (10 × FastAPI, 13 × Django, 10 × Spring,
-10 × NestJS, 10 × Go, 10 × Node.js, 22 × common).
+Total catalogue: **91 hints** (10 × FastAPI, 13 × Django, 10 × Spring,
+10 × NestJS, 10 × Go, 10 × Node.js, 28 × common).
 
-v4.4 adds 8 Tier-2 production contracts (webhooks send/receive, multi-tenancy,
-feature flags, optimistic locking, retry+circuit breaker, configuration
-management, websocket endpoints) PLUS a deterministic **critic loop driver**
-that owns the Stage 7 hard caps (max 3 iterations, 5 min/iteration,
-escalate on regression).
+v4.4 added 8 Tier-2 production contracts (webhooks send/receive,
+multi-tenancy, feature flags, optimistic locking, retry+circuit breaker,
+configuration management, websocket endpoints) PLUS a deterministic
+**critic loop driver** that owns the Stage 7 hard caps (max 3 iterations,
+5 min/iteration, escalate on regression).
+
+v4.5 added 6 Tier-3 specialised contracts (GraphQL resolver, gRPC service,
+saga orchestrator, dead-letter queue, GDPR export/delete, i18n) plus a
+**production OpenTelemetry collector deployment guide**
+([docs/observability/production-collector.md](docs/observability/production-collector.md))
+and end-to-end wiring of the cross-agent learnings hub
+(every `/one-shot` run now records per-agent outcomes via `run_finalize.py`;
+inspect via the new `/learnings top-agents` slash command).
 
 | Framework | Body hints | Scaffold paths | Migration tool |
 |---|---|---|---|

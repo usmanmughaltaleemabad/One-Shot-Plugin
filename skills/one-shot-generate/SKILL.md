@@ -560,7 +560,25 @@ python "./scripts/codebase_graph.py" <project-path> --rebuild
 This refreshes the persistent graph so the next session knows about the
 files you just added.
 
-On any failure that escalated to the user, record a bead:
+**Then — regardless of SHIPPED or ESCALATE — call `run_finalize.py`** so
+every agent that ran picks up a row in `.claude/registry/learnings.jsonl`:
+
+```!
+python "./scripts/run_finalize.py" \
+    --sandbox <sandbox-dir> \
+    --agents architect,implementer,test-author,reviewer,wirer,critic \
+    --task-keywords "$ARGUMENTS" \
+    --repo-root .
+```
+
+run_finalize reads the critic loop driver's final state and derives
+per-agent outcomes: SHIPPED → everyone succeeded; ESCALATE → agents
+whose route_to bucket still has open failures are recorded as `failed`,
+the rest as `succeeded` (their work wasn't what broke). The
+`/learnings top-agents` slash command surfaces those ratings so drift
+in a local agent's success rate is visible before the next big run.
+
+On any failure that escalated to the user, ALSO record a bead:
 ```!
 python "./scripts/beads_writer.py" --phase agentic \
     --task "$ARGUMENTS" --kind agent_loop_max_iters \
