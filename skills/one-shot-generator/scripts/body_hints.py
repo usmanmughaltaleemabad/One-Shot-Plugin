@@ -545,6 +545,279 @@ HINTS: Dict[tuple, Dict] = {
         },
     },
 
+    # ─── Tier-2 production concerns (v4.4) ──────────────────────────────────
+    # Webhooks, multi-tenancy, feature flags, optimistic locking,
+    # retry+circuit breaker, websockets, configuration management.
+
+    ("common", "webhook_sender"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Outbound webhook delivery with HMAC signing + retry. Each delivery: "
+            "POST to subscriber URL with headers X-Webhook-Id (UUID), "
+            "X-Webhook-Timestamp (Unix epoch), X-Webhook-Signature "
+            "(HMAC-SHA256 of timestamp + '.' + body, using per-subscriber secret). "
+            "Retry policy: 1m, 5m, 30m, 2h, 6h, 24h (6 attempts). On any 2xx → "
+            "mark delivered. On 4xx → dead-letter (subscriber issue). On 5xx or "
+            "timeout → schedule next retry. Persist delivery rows for audit + replay."
+        ),
+        "must_emit": [
+            "webhook_subscriptions table: id, url, secret, event_types[], "
+            "is_active, created_at",
+            "webhook_deliveries table: id, subscription_id, event_id, "
+            "attempt, status, response_code, response_body, next_attempt_at, "
+            "delivered_at",
+            "sign_payload(secret, timestamp, body) -> str  (HMAC-SHA256 hex)",
+            "schedule_delivery(subscription_id, event_id, payload) — enqueues a job",
+            "Background worker: pick due deliveries, POST with timeout=10s, "
+            "update row, schedule next attempt on failure",
+        ],
+        "anti_patterns": [
+            "Never POST webhooks synchronously from the request path — always enqueue",
+            "Never reuse the same signing secret across subscribers — per-subscription secret",
+            "Never include the secret in the payload — sign with it, don't ship it",
+            "Never retry forever — cap at 6 attempts + dead-letter for ops review",
+            "Never sign body without a timestamp — replay protection requires it",
+        ],
+    },
+
+    ("common", "webhook_receiver"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Inbound webhook handler. Verify signature BEFORE processing: read "
+            "X-Webhook-Timestamp + X-Webhook-Signature, recompute HMAC-SHA256 of "
+            "timestamp + '.' + raw_body using the shared secret, constant-time "
+            "compare. Reject if timestamp drift > 5 minutes (replay protection). "
+            "Persist webhook_id in a received-events table; if already seen → "
+            "return 200 (idempotent). Acknowledge fast (200) and process async."
+        ),
+        "must_emit": [
+            "verify_signature(raw_body, timestamp, signature, secret) -> bool  "
+            "(constant-time compare; reject if |now - timestamp| > 300s)",
+            "received_webhooks table: webhook_id PK, source, payload JSON, "
+            "received_at, processed_at NULL",
+            "Handler: verify → check dedup → 200 OK → enqueue background job",
+        ],
+        "anti_patterns": [
+            "Never `==` compare signatures — timing attack; use hmac.compare_digest "
+            "(Python) / MessageDigest.isEqual (Java) / crypto.timingSafeEqual (Node)",
+            "Never accept old timestamps — bound at ±5 min",
+            "Never process synchronously — sender's timeout will retry and "
+            "you'll process the same event N times",
+            "Never trust the X-Forwarded-* headers without validating proxy chain",
+            "Never parse JSON before verifying signature — sign the RAW body bytes",
+        ],
+    },
+
+    ("common", "multi_tenancy"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Three strategies, pick one and don't mix: "
+            "(1) SHARED-SCHEMA + tenant_id column on every multi-tenant table "
+            "(simplest, scales to ~1k tenants); "
+            "(2) SCHEMA-PER-TENANT (Postgres schemas, ~100 tenants, easier export); "
+            "(3) DATABASE-PER-TENANT (max isolation, ~10 enterprise tenants). "
+            "For (1): tenant_id resolved from auth context (JWT claim or header), "
+            "injected into service constructor; service applies WHERE tenant_id=:t "
+            "to every query. Use Postgres RLS as a defense-in-depth fence."
+        ),
+        "must_emit": [
+            "TenantContext: object/dataclass with .tenant_id, populated by "
+            "middleware from JWT/header",
+            "Service.__init__(self, db, tenant_ctx) — service requires the context",
+            "Every query: .filter(tenant_id=ctx.tenant_id) — never accept "
+            "tenant_id from request body",
+            "Postgres RLS policy: CREATE POLICY isolate ON {table} USING "
+            "(tenant_id = current_setting('app.tenant_id')::int)",
+        ],
+        "anti_patterns": [
+            "Never trust tenant_id from request body — always derive from auth",
+            "Never let admin tooling bypass tenant scoping without an explicit, "
+            "audit-logged override path",
+            "Never forget UNIQUE constraints — they must include tenant_id "
+            "(or be partial WHERE tenant_id=...)",
+            "Never share connections across tenants without RLS or explicit "
+            "SET app.tenant_id per request",
+            "Never JOIN across tenants — even for analytics, materialise per-tenant",
+        ],
+    },
+
+    ("common", "feature_flags"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Flag-gated rollouts with progressive exposure. Detect provider "
+            "via codebase_graph (LaunchDarkly / Unleash / Flagsmith / "
+            "Statsig / OpenFeature SDK). Otherwise emit a minimal in-process "
+            "adapter that reads from feature_flags table: "
+            "{key, enabled, rollout_pct, allowlist[], blocklist[], updated_at}. "
+            "Check via flags.is_enabled(key, *, user=None, default=False). "
+            "Service layer asks; never check flags in the model."
+        ),
+        "must_emit": [
+            "Provider-agnostic interface: FlagProvider.is_enabled(key, ctx) -> bool",
+            "Adapters: LaunchDarklyProvider, UnleashProvider, InMemoryProvider",
+            "ctx carries user_id, tenant_id, env — for percentage rollout / "
+            "allowlist evaluation",
+            "feature_flags table (in-process adapter): key, enabled, "
+            "rollout_pct, allowlist JSON, blocklist JSON",
+        ],
+        "anti_patterns": [
+            "Never check flags in a hot loop without caching the value (TTL ≈ 30s)",
+            "Never block on flag-service latency — sensible default if provider "
+            "is unreachable",
+            "Never use flags for security decisions — auth/authorization belong "
+            "in RBAC, not flags",
+            "Never leave a stale flag in code > 30 days — schedule cleanup PR "
+            "when ramp completes",
+            "Never read raw provider SDK from controllers — go through the abstraction",
+        ],
+    },
+
+    ("common", "optimistic_locking"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Detect concurrent writes via a version column. Every UPDATE: "
+            "WHERE id = :id AND version = :loaded_version; SET version = "
+            "version + 1, ... If rowcount == 0 → 409 Conflict (caller "
+            "must reload + retry). Required for any entity edited by multiple "
+            "actors or workflows. Ship via ORM features: SQLAlchemy version_id_col, "
+            "Django select_for_update with version field, JPA @Version, "
+            "TypeORM @VersionColumn, GORM gorm:VERSION, Sequelize version: true."
+        ),
+        "must_emit": [
+            "version INT NOT NULL DEFAULT 0 column on every contended entity",
+            "Update schema accepts If-Match header (etag) OR body field 'version'",
+            "Service.update raises ConflictError when rowcount == 0",
+            "Router translates ConflictError → 409 with body explaining retry",
+        ],
+        "anti_patterns": [
+            "Never silently overwrite — caller MUST learn their write was rejected",
+            "Never increment version client-side — server-only authority",
+            "Never use updated_at as a version — millisecond precision collisions",
+            "Never combine with SELECT ... FOR UPDATE on the same path — "
+            "optimistic vs pessimistic; pick one per code path",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "SQLAlchemy: mapper_args = {'version_id_col': version}",
+            "django":  "manual: filter(pk=..., version=loaded).update(version=F('version')+1, ...) — check rowcount",
+            "spring":  "@Version private Long version;  (JPA throws OptimisticLockException)",
+            "nestjs":  "TypeORM: @VersionColumn() version: number;",
+            "go":      "GORM: gorm:\"version\" tag on Version field; check RowsAffected after Save",
+            "nodejs":  "Sequelize: { version: true } at model init; throws OptimisticLockError",
+        },
+    },
+
+    ("common", "retry_circuit_breaker"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "For OUTBOUND calls to external systems. Two layers: "
+            "(1) RETRY with exponential backoff + jitter on transient errors "
+            "(timeouts, 502/503/504, connection-reset). Cap attempts (3 for "
+            "user-facing, 6 for background). "
+            "(2) CIRCUIT BREAKER: open after N consecutive failures (default 5), "
+            "stay open for cooldown period (default 30s), then half-open one "
+            "probe; close on success / re-open on failure. Prevents cascading "
+            "failures when downstream is in trouble."
+        ),
+        "must_emit": [
+            "Retry helper: with_retry(fn, *, attempts=3, base=0.5, max_delay=10, "
+            "jitter=0.3, retry_on=(TimeoutError, ConnectionError, HTTP5xx))",
+            "CircuitBreaker class: failure_threshold, cooldown_seconds, "
+            "state ∈ {closed, open, half_open}",
+            "Wrap every external HTTP/gRPC client call",
+            "Metrics: emit retry counter + breaker state-change events",
+        ],
+        "anti_patterns": [
+            "Never retry non-idempotent calls (POST without idempotency-key) "
+            "blindly — may double-charge / duplicate state",
+            "Never retry without jitter — synchronised retries thunder the downstream",
+            "Never use unbounded retries — eventually shed load with a 503",
+            "Never wrap idempotent-but-slow calls with retries that exceed the "
+            "client's deadline — surface the original timeout",
+            "Never set the breaker threshold so low it flaps — measure baseline first",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "common/resilience.py with tenacity (preferred) or hand-rolled",
+            "django":  "common/resilience.py + tenacity",
+            "spring":  "Resilience4j (CircuitBreaker, Retry, TimeLimiter beans)",
+            "nestjs":  "@nestjs/throttler + opossum circuit breaker; or custom interceptor",
+            "go":      "github.com/cenkalti/backoff/v4 for retry + sony/gobreaker for CB",
+            "nodejs":  "p-retry + opossum (Hystrix-style circuit breaker)",
+        },
+    },
+
+    ("common", "configuration_management"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Typed, validated config loaded once at startup. NEVER read os.environ "
+            "scattered through code. Sources, in order of precedence: process env, "
+            ".env file (dev only — gitignored), defaults. Validate at boot — fail "
+            "fast with a clear message if a required value is missing or malformed. "
+            "Provide ONE settings object, dependency-injected wherever needed. "
+            "Secrets (DB password, JWT secret, API keys) come from env / secret "
+            "manager — never .env file in any non-dev environment."
+        ),
+        "must_emit": [
+            "Single Settings class/struct with typed fields + validation",
+            "Loaded once at startup; injected (not imported globally)",
+            "Required vs optional fields with sensible defaults for optional",
+            "Distinct sections: database, broker, cache, third_party_api, observability",
+            "Fail-fast at boot if required field is missing — clear error text",
+        ],
+        "anti_patterns": [
+            "Never sprinkle os.getenv() through business code — config is a boundary concern",
+            "Never put secrets in version control, even in example files (use .env.example with placeholders)",
+            "Never read config inside a hot loop — load once at boot",
+            "Never silently default a required production value — fail loud",
+            "Never accept a JWT_SECRET shorter than 32 bytes — validate the value, not just its presence",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "pydantic-settings: BaseSettings subclass; from pydantic_settings import BaseSettings",
+            "django":  "django-environ + settings.py reading from env via env.str/env.int/env.bool",
+            "spring":  "@ConfigurationProperties(prefix=\"app\") on a record; validated via @Validated + Bean Validation",
+            "nestjs":  "@nestjs/config with a Joi/Zod validation schema; ConfigService injected",
+            "go":      "github.com/kelseyhightower/envconfig or github.com/spf13/viper; struct with `env:` tags",
+            "nodejs":  "dotenv + Joi/Zod schema validation at boot in src/config.js",
+        },
+    },
+
+    ("common", "websocket_endpoint"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Real-time bidirectional channel. Auth: validate token on connect "
+            "(query param OR Sec-WebSocket-Protocol header — never cookies "
+            "without CSRF). Pattern: connect → subscribe to channels (e.g. "
+            "user:{id}, room:{id}) → receive events. Server pushes are derived "
+            "from the same domain events that audit/outbox use. Heartbeat: "
+            "ping every 30s; close on no pong within 60s. Cap concurrent "
+            "connections per user. For >1 server: use Redis pub/sub or "
+            "the broker as the fan-out medium."
+        ),
+        "must_emit": [
+            "Connection handler: authenticate → register {connection_id: user_id} → "
+            "subscribe to channels per user",
+            "Channel-event emit: emit_to_channel(channel, event_name, payload) — "
+            "fans out via local registry OR Redis pub/sub if HA",
+            "Heartbeat: server sends ping every 30s; close on missed pong",
+            "Connection-quota guard: reject > N concurrent per user_id",
+        ],
+        "anti_patterns": [
+            "Never trust the WebSocket connection past the initial auth — re-check "
+            "permissions on each subscribe",
+            "Never send PII over channels other clients can subscribe to",
+            "Never assume single-server delivery in production — pub/sub between nodes",
+            "Never push without rate-limiting — a fast event source can DoS clients",
+            "Never store auth tokens in URL query for the duration — handshake-only",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "@router.websocket('/ws') async def ws(websocket: WebSocket): await websocket.accept(); ...",
+            "django":  "Django Channels: routing.py + consumers.py (AsyncJsonWebsocketConsumer) + ASGI",
+            "spring":  "Spring WebSocket: @EnableWebSocket, registry.addHandler(handler, '/ws'), STOMP optional",
+            "nestjs":  "@WebSocketGateway() class with @SubscribeMessage('event') handlers; socket.io or ws adapter",
+            "go":      "gorilla/websocket: Upgrader.Upgrade(w, r, nil) inside an HTTP handler",
+            "nodejs":  "ws (raw) or socket.io: const wss = new WebSocketServer({ server }); wss.on('connection', ...)",
+        },
+    },
+
     ("common", "data_migration"): {
         "scope": "cross-framework",
         "guidance": (
