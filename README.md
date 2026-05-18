@@ -10,7 +10,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 143 / 143 green (11 suites, Py 3.14 / Windows) |
+| **Tests** | 178 / 179 green (13 suites, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
@@ -293,10 +293,10 @@ The plugin learns across sessions:
 
 Being honest about gaps:
 
-- **Zero production users yet** — architecture is sound, 143 tests pass, but real-world validation is the unproven dimension. Looking for first 10 testers.
+- **Zero production users yet** — architecture is sound, 178 tests pass, but real-world validation is the unproven dimension. Looking for first 10 testers.
 - **Live Task agents from subprocess** — the agentic pipeline requires a Claude Code session (the CLI cannot spawn `Task` tool calls). Headless / CI use goes through `--templated`.
-- **Multi-iteration critic loop in production** — protocol documented in Stage 7 of SKILL.md, battle-tested via synthetic scenarios, untested at scale.
-- **Cross-language agentic body emission** — FastAPI body templates are mature; Django / Spring / Go / NestJS use templated bodies.
+- **Multi-iteration critic loop in production** — protocol documented in Stage 7 of SKILL.md and driver shipped in v4.4, battle-tested via synthetic scenarios, untested at scale.
+- **Empirical cost calibration** — 6 architect-agent runs anchor the model; need 20-30+ across implementer / reviewer / critic stages for full confidence.
 - **Anthropic Directory listing** — submission form ready ([DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)); review pending.
 - **Community presence** — launch announcement ready ([docs/launch/](docs/launch/)); zero current users; first issue / first PR / first registry proposal all welcomed.
 

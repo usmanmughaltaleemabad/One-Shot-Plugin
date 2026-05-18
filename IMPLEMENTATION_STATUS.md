@@ -4,9 +4,16 @@ last_verified: 2026-05-18
 owner: claude
 ---
 
-# Implementation Status — v3.5.0 (Agentic Restructure)
+# Implementation Status — v4.4 (Tier 2 Production Concerns + Critic Loop Driver)
 
-**Last audit: 2026-05-18 — Tier 3.5 alignment complete**
+**Last audit: 2026-05-18 — v4.3 framework parity + Tier-1 production concerns + v4.4 Tier-2 + critic loop driver**
+
+**v4.x progression summary**:
+- v4.0: production polish (OpenAPI, deployment guide)
+- v4.1: empirical calibration + community launch infra
+- v4.2: full framework parity (Django/Spring/NestJS/Go/Node.js match FastAPI)
+- v4.3: Tier-1 production concerns (pagination, idempotency, audit, outbox, soft delete, file upload, …) — 21 new hints
+- v4.4: Tier-2 production concerns (webhooks, multi-tenancy, feature flags, optimistic locking, retry/CB, websockets, config) + multi-iteration critic loop driver
 
 ---
 

@@ -150,10 +150,10 @@ def test_production_deployment_doc_exists():
 # ─── plugin.json v4.0.0 ─────────────────────────────────────────────────────
 
 def test_plugin_json_at_v4():
+    """Assert v4.x major; minor bumps don't need a test edit each release."""
     path = REPO_ROOT / ".claude-plugin" / "plugin.json"
     data = json.loads(path.read_text(encoding="utf-8"))
-    assert data["version"] == "4.0.0"
-    # Description mentions the new capabilities
+    assert data["version"].startswith("4."), f"expected v4.x, got {data['version']}"
     desc = data["description"].lower()
     assert "agentic" in desc
     assert "9-stage" in desc or "service-author" in desc
