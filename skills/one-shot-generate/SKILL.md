@@ -321,6 +321,67 @@ If the user did not pass `--review`, skip this stage entirely.
 
 ---
 
+## Stage 2.6 — Incremental slicing (only if `--incremental` was passed)
+
+Default mode generates every entity in parallel — efficient but
+all-or-nothing. `--incremental` mode trades parallelism for shippability:
+entities ship one at a time in FK-dependency order, with green tests
+and a git commit between each. If slice 3 fails, slices 1 + 2 are
+already shipped and the user has a working partial feature.
+
+Run the planner once on the full spec:
+
+```!
+mkdir -p /tmp/osp-slices
+python "./scripts/incremental_planner.py" \
+    --spec /tmp/osp-spec.json \
+    --out-dir /tmp/osp-slices
+```
+
+The planner topologically sorts entities by FK dependencies (parents
+before children) and writes one mini-spec per slice. If an FK cycle is
+detected, exit code 2 — surface this to the user with the cycle members
+listed; the user must redesign the relationships before --incremental
+can work.
+
+For each slice in `slices[]` (in order):
+
+```text
+For slice N of M (entity = <Pascal>, snake = <snake>):
+  1. Set /tmp/osp-spec.json = slices[N].sliced_spec_path
+  2. Re-run Stages 2.3 (source docs) through 7 (critic) on this slice only.
+     Skip Stage 2.7 if this entity has no invariants.
+  3. Stage 5.5 doubt-driven runs as usual (DEFAULT ON).
+  4. Stage 6 wirer runs with --apply IF the parent /one-shot run had --apply.
+  5. Stage 6.5 emits the Alembic / Django migration for this entity only.
+  6. After critic returns SHIPPED:
+     - run `git add -A && git commit -m "<slices[N].commit_subject>"` inside the project
+     - run a tight ship-gates sweep: pytest + no_secrets + migration_reversible
+       (full /ship-check is too expensive per-slice; reserve for the FINAL slice)
+  7. If critic ESCALATEs on this slice:
+     - DO NOT proceed to slice N+1
+     - Surface: "Slice N (<entity>) failed; slices 1..N-1 are committed
+       and shippable. Sandbox: <path>."
+     - The user can either fix the slice manually and `git commit --amend`,
+       OR roll back this slice's changes with `git reset --hard HEAD~0`
+       (the prior commit) and re-run /one-shot from this slice only.
+```
+
+After the FINAL slice ships, run `/ship-check` ONCE in full mode on the
+project. That's the deploy-readiness gate that covers the whole feature.
+
+When to use `--incremental`:
+- Feature has 3+ entities AND you'd rather get partial shippable work than risk all-or-nothing
+- The codebase already follows trunk-based development with small PRs
+- You're nervous about a particular invariant and want to validate the foundation entity before building dependents
+
+When NOT to use it:
+- Feature has 1-2 entities — parallel is faster, same blast radius
+- Entities have circular FKs (planner exits 2 — break the cycle first)
+- The user is running in `--no-apply` dry-run mode — slicing buys nothing without intermediate commits
+
+---
+
 ## Stage 2.7 — Service-author agent (when business logic exists)
 
 If `spec.entities[*].invariants` is non-empty OR `spec.intent` is `auth`,

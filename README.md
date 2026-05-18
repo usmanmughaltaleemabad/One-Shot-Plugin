@@ -10,7 +10,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 280 / 280 green (19 suites, Py 3.14 / Windows) |
+| **Tests** | 296 / 296 green (20 suites, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
@@ -90,7 +90,36 @@ For `/one-shot "shopping cart with line items and discounts"`:
 /one-shot "..." @./project --review           # gate on spec.json before agents fire
 /one-shot "..." @./project --force            # bypass low-confidence clarification gate
 /one-shot "..." @./project --templated        # zero-token fallback (free, lower quality)
+/one-shot "..." @./project --incremental      # ship one entity per slice with green tests + git commit between
 ```
+
+### `--incremental` mode (v4.8)
+
+Default mode generates every entity in parallel — efficient when nothing
+fails, all-or-nothing when something does. `--incremental` trades the
+parallelism for **shippability**: entities ship one at a time in
+FK-dependency order, with green tests and a git commit between each.
+
+For `"shopping cart with line items and discounts"`:
+
+```
+Slice 1/3: ShoppingCart  → 5 files → tests green → git commit ✓
+Slice 2/3: Discount      → 5 files → tests green → git commit ✓
+Slice 3/3: LineItem      → 5 files → tests green → git commit ✓
+```
+
+If slice 3 fails, slices 1 + 2 are already committed and shippable.
+`incremental_planner.py` topologically sorts entities by FK dependencies
+(Kahn's algorithm, alphabetical tie-break for stability) and emits one
+mini-spec per slice. **FK cycles abort with exit 2** — surface the
+cycle members to the user; the relationships must be redesigned before
+`--incremental` can work.
+
+When to use: 3+ entities, you'd rather have partial shippable work than
+risk all-or-nothing, codebase follows trunk-based development.
+
+When NOT to use: 1-2 entities (parallel is faster, same blast radius),
+circular FKs, dry-run mode (no commits = no value).
 
 ---
 
