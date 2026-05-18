@@ -10,7 +10,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 232 / 232 green (17 suites, Py 3.14 / Windows) |
+| **Tests** | 264 / 264 green (18 suites, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
@@ -196,8 +196,17 @@ framework-specific extras AND the Tier-1 production-concerns set
 idempotency keys, audit log, email templates, outbox pattern, health checks,
 RBAC, API versioning, data migrations).
 
-Total catalogue: **91 hints** (10 × FastAPI, 13 × Django, 10 × Spring,
-10 × NestJS, 10 × Go, 10 × Node.js, 28 × common).
+Total catalogue: **97 hints** (10 × FastAPI, 13 × Django, 10 × Spring,
+10 × NestJS, 10 × Go, 10 × Node.js, 34 × common).
+
+**v4.6 — absorbed from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)**:
+
+- **Stage 2.3 (source-driven)** — [source_docs_fetcher.py](skills/one-shot-generator/scripts/source_docs_fetcher.py) detects the project's pinned framework version (FastAPI / Django / Spring / NestJS / Go / Node) and emits a doc-lookup plan; the orchestrator WebFetches each official-doc URL and inlines excerpts into implementer prompts. Catches API drift bugs (Pydantic v2, Spring Boot 3 jakarta, TypeORM v0.3 DataSource) that training data misses.
+- **Stage 5.5 (doubt-driven)** — fresh-context [doubter agent](.claude/agents/doubter.md) reviews each artifact with ONLY the contract (no spec reasoning, no implementer notes). The withholding prevents agreement bias. [doubt_driver.py](skills/one-shot-generator/scripts/doubt_driver.py) enforces max 2 rounds + theater detection.
+- **`/ship-check`** — [ship_gates.py](skills/one-shot-generator/scripts/ship_gates.py) runs 10 production-readiness gates before `--apply`: tests_pass, no_secrets, no_TODO, migration_reversible, env_documented, health_endpoint, openapi_doc, feature_flag, rollback_path, canary_plan.
+- **ADR emission** — [adr_writer.py](skills/one-shot-generator/scripts/adr_writer.py) writes sequentially-numbered MADR records to `docs/adr/` capturing the *why* alongside spec.json's *what*.
+- **`/refine`** — pre-`/one-shot` step that produces a sharpened one-pager (Problem / Recommended direction / MVP scope / **NOT doing** / Key assumptions) from a vague feature request.
+- **6 new cross-cutting contracts** under `common` — `adr_record`, `source_verification`, `ci_cd_pipeline`, `api_design`, `deprecation_policy`, `frontend_ui_concerns`.
 
 v4.4 added 8 Tier-2 production contracts (webhooks send/receive,
 multi-tenancy, feature flags, optimistic locking, retry+circuit breaker,

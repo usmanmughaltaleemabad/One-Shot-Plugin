@@ -1017,6 +1017,217 @@ HINTS: Dict[tuple, Dict] = {
         },
     },
 
+    # ─── Cross-cutting engineering practices (v4.6 — absorbed from
+    # Addy Osmani's agent-skills). These are CONTRACTS, not framework code.
+
+    ("common", "adr_record"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Architecture Decision Records capture the WHY behind a design "
+            "choice — not the WHAT (that's spec.json) and not the HOW "
+            "(that's the code). One ADR per significant architectural "
+            "decision (NOT one per entity). MADR format. Sequentially "
+            "numbered under docs/adr/. Status flows: proposed → accepted "
+            "→ deprecated → superseded. Never DELETE an ADR — supersede it "
+            "by writing a new one that references the old."
+        ),
+        "must_emit": [
+            "docs/adr/{NNNN}-{kebab-title}.md with frontmatter "
+            "(adr_number, status, date, deciders)",
+            "Sections: Context, Decision, Consequences, Alternatives considered",
+            "docs/adr/README.md — auto-regenerated index with status column",
+        ],
+        "when_to_write": [
+            "Choosing between two reasonable options (SQLAlchemy vs SQLModel, "
+            "Celery vs RQ, REST vs GraphQL)",
+            "Locking in a constraint that future-self will want to know about "
+            "(soft-delete strategy, multi-tenancy model)",
+            "Accepting a trade-off where the obvious choice was rejected",
+        ],
+        "anti_patterns": [
+            "Never write an ADR for trivial / reversible decisions — they bloat the record",
+            "Never DELETE an ADR; supersede it (status: superseded, link to new one)",
+            "Never write an ADR after the fact for a decision nobody questioned — "
+            "ADRs are for surfacing reasoning, not retroactive documentation",
+            "Never let an ADR's Decision and Consequences sections drift from reality — "
+            "if the code changed, mark the ADR superseded and write a new one",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "docs/adr/ in the FastAPI project root",
+            "django":  "docs/adr/ in the Django project root",
+            "spring":  "docs/adr/ alongside src/ — Maven Site can render markdown",
+            "nestjs":  "docs/adr/ at repo root",
+            "go":      "docs/adr/ at repo root",
+            "nodejs":  "docs/adr/ at repo root",
+        },
+    },
+
+    ("common", "source_verification"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Before emitting framework-specific code, verify the patterns "
+            "against the framework's OFFICIAL documentation at the project's "
+            "pinned version — not from training data. Implementer agents "
+            "receive `source_excerpts` from Stage 2.3's source_docs_fetcher; "
+            "treat those excerpts as canonical. When excerpt conflicts with "
+            "training-data instinct, the excerpt wins. Cite the URL in a "
+            "code comment so the user can audit. Inspired by Addy Osmani's "
+            "source-driven-development skill."
+        ),
+        "must_emit": [
+            "Stage 2.3 source_docs_fetcher → doc-lookup plan",
+            "WebFetch result inlined into each implementer's prompt",
+            "Implementer cites the URL in the file header if a pattern was non-obvious",
+        ],
+        "anti_patterns": [
+            "Never cite a Stack Overflow answer / blog post as the source of "
+            "truth — only official framework docs",
+            "Never silently use a deprecated API just because it's in training data — "
+            "surface the deprecation",
+            "Never claim 'verified' when the framework version couldn't be detected — "
+            "label as 'best-effort training-data fallback'",
+            "Never block the pipeline if a doc fetch fails — degrade gracefully to training data",
+        ],
+    },
+
+    ("common", "ci_cd_pipeline"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Every project ships with at minimum: a build job, a test job, "
+            "and a deploy job. The pipeline runs on push to main + on PRs. "
+            "Tests block merge. Deploys are decoupled from release (feature "
+            "flags). Secret values come from the CI's secret store, never "
+            "from .env files committed to the repo. Cache dependency "
+            "manager downloads (pip / npm / Maven) but NEVER cache the build "
+            "output — stale binary bugs are worse than slow builds."
+        ),
+        "must_emit": [
+            "CI config (.github/workflows/*.yml, .gitlab-ci.yml, etc.) with "
+            "build + test + deploy stages",
+            "Status check required on the main branch for the test job",
+            "Caching keyed on lockfile hash, NOT on branch name",
+            "Deploy stage gated on tests + manual approval for production envs",
+        ],
+        "anti_patterns": [
+            "Never commit secrets to the repo — even in encrypted form unless "
+            "the encryption key is in a separate secret store",
+            "Never use `latest` Docker tags in deploy — pin to immutable shas",
+            "Never run deploy without a healthcheck step — silent crash-loops kill traffic",
+            "Never cache test results across runs — flaky tests will go undetected",
+            "Never grant CI tokens with broader scope than the job needs",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": ".github/workflows/ci.yml — pytest + ruff + mypy",
+            "django":  ".github/workflows/ci.yml — manage.py test + django-stubs",
+            "spring":  ".github/workflows/ci.yml — mvn verify; release via maven-deploy",
+            "nestjs":  ".github/workflows/ci.yml — pnpm test + tsc --noEmit + eslint",
+            "go":      ".github/workflows/ci.yml — go test ./... + golangci-lint",
+            "nodejs":  ".github/workflows/ci.yml — npm test + eslint + prettier --check",
+        },
+    },
+
+    ("common", "api_design"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "HTTP API design rules, applied uniformly across REST surfaces. "
+            "Resources are nouns (plural), verbs come from HTTP methods. "
+            "Status codes: 200 OK with body / 201 Created with body / 204 "
+            "No Content for DELETE / 400 for client validation / 401 for "
+            "missing auth / 403 for present-but-insufficient auth / 404 for "
+            "missing OR for hiding existence / 409 for conflict / 422 for "
+            "semantically-invalid body / 5xx never for client-caused errors. "
+            "Paginate every list endpoint (offset OR keyset per the "
+            "pagination_contract). Use ISO-8601 UTC timestamps in every "
+            "wire payload. Never expose internal IDs without considering "
+            "opaque public IDs."
+        ),
+        "must_emit": [
+            "GET  /api/v1/{plural}        → list  (paginated)",
+            "POST /api/v1/{plural}        → create, 201 + body, Location header",
+            "GET  /api/v1/{plural}/{id}   → retrieve, 404 if missing",
+            "PUT  /api/v1/{plural}/{id}   → full update, 200 + body OR 204",
+            "PATCH /api/v1/{plural}/{id}  → partial update, 200 + body",
+            "DELETE /api/v1/{plural}/{id} → 204, 404 if missing",
+            "Every endpoint: declared response model, declared error model",
+        ],
+        "anti_patterns": [
+            "Never use verbs in URLs (/createCart, /updateUser) — that's GraphQL territory",
+            "Never return different shapes for the same endpoint based on auth — "
+            "use separate endpoints",
+            "Never put query params in the body — use ?skip=&limit= for paging",
+            "Never return 200 with `{ \"error\": \"...\" }` — use proper HTTP status",
+            "Never use 500 for client errors (validation, auth) — they trip alerting",
+            "Never break a public endpoint's shape without versioning — see api_versioning_contract",
+        ],
+    },
+
+    ("common", "deprecation_policy"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "Removing or breaking a public API requires a deprecation cycle. "
+            "Minimum 6 months between deprecation announcement and removal. "
+            "On every response from a deprecated endpoint, emit "
+            "`Deprecation: true` + `Sunset: <RFC1123 date>` + `Link: "
+            "<docs URL>; rel=\"deprecation\"` headers (RFC 8594). Log "
+            "every call to the deprecated endpoint with the caller's "
+            "user agent + IP — that's how you reach out before sunset. "
+            "Maintain a public deprecation log (docs/deprecations.md)."
+        ),
+        "must_emit": [
+            "Deprecation HTTP headers on every response from the deprecated endpoint",
+            "Caller-attribution log: { ts, endpoint, user_agent, ip, user_id }",
+            "docs/deprecations.md entry: title, deprecated_at, sunset_at, migration_guide_link",
+            "Pre-sunset reachout: dashboard / email when a known caller still hits the endpoint",
+        ],
+        "anti_patterns": [
+            "Never remove a public endpoint without 6+ months of Sunset headers",
+            "Never deprecate silently — callers must learn from the headers OR a release note",
+            "Never replace one breaking change with another — chained deprecations frustrate callers",
+            "Never deprecate-then-undeprecate — once announced, commit to the sunset date",
+            "Never deprecate a feature that's still in your own marketing materials",
+        ],
+    },
+
+    ("common", "frontend_ui_concerns"): {
+        "scope": "cross-framework",
+        "guidance": (
+            "When the feature touches a frontend (React/Vue/Svelte component, "
+            "Django template, server-rendered Spring view), these floors are "
+            "non-negotiable: keyboard navigation (every interactive element "
+            "reachable via Tab + activatable via Enter/Space), focus visible "
+            "(NEVER `outline: none` without a replacement), WCAG 2.1 AA color "
+            "contrast (4.5:1 for normal text, 3:1 for large), semantic HTML "
+            "(button vs div, nav vs ul, heading hierarchy), labels for every "
+            "form input. Performance floors: Largest Contentful Paint < 2.5s, "
+            "Cumulative Layout Shift < 0.1, Interaction to Next Paint < 200ms. "
+            "Bundle: > 250KB gzipped JS for the initial route is a smell."
+        ),
+        "must_emit": [
+            "ARIA labels on every interactive element without visible text",
+            "Form inputs have an associated <label> (htmlFor / nesting)",
+            "Images have alt text (empty string '' is acceptable for decorative)",
+            "Focus order matches visual order (no positive tabindex)",
+            "Loading + error states distinct from empty state",
+            "Lazy-loaded routes via dynamic import / React.lazy where applicable",
+        ],
+        "anti_patterns": [
+            "Never set `outline: none` / `outline: 0` without an alternate focus indicator",
+            "Never use color as the ONLY signal (e.g. red text without an icon)",
+            "Never autofocus inputs except where the entire page is a single form",
+            "Never render an empty state with no CTA — users get stuck",
+            "Never block input on every state change — debounce filters",
+            "Never load all routes upfront — code-split per top-level route",
+        ],
+        "file_hint_per_framework": {
+            "fastapi": "(typically backend; frontend is a separate React/Vue app)",
+            "django":  "Django templates; use {% load static %} + django-htmx for interactivity",
+            "spring":  "Thymeleaf views; spring-htmx for partials",
+            "nestjs":  "(typically backend; frontend is a separate React/Angular app)",
+            "go":      "html/template; htmx + alpine.js for sprinkles of interactivity",
+            "nodejs":  "Express + EJS / Pug / React-SSR",
+        },
+    },
+
     ("common", "i18n"): {
         "scope": "cross-framework",
         "guidance": (

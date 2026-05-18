@@ -221,6 +221,49 @@ error message.
 
 ---
 
+## Stage 2.3 — Source-driven doc lookup
+
+Implementer agents emit code from training data + body_hints. For
+post-cutoff API drift (Pydantic v2 quirks, FastAPI 0.110+ Annotated
+deps, Spring Boot 3 javax→jakarta rename, TypeORM 0.3 DataSource,
+GORM v2 Session API, …) training data can be wrong. This stage
+verifies against current official docs.
+
+```!
+python "./scripts/source_docs_fetcher.py" --project <project-path> > /tmp/osp-doc-plan.json
+```
+
+The script detects the framework + exact pinned version from the
+project's manifest (requirements.txt / pom.xml / package.json / go.mod)
+and emits a doc-lookup plan — one entry per topic the implementer needs
+to verify, with the official-doc URL + anchor keywords to look for.
+
+For each entry in `lookups[]`, call WebFetch:
+
+```text
+WebFetch({
+  url: <entry.url>,
+  prompt: "Extract idiomatic example signatures involving:
+           <comma-separated entry.anchor_keywords>.
+           Return code examples only, under 40 lines total."
+})
+```
+
+Bundle the responses into a `source_excerpts` field on each implementer
+agent's prompt — they treat the excerpts as canonical truth, overriding
+anything in body_hints that conflicts.
+
+**Skip conditions**: `skip_reason: no_manifest_found` (greenfield project),
+`framework_not_recognised`, or `version_pin_missing` (best-effort, no
+version-gated lookups available). On skip, log a warning and proceed —
+training data is the fallback.
+
+Why this matters: lookups are cheap (~$0.005 each via WebFetch) and
+catch a bug class our reviewer + critic can't catch (API drift inside
+syntactically-correct code).
+
+---
+
 ## Stage 2.5 — Spec review gate (only if `--review` was passed)
 
 If the user passed `--review`, stop here and emit the spec.json
@@ -361,6 +404,62 @@ Agent({
 
 If REVISE, route fixes back to the named agent and re-run reviewer (max 2
 review iterations). If still red after 2, escalate to the user.
+
+---
+
+## Stage 5.5 — Doubt-driven adversarial pass
+
+The reviewer reads the spec, the implementer's reasoning, and previous
+review history — that context makes it biased toward "this looks fine."
+Stage 5.5 spawns a FRESH-CONTEXT **doubter** agent per artifact. The
+doubter receives ONLY:
+  1. The artifact's content (the generated file)
+  2. The contract it must satisfy (entity attrs + test_contract + invariants)
+
+It does NOT receive the spec.json's reasoning or the implementer/reviewer
+notes. That information withholding is the point — it prevents
+agreement bias and surfaces the bugs that "looks reasonable" reviews miss.
+
+Initialise:
+```!
+python "./scripts/doubt_driver.py" init --sandbox <sandbox-dir>
+```
+
+For each artifact the implementer + reviewer produced:
+
+```text
+Agent({
+  description: "Doubter: fresh-context adversarial review of <path>",
+  subagent_type: "general-purpose",
+  prompt: """
+    Read .claude/agents/doubter.md.
+    Artifact path: <path>
+    Artifact content: <paste full file content>
+    Contract: <paste ONLY entity + test_contract + invariants from spec.json>
+    Emit findings + verdict per the agent spec.
+  """
+})
+```
+
+Capture the doubter's JSON output, then:
+```!
+python "./scripts/doubt_driver.py" record \
+    --sandbox <sandbox-dir> \
+    --artifact <path> \
+    --verdict /tmp/osp-doubt-verdict.json
+```
+
+The driver returns one of three decisions:
+  - `PROCEED` — no `contract_violation` or `actionable_gap` findings.
+    Advance to Stage 6.
+  - `LOOP_TO_IMPLEMENTER` — re-spawn the implementer with the
+    `blocking_findings` list as the "why". After it rewrites the file,
+    spawn the doubter again (round 2).
+  - `ESCALATE` — max 2 doubt rounds OR same fingerprints across rounds
+    (doubt theater). Stop, surface to user.
+
+This stage is bounded: max 2 doubt rounds per artifact, max ~$0.04 per
+round at sonnet pricing.
 
 ---
 
