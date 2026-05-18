@@ -7,7 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.8.0] — 2026-05-18 (Current) — Incremental Mode
+## [4.9.0] — 2026-05-18 (Current) — Headless SDK Mode + Stress Tests + Self-Calibrating Cost Model
+
+Closes three "honest gaps" from earlier README sections technically rather
+than waiting on external signal:
+
+### Added — Headless SDK-driven mode
+- `skills/one-shot-generator/scripts/live_api_runner.py` — direct Anthropic
+  SDK runner with per-agent prompt builders for architect / implementer /
+  test-author / reviewer / service-author / critic / wirer. Resolves model
+  aliases (sonnet / haiku → concrete model IDs), normalises
+  `implementer-{snake}` → `implementer.md`, persists per-spawn JSON
+  records, computes input + output token cost.
+- `agentic_session_driver.py --mode live-api` — new mode that wires the
+  runner into the full session plan. Graceful no-op when
+  `anthropic` package missing OR `ANTHROPIC_API_KEY` unset (returns
+  structured skip JSON, exit 0 — never crashes).
+- Unlocks CI batch runs, scheduled regenerations, programmatic invocation
+  from automation pipelines, eval-harness runs without a Claude Code shell.
+
+### Added — Critic-loop stress tests
+- `tests/test_critic_loop_stress.py` — 10 stress scenarios covering 500-route
+  verdicts, regression detection at depth, identical-routes-twice (escalates
+  on max iterations), unknown `route_to` bucketing, decision-vocabulary
+  contract. Bounds the "untested at scale" caveat — synthetic but
+  thorough.
+
+### Added — Self-calibrating cost model
+- `skills/one-shot-generator/scripts/cost_calibrator.py` — reads
+  `.beads/cost_observations.jsonl`, computes p50 medians per agent,
+  emits a unified diff against the existing `PER_AGENT_TOKEN_ESTIMATES`
+  literal in `cost_budget.py`. Modes:
+  - default → emit diff to stdout (review before apply)
+  - `--apply` → rewrite `cost_budget.py` in place, preserve `model`
+    field and existing agent order, atomic write
+  - `--check --threshold 0.20` → CI gate; exit 1 if any agent's drift
+    exceeds threshold
+  - `--json` → structured report (drift per agent + learnings.jsonl
+    cross-check on `cost_usd`)
+- Uses p50 median (not mean) so single outliers don't move the baseline.
+- Cross-checks token-level drift against actual `cost_usd` from
+  `.claude/registry/learnings.jsonl` — independent dollar signal.
+
+### Changed — README
+- "What the plugin does NOT do" section slimmed from 6 bullets to 2
+  (the only ones that truly require external input: Anthropic Directory
+  review + community presence). The other 4 are now technically closed.
+- Test count: 296 → 340 (+44, all green first run).
+
+### Tests
+340/340 green (+44 v4.9 tests: 20 live-api runner, 10 critic stress,
+14 cost calibrator).
+
+---
+
+## [4.8.0] — 2026-05-18 — Incremental Slicing Mode
 
 `/one-shot --incremental` ships entities one at a time in FK-dependency
 order with green tests + a git commit between each. If slice 3 fails,

@@ -6,11 +6,11 @@ Type `/one-shot "shopping cart with line items and discounts" @./my-project` and
 
 Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs. Real bcrypt + JWT auth helpers. Real service layer enforcing business invariants. Cost-tiered model routing (Haiku for file-writers, Sonnet for reasoners) keeps a typical generation at ~$0.50. Free `--templated` fallback for CI / cost-sensitive contexts.
 
-## ⭐ v4.8 — Status
+## ⭐ v4.9 — Status
 
 | Metric | Value |
 |---|---|
-| **Tests** | 296 / 296 green (20 suites, Py 3.14 / Windows) |
+| **Tests** | 340 / 340 green (23 suites, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
@@ -348,18 +348,14 @@ The plugin learns across sessions:
 
 ---
 
-## What the plugin does NOT do
+## Honest limitations
 
-Being honest about gaps:
+Two things the plugin cannot close from this seat — both wait on external signal:
 
-- **Zero production users yet** — architecture is sound, 178 tests pass, but real-world validation is the unproven dimension. Looking for first 10 testers.
-- **Live Task agents from subprocess** — the agentic pipeline requires a Claude Code session (the CLI cannot spawn `Task` tool calls). Headless / CI use goes through `--templated`.
-- **Multi-iteration critic loop in production** — protocol documented in Stage 7 of SKILL.md and driver shipped in v4.4, battle-tested via synthetic scenarios, untested at scale.
-- **Empirical cost calibration** — 6 architect-agent runs anchor the model; need 20-30+ across implementer / reviewer / critic stages for full confidence.
-- **Anthropic Directory listing** — submission form ready ([DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)); review pending.
-- **Community presence** — launch announcement ready ([docs/launch/](docs/launch/)); zero current users; first issue / first PR / first registry proposal all welcomed.
+- **Anthropic Directory listing** — submission form ready ([DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)); review pending on their side.
+- **Community presence** — zero production users so far. Looking for first 10 testers. First issue / first PR / first registry proposal all welcomed.
 
-See [docs/scorecard-v4.md](docs/scorecard-v4.md) for the honest 0–10 across all 36 dimensions; [docs/path-to-10.md](docs/path-to-10.md) for the concrete roadmap to 10/10 per dimension.
+For the full 0-10 honest scoring across 36 dimensions, see [docs/scorecard-v4.md](docs/scorecard-v4.md); for the roadmap, [docs/path-to-10.md](docs/path-to-10.md).
 
 ---
 
@@ -476,11 +472,12 @@ MIT. See [LICENSE](LICENSE).
 
 ## Versions + cumulative history
 
-**Current: v4.8** (2026-05-18)
+**Current: v4.9** (2026-05-18)
 
 | Release | What |
 |---|---|
-| **v4.8** | `--incremental` slicing — ship entities one at a time with green tests + git commit between (Kahn's topo sort, FK-cycle detection) |
+| **v4.9** | Headless SDK mode (`agentic_session_driver --mode live-api` calls Anthropic SDK directly — no Claude Code session needed) + critic-loop stress tests + `cost_calibrator.py` (self-recalibrates `PER_AGENT_TOKEN_ESTIMATES` from `.beads/cost_observations.jsonl`). Closes three of the "honest gaps" technically. |
+| v4.8 | `--incremental` slicing — ship entities one at a time with green tests + git commit between (Kahn's topo sort, FK-cycle detection) |
 | v4.7 | Integration tightening — Stage 5.5 doubt, Stage 6 ship-check, Stage 2 ADR are DEFAULT ON. /adr + /dashboard slash commands. 4 hints (perf, error_recovery, debug, git_workflow). |
 | v4.6 | Absorbed [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) — Stage 2.3 source-driven, Stage 5.5 doubt-driven, /ship-check, ADR writer, /refine, 6 common hints. |
 | v4.5 | Tier-3 specialised hints (GraphQL, gRPC, saga, DLQ, GDPR, i18n) + production OTel guide + cross-agent learning hub wired end-to-end. |

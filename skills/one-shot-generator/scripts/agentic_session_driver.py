@@ -252,12 +252,15 @@ def main():
         description="Drive the full agentic pipeline against a spec.json"
     )
     parser.add_argument("--spec", help="Path to spec.json (dry-run / record modes)")
-    parser.add_argument("--mode", choices=["dry-run", "record", "replay"],
+    parser.add_argument("--mode",
+                        choices=["dry-run", "record", "replay", "live-api"],
                         default="dry-run")
     parser.add_argument("--out", default=None,
-                        help="Output dir for --mode record")
+                        help="Output dir for --mode record / --mode live-api")
     parser.add_argument("--replay-dir",
                         help="Recordings dir for --mode replay")
+    parser.add_argument("--agents-dir", default=".claude/agents",
+                        help="Agents directory for --mode live-api")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -266,6 +269,64 @@ def main():
             parser.error("--mode replay requires --replay-dir")
         result = replay_recordings(Path(args.replay_dir).resolve())
         print(json.dumps(result, indent=2))
+        return
+
+    if args.mode == "live-api":
+        # Live SDK-driven mode. Closes the "subprocess can't spawn Task
+        # agents" caveat — uses anthropic SDK directly. Graceful no-op
+        # when SDK missing / API key unset (so CI can still execute the
+        # command without hard-failing).
+        if not args.spec:
+            parser.error("--mode live-api requires --spec")
+        try:
+            from live_api_runner import (
+                LiveApiRunner, make_anthropic_client, probe_environment,
+            )
+        except ImportError:
+            print(json.dumps({"status": "error",
+                              "reason": "live_api_runner_module_missing"},
+                              indent=2))
+            return
+        skip = probe_environment()
+        if skip is not None:
+            print(json.dumps(skip.to_dict(), indent=2))
+            return
+        spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
+        plan = build_session_plan(spec)
+        out_dir = Path(
+            args.out or f".tmp/sessions/live-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        ).resolve()
+        runner = LiveApiRunner(
+            client=make_anthropic_client(),
+            agents_dir=Path(args.agents_dir),
+            output_dir=out_dir,
+        )
+        results = []
+        for spawn in plan.spawns:
+            try:
+                r = runner.run_spawn(
+                    agent_name=spawn.agent_name,
+                    stage=spawn.stage,
+                    model_alias=spawn.model,
+                    spawn_input=spawn.input_summary,
+                    context={"spec": spec},
+                )
+                results.append(r.to_dict())
+            except Exception as e:
+                results.append({"agent_name": spawn.agent_name,
+                                "stage": spawn.stage,
+                                "error": f"{type(e).__name__}: {e}"})
+        summary = {
+            "status": "completed",
+            "out_dir": str(out_dir),
+            "spawns_run": len(results),
+            "total_input_tokens": sum(r.get("input_tokens", 0) for r in results),
+            "total_output_tokens": sum(r.get("output_tokens", 0) for r in results),
+            "total_cost_usd": round(
+                sum(r.get("cost_usd", 0) for r in results), 6),
+            "results": results,
+        }
+        print(json.dumps(summary, indent=2))
         return
 
     if not args.spec:
