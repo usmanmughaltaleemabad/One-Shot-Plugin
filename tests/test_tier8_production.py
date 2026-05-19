@@ -44,8 +44,8 @@ def test_service_author_agent_exists():
 
 
 def test_skill_md_invokes_service_author_at_stage_2_7():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "Stage 2.7" in text
     assert "service-author" in text
     assert "invariants" in text.lower()
@@ -286,8 +286,8 @@ def test_autonomy_slash_command_exists():
 # ─── Stage 6.5 migration wiring ─────────────────────────────────────────────
 
 def test_skill_md_includes_stage_6_5_migration():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "Stage 6.5" in text
     assert "migration_generator.py" in text
 

@@ -352,8 +352,8 @@ def test_empty_relationships_each_slice_independent(tmp_path):
 # ─── SKILL.md + /one-shot integration ────────────────────────────────────
 
 def test_skill_md_documents_stage_2_6_incremental():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "Stage 2.6" in text, "must add a Stage 2.6 section"
     assert "--incremental" in text
     assert "incremental_planner.py" in text

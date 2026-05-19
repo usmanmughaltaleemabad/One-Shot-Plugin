@@ -65,8 +65,8 @@ def test_one_shot_generate_skill_exists():
 
 
 def test_skill_has_valid_frontmatter():
-    skill = SKILLS / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert text.startswith("---"), "SKILL.md must have YAML frontmatter"
     for required in ("name:", "description:", "allowed-tools:"):
         assert re.search(rf"^{required}", text, re.MULTILINE), \
@@ -75,8 +75,8 @@ def test_skill_has_valid_frontmatter():
 
 def test_skill_references_the_six_agents():
     """The agentic playbook must mention every specialist agent."""
-    skill = SKILLS / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8").lower()
+    from conftest import pipeline_text
+    text = pipeline_text().lower()
     for agent in ("architect", "implementer", "test-author",
                    "reviewer", "wirer", "critic"):
         assert agent in text, f"SKILL.md missing reference to {agent}"
@@ -84,8 +84,8 @@ def test_skill_references_the_six_agents():
 
 def test_skill_references_deterministic_scripts():
     """The skill must call the deterministic services in the right order."""
-    skill = SKILLS / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     for script in ("extract_domain_model", "codebase_graph",
                     "beads_curriculum", "generate_and_verify",
                     "auto_patch", "auto_wirer", "critic_runner",

@@ -435,8 +435,8 @@ def test_legacy_guard_limits_subcommand():
 # ─── SKILL.md wiring ──────────────────────────────────────────────────────
 
 def test_skill_md_has_stage_0_7_legacy_safe_gate():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "Stage 0.7" in text
     assert "legacy_guard.py" in text
     assert "--legacy-safe" in text
@@ -445,8 +445,8 @@ def test_skill_md_has_stage_0_7_legacy_safe_gate():
 
 
 def test_skill_md_has_stage_5_7_consistency_and_security():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "Stage 5.7" in text
     assert "cross_agent_consistency.py" in text
     assert "security_deep_scan.py" in text

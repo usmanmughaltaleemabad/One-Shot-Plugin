@@ -1,5 +1,6 @@
 ---
 description: 4-phase systematic root cause investigation. No guessing. Hypothesize ranked causes → Instrument logging → Observe output → Fix confirmed root cause only. Generates temporary instrumentation, analyzes evidence, applies targeted fix.
+status: experimental
 argument-hint: "[error or symptom description] [@path/to/project] [--error-log=<file>]"
 allowed-tools: none
 destructive: false

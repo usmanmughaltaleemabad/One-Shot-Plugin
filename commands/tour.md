@@ -1,5 +1,6 @@
 ---
 description: Interactive tour that walks the user through one-shot-prompting capabilities and recommends a starting template.
+status: experimental
 argument-hint: "[choice — pass empty for the main menu]"
 allowed-tools: Bash(python *)
 destructive: false

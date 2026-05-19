@@ -64,7 +64,7 @@ def _run(script: Path, *args: str, check: bool = True,
 # ─── Fix #1 — Source-doc lookup moved to Stage 1.8 ─────────────────────────
 
 def test_skill_md_has_stage_1_8_source_doc_lookup():
-    text = SKILL.read_text(encoding="utf-8")
+    from conftest import pipeline_text; text = pipeline_text()
     # The new Stage 1.8 must exist AND come before Stage 2 architect
     s18_idx = text.find("## Stage 1.8 — Source-driven doc lookup")
     s2_idx = text.find("## Stage 2 — Architect agent")
@@ -76,7 +76,7 @@ def test_skill_md_has_stage_1_8_source_doc_lookup():
 def test_skill_md_old_stage_2_3_marked_deprecated():
     """Stage 2.3 anchor must still exist (for backward-compat links) but
     must explicitly say it was moved to 1.8."""
-    text = SKILL.read_text(encoding="utf-8")
+    from conftest import pipeline_text; text = pipeline_text()
     assert "## Stage 2.3" in text
     # Must contain the deprecation note
     # Anchor for cross-reference
@@ -87,7 +87,7 @@ def test_skill_md_old_stage_2_3_marked_deprecated():
 def test_skill_md_architect_prompt_template_includes_source_excerpts():
     """The architect Task prompt template in SKILL.md must include the
     source_excerpts paste-in slot from Stage 1.8."""
-    text = SKILL.read_text(encoding="utf-8")
+    from conftest import pipeline_text; text = pipeline_text()
     # Architect prompt section
     architect_section = text[text.find("## Stage 2 — Architect agent"):
                               text.find("## Stage 2.3")]
@@ -137,7 +137,7 @@ def test_architect_prompt_falls_back_when_no_source_excerpts():
 # ─── Fix #2 — Migration order trade-off documented ────────────────────────
 
 def test_skill_md_documents_migration_order_tradeoff():
-    text = SKILL.read_text(encoding="utf-8")
+    from conftest import pipeline_text; text = pipeline_text()
     # The trade-off section must exist under Stage 6.5
     s65 = text.split("### Stage 6.5", 1)[1].split("## Stage 7", 1)[0]
     # Must call out the three sub-cases for ALTER patterns

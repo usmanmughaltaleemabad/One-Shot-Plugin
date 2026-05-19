@@ -145,8 +145,8 @@ def test_sast_runner_handles_missing_bandit_gracefully(tmp_path):
 # ─── route-override wiring ──────────────────────────────────────────────────
 
 def test_skill_md_documents_route_override_application():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "Stage 1.7" in text
     assert "route-override" in text
     assert "replaces_local" in text

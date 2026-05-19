@@ -264,8 +264,8 @@ def test_git_workflow_blocks_force_push_to_main():
 # ─── SKILL.md integration tightening ───────────────────────────────────────
 
 def test_skill_md_marks_doubt_driven_as_default_on():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "Stage 5.5" in text
     assert "DEFAULT ON" in text, \
         "doubt-driven must be marked default-on, not opt-in"
@@ -274,8 +274,8 @@ def test_skill_md_marks_doubt_driven_as_default_on():
 
 
 def test_skill_md_runs_ship_gates_before_apply():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "ship_gates.py" in text, \
         "ship_gates must be wired into the apply flow"
     assert "--no-ship-check" in text, "opt-out flag must be documented"
@@ -283,8 +283,8 @@ def test_skill_md_runs_ship_gates_before_apply():
 
 
 def test_skill_md_emits_adr_alongside_spec():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "adr_writer.py" in text, "ADR writer must be invoked from SKILL.md"
     assert "--no-adr" in text, "opt-out flag must be documented"
 

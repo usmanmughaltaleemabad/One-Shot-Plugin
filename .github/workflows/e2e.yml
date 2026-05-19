@@ -1,0 +1,91 @@
+name: E2E Pipeline Test
+
+on:
+  workflow_dispatch:        # manual trigger
+  schedule:
+    - cron: '0 6 * * 1'    # every Monday 06:00 UTC
+  push:
+    branches: [master]
+    paths:
+      - 'skills/one-shot-generate/**'
+      - '.claude/agents/**'
+      - 'skills/one-shot-generator/scripts/live_api_runner.py'
+
+jobs:
+  e2e:
+    name: Full pipeline against FastAPI fixture
+    runs-on: ubuntu-latest
+    # Only run when the API key secret is available (skips on forks)
+    if: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pytest pytest-asyncio anthropic httpx fastapi sqlalchemy pydantic
+
+      - name: Run agentic eval — architect stage (live)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          python tests/evals/agentic_evals.py --mode live --scenario shopping-cart
+        timeout-minutes: 5
+
+      - name: Dry-run pipeline against fixture project
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          python skills/one-shot-generator/scripts/live_api_runner.py \
+            --agent architect \
+            --task "add a rate limiter with sliding window per user" \
+            --repo-root examples/fastapi-payment-processor-harness \
+            --dry-run
+        timeout-minutes: 3
+
+      - name: Assert outputs
+        run: |
+          # Verify dry-run produced a spec or skipped gracefully
+          echo "E2E dry-run completed — check logs above for spec output"
+          # Full assertion requires --apply run; dry-run validates connectivity
+          # and architect stage. Expand this job after first real runs accumulate.
+
+  e2e-dry:
+    name: Dry-run (no API key — validates tooling only)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pytest pytest-asyncio anthropic httpx fastapi sqlalchemy pydantic
+
+      - name: Canary dry-run (no API key — validates harness wiring)
+        env:
+          ANTHROPIC_API_KEY: ''
+          PYTHONIOENCODING: utf-8
+        run: |
+          python skills/one-shot-generator/scripts/live_api_runner.py \
+            --agent architect \
+            --task "add user auth" \
+            --repo-root examples/fastapi-payment-processor-harness \
+            --dry-run
+        # Expected: graceful skip with missing_anthropic_api_key reason
+
+      - name: Run agentic replay evals (no API key needed)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          python tests/evals/agentic_evals.py --mode replay
+        # Expected: 6/6 scenarios >= 0.93
