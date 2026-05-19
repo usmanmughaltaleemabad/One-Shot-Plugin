@@ -1,5 +1,10 @@
 # Example: django-order-service
 
+> [!NOTE]
+> **This is an example *prompt*, not a runnable project.** The directory
+> contains only this README — the file listing below describes what
+> `/one-shot` would generate when run against a real Django codebase.
+
 Django microservice that processes orders end-to-end: HTTP intake → Celery
 task → email notification → Kafka audit log. Generated in one shot.
 
@@ -43,13 +48,14 @@ an email, then audits the result on Kafka. Include tests and Docker.
 After generation, only 7 lines were edited (renamed env var, plugged
 in real Stripe key). 0% structural changes.
 
-## Run locally
+## How to reproduce
+
+Run the prompt above against your own Django project. The commands below
+apply *after* generation, from the generated project root:
 
 ```bash
 docker compose up -d
 python manage.py migrate
 python manage.py runserver &
 celery -A orders worker -l info &
-curl -X POST http://localhost:8000/orders -H 'Content-Type: application/json' \
-     -d '{"customer_id": "c1", "items": [{"sku": "ABC", "qty": 1}]}'
 ```

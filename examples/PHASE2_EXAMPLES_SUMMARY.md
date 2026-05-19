@@ -6,7 +6,12 @@ owner: claude
 
 # Phase 2 Example Projects Summary
 
-5 complete working projects showing **Harness + One-Shot Integration** in action.
+> [!NOTE]
+> Some entries below are README-only prompt examples, not runnable
+> checkouts. See [`examples/README.md`](README.md) for which directories
+> contain real source files and which contain only a description.
+
+5 example projects illustrating **Harness + One-Shot Integration**.
 
 ## Project List
 

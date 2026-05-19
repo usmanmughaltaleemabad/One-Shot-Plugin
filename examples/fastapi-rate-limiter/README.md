@@ -1,5 +1,11 @@
 # Example: fastapi-rate-limiter
 
+> [!NOTE]
+> **This is an example *prompt*, not a runnable project.** The directory
+> contains only this README — the file listing below describes what
+> `/one-shot` would generate when run with the prompt against a real
+> FastAPI codebase. To produce these files, run the prompt yourself.
+
 FastAPI service with a sliding-window rate limiter on the message bus
 side. Demonstrates async handlers, Redis storage, OpenTelemetry tracing,
 and Prometheus metrics — all generated in one shot.
@@ -36,10 +42,12 @@ include OTel + Prometheus, async, tests with pytest-asyncio. @./
 | `tests/test_bus_glue.py` | integration w/ fake bus | 70 |
 | `README.md` | usage + tuning | 40 |
 
-## How to run
+## How to reproduce
+
+Run the prompt above against your own FastAPI project:
 
 ```bash
-uvicorn main:app --reload &
-docker run -d -p 6379:6379 redis:7-alpine
-pytest -q
+/one-shot-prompting:one-shot-generator "Add a rate limiter..." @./your-project
 ```
+
+Then `uvicorn`, Redis, and `pytest` from the generated project root.

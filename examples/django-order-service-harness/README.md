@@ -6,7 +6,13 @@ owner: claude
 
 # Django Order Service with Harness
 
-**Complete working example** showing ONE SHOT PLUGIN + Harness integration.
+> [!NOTE]
+> **This is an example *prompt + harness layout*, not a runnable
+> project.** This directory contains only this README. The "Quick Start"
+> commands below assume you have already generated the project — they
+> are a description of the resulting layout, not a working checkout.
+
+Illustrates ONE SHOT PLUGIN + Harness integration.
 
 ## What This Project Shows
 

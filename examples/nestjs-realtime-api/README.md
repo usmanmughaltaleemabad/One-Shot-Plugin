@@ -1,5 +1,11 @@
 # Example: nestjs-realtime-api
 
+> [!NOTE]
+> **This is an example *prompt*, not a runnable project.** The directory
+> contains only this README. Any "run" steps below describe what to do
+> *after* you generate the code by running the prompt against your own
+> NestJS codebase.
+
 NestJS 10 service exposing GraphQL subscriptions backed by Redis pub/sub.
 Consumes `order.created`, `order.shipped`, `order.delivered` and pushes to
 WebSocket subscribers in real time.

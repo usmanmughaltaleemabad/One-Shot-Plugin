@@ -4,9 +4,20 @@ last_verified: 2026-05-16
 owner: claude
 ---
 
-# Example Projects for one-shot-prompting Plugin
+# Examples for one-shot-prompting Plugin
 
-Three minimal but complete example projects to test the plugin's code generation capabilities.
+This directory mixes two kinds of examples:
+
+1. **Runnable starter projects** — directories with actual source files
+   (`django-rest-api/`, `fastapi-async-api/`, `go-trading-bot/`, plus the
+   `*-harness/` directories that include `app/`, `models/`, `src/`).
+   Useful as targets to run `/one-shot` against.
+2. **Prompt examples (README-only)** — directories that contain ONLY a
+   README describing a prompt and the files it would generate. These are
+   NOT runnable as-is. They include: `django-order-service/`,
+   `django-order-service-harness/`, `fastapi-rate-limiter/`,
+   `nestjs-realtime-api/`, `spring-payment-service/`. Each README is
+   marked with a note at the top.
 
 ---
 

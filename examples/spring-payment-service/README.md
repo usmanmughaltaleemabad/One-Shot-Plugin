@@ -1,5 +1,10 @@
 # Example: spring-payment-service
 
+> [!NOTE]
+> **This is an example *prompt*, not a runnable project.** The directory
+> contains only this README. Run the prompt below against your own
+> Spring Boot codebase to produce the files listed.
+
 Spring Boot 3 service implementing a saga step in a payments pipeline.
 Consumes `order.placed`, charges via Stripe, emits `payment.captured` or
 `payment.failed`, and rolls back via a compensating handler.
