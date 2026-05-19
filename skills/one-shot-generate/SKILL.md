@@ -32,7 +32,7 @@ Parse `$ARGUMENTS` and look for these flags:
   the scanner, do not consult curriculum, do not spawn agents. Just:
 
   ```!
-  python "./scripts/one_shot_orchestrator.py" "$ARGUMENTS"
+  python "../one-shot-generator/scripts/one_shot_orchestrator.py" "$ARGUMENTS"
   ```
 
   Then summarise the output for the user (which files were generated,
@@ -67,7 +67,7 @@ with the agentic pipeline below.
 Before any work, check whether this task has failed before:
 
 ```!
-python "./scripts/beads_curriculum.py" "$ARGUMENTS" --json
+python "../one-shot-generator/scripts/beads_curriculum.py" "$ARGUMENTS" --json
 ```
 
 If the curriculum returns hits with similarity ≥ 0.4, surface them to the
@@ -84,7 +84,7 @@ agents / skills / MCP servers in the registry would do better on this
 task:
 
 ```!
-python "./scripts/agent_discovery.py" "$ARGUMENTS" --json
+python "../one-shot-generator/scripts/agent_discovery.py" "$ARGUMENTS" --json
 ```
 
 The output includes a `recommendations` array. Two kinds matter:
@@ -118,7 +118,7 @@ behaviour is too dangerous. `--legacy-safe` mode enforces a small blast
 radius. **Run the guard FIRST**, before any agent fires:
 
 ```!
-python "./scripts/legacy_guard.py" validate \
+python "../one-shot-generator/scripts/legacy_guard.py" validate \
     --project <project-path> \
     --planned-files <list of files spec will touch> \
     --extra-flags=<comma-separated other flags, e.g. --apply,--review>
@@ -161,8 +161,8 @@ Run the scanner and the domain extractor. Both are pure-Python and produce
 JSON. Capture their outputs:
 
 ```!
-python "./scripts/extract_domain_model.py" "$ARGUMENTS" --json > /tmp/osp-domain.json && \
-python "./scripts/codebase_graph.py" "$ARGUMENTS" --summary
+python "../one-shot-generator/scripts/extract_domain_model.py" "$ARGUMENTS" --json > /tmp/osp-domain.json && \
+python "../one-shot-generator/scripts/codebase_graph.py" "$ARGUMENTS" --summary
 ```
 
 Read `/tmp/osp-domain.json`. Note:
@@ -183,9 +183,9 @@ If the user passed `--budget=USD`, generate a tentative `plan.json` and
 check the cost estimate before spawning any agents:
 
 ```!
-python "./scripts/compile_spec.py" --orchestrator-json /tmp/osp-orch.json --out /tmp/osp-spec.json && \
-python "./scripts/scaffold_planner.py" --spec /tmp/osp-spec.json --out /tmp/osp-plan.json && \
-python "./scripts/cost_budget.py" --plan /tmp/osp-plan.json --budget <USD> --json
+python "../one-shot-generator/scripts/compile_spec.py" --orchestrator-json /tmp/osp-orch.json --out /tmp/osp-spec.json && \
+python "../one-shot-generator/scripts/scaffold_planner.py" --spec /tmp/osp-spec.json --out /tmp/osp-plan.json && \
+python "../one-shot-generator/scripts/cost_budget.py" --plan /tmp/osp-plan.json --budget <USD> --json
 ```
 
 If `within_budget` is `false`, **halt**. Present the estimate to the user
@@ -240,7 +240,7 @@ GORM v2 Session API, …) training data can be wrong. This stage
 verifies against current official docs.
 
 ```!
-python "./scripts/source_docs_fetcher.py" --project <project-path> > /tmp/osp-doc-plan.json
+python "../one-shot-generator/scripts/source_docs_fetcher.py" --project <project-path> > /tmp/osp-doc-plan.json
 ```
 
 The script detects the framework + exact pinned version from the
@@ -326,7 +326,7 @@ user passed `--no-adr`). The architect's response should include 2-3
 sentences of decision reasoning — feed those into `adr_writer.py`:
 
 ```!
-python "./scripts/adr_writer.py" emit \
+python "../one-shot-generator/scripts/adr_writer.py" emit \
     --project <project-path> \
     --title "<short title derived from the feature request>" \
     --status accepted \
@@ -406,7 +406,7 @@ Run the planner once on the full spec:
 
 ```!
 mkdir -p /tmp/osp-slices
-python "./scripts/incremental_planner.py" \
+python "../one-shot-generator/scripts/incremental_planner.py" \
     --spec /tmp/osp-spec.json \
     --out-dir /tmp/osp-slices
 ```
@@ -519,13 +519,13 @@ Run the static verifier against the generated output, then auto-patch any
 known diagnostic classes:
 
 ```!
-python "./scripts/generate_and_verify.py" --verify-dir /tmp/osp-out
+python "../one-shot-generator/scripts/generate_and_verify.py" --verify-dir /tmp/osp-out
 ```
 
 If there are any error-severity diagnostics, run auto_patch:
 
 ```!
-python "./scripts/auto_patch.py" --sandbox /tmp/osp-out \
+python "../one-shot-generator/scripts/auto_patch.py" --sandbox /tmp/osp-out \
     --diagnostics /tmp/osp-diags.json
 ```
 
@@ -576,7 +576,7 @@ agreement bias and surfaces the bugs that "looks reasonable" reviews miss.
 
 Initialise:
 ```!
-python "./scripts/doubt_driver.py" init --sandbox <sandbox-dir>
+python "../one-shot-generator/scripts/doubt_driver.py" init --sandbox <sandbox-dir>
 ```
 
 For each artifact the implementer + reviewer produced:
@@ -597,7 +597,7 @@ Agent({
 
 Capture the doubter's JSON output, then:
 ```!
-python "./scripts/doubt_driver.py" record \
+python "../one-shot-generator/scripts/doubt_driver.py" record \
     --sandbox <sandbox-dir> \
     --artifact <path> \
     --verdict /tmp/osp-doubt-verdict.json
@@ -631,7 +631,7 @@ local job. This stage runs after Stage 5.5 and closes that gap.
 ### 5.7a — Cross-agent consistency
 
 ```!
-python "./scripts/cross_agent_consistency.py" \
+python "../one-shot-generator/scripts/cross_agent_consistency.py" \
     --spec /tmp/osp-spec.json \
     --generated-dir /tmp/osp-out \
     --reviewer-verdict /tmp/osp-reviewer.json \
@@ -654,7 +654,7 @@ Verdict `BLOCKED` → halt the run; surface the violations to the user.
 ### 5.7b — Security deep scan (deterministic SAST)
 
 ```!
-python "./scripts/security_deep_scan.py" \
+python "../one-shot-generator/scripts/security_deep_scan.py" \
     --target /tmp/osp-out \
     --strict
 ```
@@ -697,7 +697,7 @@ implementer chose to test.
 Run the wirer in dry-run mode first:
 
 ```!
-python "./scripts/auto_wirer.py" --project <project-path> \
+python "../one-shot-generator/scripts/auto_wirer.py" --project <project-path> \
     --generated-dir /tmp/osp-out --dry-run
 ```
 
@@ -707,7 +707,7 @@ Present the wire plan to the user.
 (unless the user passed `--no-ship-check`):
 
 ```!
-python "./scripts/ship_gates.py" --project <project-path>
+python "../one-shot-generator/scripts/ship_gates.py" --project <project-path>
 ```
 
 If verdict is `BLOCKED`: halt the apply, surface the failing gates to
@@ -719,7 +719,7 @@ For `--apply`, run the wirer again without dry-run and copy generated
 files into the project:
 
 ```!
-python "./scripts/auto_wirer.py" --project <project-path> \
+python "../one-shot-generator/scripts/auto_wirer.py" --project <project-path> \
     --generated-dir /tmp/osp-out
 ```
 
@@ -735,7 +735,7 @@ Instead of "ask the user before running migrations", emit a concrete
 revision file the user can inspect and apply:
 
 ```!
-python "./scripts/migration_generator.py" \
+python "../one-shot-generator/scripts/migration_generator.py" \
     --spec /tmp/osp-spec.json \
     --out <project>/alembic/versions/
 ```
@@ -795,7 +795,7 @@ Before spawning the critic the first time, **initialise the loop state**
 (this gives the deterministic driver something to track across iterations):
 
 ```!
-python "./scripts/critic_loop_driver.py" init --sandbox <sandbox-dir>
+python "../one-shot-generator/scripts/critic_loop_driver.py" init --sandbox <sandbox-dir>
 ```
 
 After every critic spawn, **route the verdict through the driver** instead
@@ -805,7 +805,7 @@ without you having to track state by hand:
 
 ```!
 # Write the critic's JSON output to /tmp/osp-critic-verdict.json, then:
-python "./scripts/critic_loop_driver.py" record \
+python "../one-shot-generator/scripts/critic_loop_driver.py" record \
     --sandbox <sandbox-dir> \
     --verdict /tmp/osp-critic-verdict.json
 ```
@@ -830,7 +830,7 @@ Agent({
     Generated tests: <paths>
     Spec.json: <paste>
 
-    Use Bash to run:  python ./scripts/critic_runner.py --tests <dir> --route --json
+    Use Bash to run:  python ../one-shot-generator/scripts/critic_runner.py --tests <dir> --route --json
     Emit VERDICT: SHIPPED or VERDICT: LOOP per the agent spec.
   """
 })
@@ -938,7 +938,7 @@ If the critic returns SHIPPED, present a summary to the user:
 
 On SHIPPED:
 ```!
-python "./scripts/codebase_graph.py" <project-path> --rebuild
+python "../one-shot-generator/scripts/codebase_graph.py" <project-path> --rebuild
 ```
 This refreshes the persistent graph so the next session knows about the
 files you just added.
@@ -947,7 +947,7 @@ files you just added.
 every agent that ran picks up a row in `.claude/registry/learnings.jsonl`:
 
 ```!
-python "./scripts/run_finalize.py" \
+python "../one-shot-generator/scripts/run_finalize.py" \
     --sandbox <sandbox-dir> \
     --agents architect,implementer,test-author,reviewer,wirer,critic \
     --task-keywords "$ARGUMENTS" \
@@ -963,7 +963,7 @@ in a local agent's success rate is visible before the next big run.
 
 On any failure that escalated to the user, ALSO record a bead:
 ```!
-python "./scripts/beads_writer.py" --phase agentic \
+python "../one-shot-generator/scripts/beads_writer.py" --phase agentic \
     --task "$ARGUMENTS" --kind agent_loop_max_iters \
     --diagnostics /tmp/osp-final-diags.json
 ```
@@ -995,7 +995,7 @@ critic refuses to verdict), do NOT try to substitute your own
 implementation for the agent's. Fall back to the templated path:
 
 ```!
-python "./scripts/one_shot_orchestrator.py" "$ARGUMENTS" --json
+python "../one-shot-generator/scripts/one_shot_orchestrator.py" "$ARGUMENTS" --json
 ```
 
 …and present the result to the user with a note explaining what failed.
