@@ -1,0 +1,13 @@
+{
+  "scenario": "reviewer-pass-clean-code",
+  "agent": "reviewer",
+  "fixture_type": "contract-test",
+  "note": "Tests grader against clean PASS verdict — no issues found.",
+  "input": {
+    "files_reviewed": ["cart/router.py", "cart/service.py"]
+  },
+  "expected_output_contract": {
+    "expected_verdict": "PASS"
+  },
+  "recorded_output": "I reviewed cart/router.py and cart/service.py against the spec and standards.\n\n## Checklist\n- [x] All endpoints async\n- [x] Pydantic models on all request/response\n- [x] Service layer owns business logic\n- [x] No raw SQL\n- [x] HTTPException used for errors\n- [x] No hardcoded secrets\n- [x] No blocking I/O in async context\n\nREVIEW: PASS\n"
+}

@@ -14,7 +14,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 503 / 503 green (32 suites, cross-OS CI: Ubuntu × macOS × Windows × Py 3.10–3.12) |
+| **Tests** | 509 / 509 green (32 suites, cross-OS CI: Ubuntu × macOS × Windows × Py 3.10–3.12) |
 | **Active scripts** | 62 (down from 231; 169 dead phase4/phase5 stubs archived) |
 | **Specialist agents** | 13 in `.claude/agents/` |
 | **Skills** | 13 (one-shot-generate primary + 6 productivity + 6 supporting) |
@@ -327,7 +327,7 @@ Honest limitations as of v1.0.0:
 |---|---|
 | **Zero external users** | Plugin has never shipped code into a project by a user who wasn't the author. All quality claims are self-validated. |
 | **Agentic eval coverage** | Replay evals cover architect only (6 scenarios). Implementer, reviewer, doubter, critic, handoff have no replay tests — recording infrastructure exists but recordings haven't been accumulated. |
-| **No live E2E CI by default** | `.github/workflows/e2e.yml` runs full pipeline against a fixture, but gated on `ANTHROPIC_API_KEY` secret (skips on forks). The free-tier job validates replay evals + harness wiring only. |
+| **No live E2E CI by default** | `.github/workflows/e2e.yml` runs full pipeline against a fixture, but gated on `ANTHROPIC_API_KEY` secret (skips on forks). The free-tier job runs every push and validates 14 replay evals across 7 agent types + harness wiring + curriculum seed. See [docs/CI_SETUP.md](docs/CI_SETUP.md) for how to enable the live job (~$0.30 / run). |
 | **Cost calibration** | `~$0.10 architect / ~$0.50 feature` estimates come from 6 real runs. Directionally right, not statistically robust. |
 | **Self-learning loop empty** | Dream consolidator wired + tested. `.beads/failures.jsonl` gitignored. Needs real runs to start adding curriculum value. |
 | **Experimental commands** | 9 commands marked `status: experimental` (browser-test, strangler, tour, templates, architecture, execute-plan, generate, sys-debug, tdd) — lightly tested. `/one-shot` is the production-grade primary command. |

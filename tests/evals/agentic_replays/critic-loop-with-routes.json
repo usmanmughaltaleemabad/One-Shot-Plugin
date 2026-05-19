@@ -1,0 +1,13 @@
+{
+  "scenario": "critic-loop-with-routes",
+  "agent": "critic",
+  "fixture_type": "contract-test",
+  "note": "Tests grader against LOOP verdict — must have routes_by_agent bucketing failures.",
+  "input": {
+    "tests_run": 12
+  },
+  "expected_output_contract": {
+    "expected_verdict": "LOOP"
+  },
+  "recorded_output": "Ran 12 tests. 2 failed.\n\n```json\n{\n  \"verdict\": \"LOOP\",\n  \"tests_total\": 12,\n  \"tests_passed\": 10,\n  \"tests_failed\": 2,\n  \"iteration\": 1,\n  \"routes_by_agent\": {\n    \"implementer\": [\n      {\n        \"test_nodeid\": \"tests/test_cart_service.py::test_calculates_total_with_discount\",\n        \"error\": \"AssertionError: expected 90.0, got 100.0\",\n        \"hint\": \"discount calculation missing in service.py:85\"\n      }\n    ],\n    \"test-author\": [\n      {\n        \"test_nodeid\": \"tests/test_cart_api.py::test_pagination_returns_next_link\",\n        \"error\": \"KeyError: 'next'\",\n        \"hint\": \"test_contract.pagination='list' but test expects paginated envelope; reconcile\"\n      }\n    ]\n  }\n}\n```\n"
+}

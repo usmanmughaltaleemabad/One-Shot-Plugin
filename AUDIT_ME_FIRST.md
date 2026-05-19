@@ -115,7 +115,7 @@ finds an external-skill gap, not a pipeline stage.
 ```bash
 # Confirm the test suite is green (no API key needed)
 python -m pytest tests/ -q --ignore=tests/integration
-# expected: ~503 passed
+# expected: ~509 passed
 
 # Confirm the skill wiring claims are real (no API key needed)
 python -m pytest tests/test_mattpocock_skill_wiring.py -v
@@ -127,7 +127,8 @@ grep -rn "tmp_path\|TemporaryDirectory" tests/*.py | wc -l
 
 # Confirm the agentic eval scenarios pass (no API key — replay mode)
 python tests/evals/agentic_evals.py --mode replay
-# expected: 6/6 architect scenarios at >= 0.93
+# expected: 14/14 scenarios across 7 agent types (architect / implementer /
+# test-author / reviewer / doubter / critic / handoff) at overall >= 0.85
 
 # Confirm scripts count is the cleaned-up surface, not the graveyard
 ls skills/one-shot-generator/scripts/*.py | wc -l
@@ -140,8 +141,8 @@ ls skills/one-shot-generator/scripts/*.py | wc -l
 
 | Gap | Detail |
 |---|---|
-| **Agentic eval coverage** | Replay evals cover architect only (6 scenarios). Implementer, reviewer, doubter, critic, handoff have no replay tests — recording infrastructure exists but recordings haven't been accumulated. |
-| **No live end-to-end CI test by default** | `.github/workflows/e2e.yml` exists and can run the full pipeline against a fixture project, but it's gated on `ANTHROPIC_API_KEY` (so it skips on forks and most pushes). The non-API-key job validates harness + replay evals only. |
+| **Agentic eval coverage** | 14 replay scenarios across 7 agent types (architect, implementer, test-author, reviewer, doubter, critic, handoff). 6 architect scenarios are real recorded outputs; the other 8 are contract-test fixtures that validate the grader. Real recordings for non-architect agents still need accumulation from live runs. |
+| **No live end-to-end CI test by default** | `.github/workflows/e2e.yml` has two jobs: `e2e-dry` (always runs, validates 14 replays + wiring + seed) and `e2e-live` (gated on `ANTHROPIC_API_KEY`, costs ~$0.30/run). See [docs/CI_SETUP.md](docs/CI_SETUP.md) to enable live verification. |
 | **Cost calibration** | `~$0.10 architect / ~$0.50 feature` estimates come from 6 real runs. Directionally right, not statistically robust. |
 | **Zero external users** | The plugin has never shipped code into a project by a user who wasn't the author. All quality claims are self-validated. |
 | **Self-learning loop is empty** | Dream consolidator + curriculum advice are wired and tested but `.beads/failures.jsonl` is gitignored and effectively unpopulated. Needs real runs to start working. |

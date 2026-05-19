@@ -1,0 +1,23 @@
+{
+  "scenario": "implementer-cart-router-clean",
+  "agent": "implementer",
+  "fixture_type": "contract-test",
+  "note": "Synthetic fixture testing grader logic for a clean implementer output. NOT a recording of real model behavior — use record_replay.py to add real recordings.",
+  "input": {
+    "spec_entity": "ShoppingCart",
+    "target_file": "cart/router.py"
+  },
+  "expected_output_contract": {
+    "must_contain": [
+      "from fastapi import APIRouter",
+      "async def",
+      "Depends",
+      "router = APIRouter"
+    ],
+    "must_not_contain": [
+      "import requests",
+      "session.execute(f\""
+    ]
+  },
+  "recorded_output": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom cart.schemas import CartCreate, CartRead\nfrom cart.service import CartService\nfrom common.db import get_db\n\nrouter = APIRouter(prefix=\"/api/v1/carts\", tags=[\"carts\"])\n\n\n@router.post(\"/\", response_model=CartRead, status_code=status.HTTP_201_CREATED)\nasync def create_cart(\n    payload: CartCreate,\n    db: AsyncSession = Depends(get_db),\n) -> CartRead:\n    svc = CartService(db)\n    cart = await svc.create(payload)\n    return CartRead.model_validate(cart)\n\n\n@router.get(\"/{cart_id}\", response_model=CartRead)\nasync def get_cart(cart_id: int, db: AsyncSession = Depends(get_db)) -> CartRead:\n    svc = CartService(db)\n    cart = await svc.get(cart_id)\n    if not cart:\n        raise HTTPException(status_code=404, detail=\"cart not found\")\n    return CartRead.model_validate(cart)\n"
+}

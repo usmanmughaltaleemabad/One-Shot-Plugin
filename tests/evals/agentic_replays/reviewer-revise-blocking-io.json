@@ -1,0 +1,13 @@
+{
+  "scenario": "reviewer-revise-blocking-io",
+  "agent": "reviewer",
+  "fixture_type": "contract-test",
+  "note": "Tests grader against REVISE verdict — must reference specific file:line.",
+  "input": {
+    "files_reviewed": ["cart/service.py"]
+  },
+  "expected_output_contract": {
+    "expected_verdict": "REVISE"
+  },
+  "recorded_output": "I reviewed cart/service.py against the spec.\n\n## Issues found\n\n- cart/service.py:42 — `requests.get(...)` is a blocking call inside an `async def` method. This will block the event loop under load. Fix: use `httpx.AsyncClient` with `await client.get(...)`. Responsible agent: implementer.\n\n- cart/service.py:58 — raw SQL via `f\"SELECT * FROM carts WHERE id = {cart_id}\"` is a SQL injection risk. Fix: use SQLAlchemy ORM `select(Cart).where(Cart.id == cart_id)`. Responsible agent: implementer.\n\nREVIEW: REVISE\n"
+}

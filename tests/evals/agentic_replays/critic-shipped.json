@@ -1,0 +1,13 @@
+{
+  "scenario": "critic-shipped",
+  "agent": "critic",
+  "fixture_type": "contract-test",
+  "note": "Tests grader against SHIPPED verdict — pytest green, ready to ship.",
+  "input": {
+    "tests_run": 12
+  },
+  "expected_output_contract": {
+    "expected_verdict": "SHIPPED"
+  },
+  "recorded_output": "Ran 12 tests against the generated cart feature. All 12 passed.\n\n```json\n{\n  \"verdict\": \"SHIPPED\",\n  \"tests_total\": 12,\n  \"tests_passed\": 12,\n  \"tests_failed\": 0,\n  \"iteration\": 1,\n  \"duration_sec\": 4.7\n}\n```\n"
+}

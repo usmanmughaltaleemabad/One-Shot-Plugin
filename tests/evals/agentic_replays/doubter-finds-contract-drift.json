@@ -1,0 +1,26 @@
+{
+  "scenario": "doubter-finds-contract-drift",
+  "agent": "doubter",
+  "fixture_type": "contract-test",
+  "note": "Tests grader: doubter must find contract violations + structure findings + NOT reference reviewer's reasoning (context isolation).",
+  "input": {
+    "artifact": "cart/service.py",
+    "contract": {
+      "must_emit_methods": ["create", "get", "list", "delete"],
+      "must_enforce_invariants": ["user_id not null", "status in ('open','closed')"]
+    }
+  },
+  "expected_output_contract": {
+    "expected_findings": [
+      "delete",
+      "status"
+    ],
+    "must_not_reference": [
+      "reviewer says",
+      "reviewer concluded",
+      "previous review",
+      "implementer reasoned"
+    ]
+  },
+  "recorded_output": "## Findings\n\nFINDING: `delete` method is missing from CartService. Contract requires methods: create, get, list, delete — only first three are present.\n\nFINDING: `status` invariant not enforced. Contract requires status in ('open', 'closed') but `_validate_status` does not reject empty string or other values like 'pending'. Add assertion or pydantic Literal type.\n\nFINDING: `get` returns Optional[Cart] but does not raise on missing — caller may forget to None-check.\n\nThree contract violations identified.\n"
+}

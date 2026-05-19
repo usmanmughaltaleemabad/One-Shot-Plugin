@@ -1,0 +1,14 @@
+{
+  "scenario": "handoff-shipping-runbook",
+  "agent": "handoff",
+  "fixture_type": "contract-test",
+  "note": "Tests grader: handoff must cover the 4 standard sections + stay compact.",
+  "input": {
+    "from_run": "shopping cart with line items and discounts (SHIPPED)"
+  },
+  "expected_output_contract": {
+    "required_sections": ["files", "migration", "wire", "next"],
+    "max_chars": 3000
+  },
+  "recorded_output": "# Shopping Cart — Deployment Runbook\n\n## Files generated\n- `cart/{models,schemas,service,router}.py`\n- `line_item/{models,schemas,service,router}.py`\n- `discount/{models,schemas,service,router}.py`\n- `tests/test_cart_api.py`, `tests/test_cart_service.py`\n- `common/events.py`, `common/exceptions.py`\n\n## Migration to apply\n`alembic upgrade head` — adds `shopping_carts`, `line_items` (FK shopping_cart_id), `discounts` tables with indexes and FK constraints.\n\nRollback: `alembic downgrade -1`.\n\n## Wire-up changes\n`main.py` now includes 3 routers:\n- `app.include_router(cart_router)`\n- `app.include_router(line_item_router)`\n- `app.include_router(discount_router)`\n\n## Env vars required\n- `DATABASE_URL` (Postgres connection string)\n- No new secrets — uses existing JWT config\n\n## Next steps\n1. Run `pytest tests/test_cart_*.py` to confirm green locally\n2. Apply migration in staging first\n3. Smoke-test `POST /api/v1/carts` end-to-end\n4. Monitor cart API latency in Grafana for first 24h\n\n## Cost\n~$0.45 wall-clock. Tests: 12 passed.\n"
+}

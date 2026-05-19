@@ -1,0 +1,15 @@
+{
+  "scenario": "test-author-cart-tests",
+  "agent": "test-author",
+  "fixture_type": "contract-test",
+  "note": "Tests grader against pytest output with real asserts (not just isinstance checks).",
+  "input": {
+    "spec_entity": "ShoppingCart"
+  },
+  "expected_output_contract": {
+    "min_tests": 3,
+    "min_asserts": 4,
+    "allow_mocks": false
+  },
+  "recorded_output": "import pytest\nfrom httpx import AsyncClient\n\n\n@pytest.mark.asyncio\nasync def test_create_cart_returns_201_with_user_id(client: AsyncClient):\n    resp = await client.post(\"/api/v1/carts/\", json={\"user_id\": 1})\n    assert resp.status_code == 201\n    body = resp.json()\n    assert body[\"user_id\"] == 1\n    assert body[\"status\"] == \"open\"\n\n\n@pytest.mark.asyncio\nasync def test_get_cart_404_when_missing(client: AsyncClient):\n    resp = await client.get(\"/api/v1/carts/99999\")\n    assert resp.status_code == 404\n\n\n@pytest.mark.asyncio\nasync def test_create_cart_422_without_user_id(client: AsyncClient):\n    resp = await client.post(\"/api/v1/carts/\", json={})\n    assert resp.status_code == 422\n"
+}

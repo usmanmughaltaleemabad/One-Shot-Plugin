@@ -90,27 +90,42 @@ def _summarise_bead(bead: Dict[str, Any]) -> str:
     return f"{bead.get('kind', 'failure')}: {msg[:140]}"
 
 
-def _load_dynamic_advice(repo_root: Optional[Path] = None) -> Dict[str, str]:
-    """Load data-driven advice from dream_consolidator output, if present."""
-    if repo_root is None:
-        cur = Path.cwd().resolve()
-        while cur != cur.parent and not (cur / ".beads").exists():
-            cur = cur.parent
-        repo_root = cur
-    advice_path = repo_root / ".beads" / "curriculum_advice.jsonl"
-    if not advice_path.exists():
+def _load_advice_file(path: Path) -> Dict[str, str]:
+    """Load pattern→advice mappings from one JSONL file."""
+    if not path.exists():
         return {}
-    result: Dict[str, str] = {}
-    for line in advice_path.read_text(encoding="utf-8").splitlines():
+    out: Dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
         try:
             entry = json.loads(line)
             pattern = entry.get("pattern")
             advice = entry.get("advice")
             if pattern and advice:
-                result[pattern] = advice
+                out[pattern] = advice
         except json.JSONDecodeError:
             continue
-    return result
+    return out
+
+
+def _load_dynamic_advice(repo_root: Optional[Path] = None) -> Dict[str, str]:
+    """Load advice from two layers:
+      1. Shipped seed (`.claude/registry/curriculum_seed.jsonl`) — baseline
+         wisdom that ships with the plugin (committed to git).
+      2. Runtime (`.beads/curriculum_advice.jsonl`) — written by
+         dream_consolidator from THIS installation's failures (gitignored).
+    Runtime advice overrides seed for the same pattern key."""
+    if repo_root is None:
+        cur = Path.cwd().resolve()
+        while cur != cur.parent and not (cur / ".beads").exists():
+            cur = cur.parent
+        repo_root = cur
+
+    seed = _load_advice_file(
+        repo_root / ".claude" / "registry" / "curriculum_seed.jsonl")
+    runtime = _load_advice_file(
+        repo_root / ".beads" / "curriculum_advice.jsonl")
+    # runtime layer wins on conflict — local data > shipped baseline
+    return {**seed, **runtime}
 
 
 _STATIC_ADVICE: Dict[str, tuple] = {

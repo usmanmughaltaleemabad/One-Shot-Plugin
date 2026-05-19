@@ -1,7 +1,7 @@
 name: E2E Pipeline Test
 
 on:
-  workflow_dispatch:        # manual trigger
+  workflow_dispatch:        # manual trigger from Actions tab
   schedule:
     - cron: '0 6 * * 1'    # every Monday 06:00 UTC
   push:
@@ -10,12 +10,19 @@ on:
       - 'skills/one-shot-generate/**'
       - '.claude/agents/**'
       - 'skills/one-shot-generator/scripts/live_api_runner.py'
+      - 'tests/evals/**'
 
 jobs:
-  e2e:
-    name: Full pipeline against FastAPI fixture
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Live job — runs the full pipeline against a real fixture using a real
+  # API key. Costs real money (~$0.30 per run). Skipped on forks and on
+  # the main repo until ANTHROPIC_API_KEY secret is configured.
+  # See docs/CI_SETUP.md for how to enable.
+  # ──────────────────────────────────────────────────────────────────────────
+  e2e-live:
+    name: Live pipeline (requires ANTHROPIC_API_KEY)
     runs-on: ubuntu-latest
-    # Only run when the API key secret is available (skips on forks)
     if: ${{ secrets.ANTHROPIC_API_KEY != '' }}
 
     steps:
@@ -27,37 +34,64 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install pytest pytest-asyncio anthropic httpx fastapi sqlalchemy pydantic
+        run: |
+          pip install pytest pytest-asyncio anthropic httpx \
+                      fastapi sqlalchemy pydantic
 
-      - name: Run agentic eval — architect stage (live)
+      - name: Replay evals (sanity check before paying for live tokens)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python tests/evals/agentic_evals.py --mode replay --json
+
+      - name: Live architect eval — 1 scenario
+        id: live-architect
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PYTHONIOENCODING: utf-8
         run: |
-          python tests/evals/agentic_evals.py --mode live --scenario shopping-cart
+          python tests/evals/agentic_evals.py \
+              --mode live --scenario architect-signup-flow --json \
+              > /tmp/live-result.json
+          cat /tmp/live-result.json
         timeout-minutes: 5
 
-      - name: Dry-run pipeline against fixture project
+      - name: Assert architect overall ≥ 0.85
+        run: |
+          python -c "
+          import json, sys
+          d = json.load(open('/tmp/live-result.json'))
+          if isinstance(d, list):
+              d = d[0]
+          assert d['overall'] >= 0.85, f\"live architect scored {d['overall']} (< 0.85)\"
+          print(f'OK: live architect overall = {d[\"overall\"]}')
+          "
+
+      - name: Dry-run live_api_runner against fastapi fixture
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PYTHONIOENCODING: utf-8
         run: |
           python skills/one-shot-generator/scripts/live_api_runner.py \
-            --agent architect \
-            --task "add a rate limiter with sliding window per user" \
-            --repo-root examples/fastapi-payment-processor-harness \
-            --dry-run
+              --agent architect \
+              --task "add a rate limiter with sliding window per user" \
+              --repo-root examples/fastapi-payment-processor-harness \
+              --dry-run
         timeout-minutes: 3
 
-      - name: Assert outputs
-        run: |
-          # Verify dry-run produced a spec or skipped gracefully
-          echo "E2E dry-run completed — check logs above for spec output"
-          # Full assertion requires --apply run; dry-run validates connectivity
-          # and architect stage. Expand this job after first real runs accumulate.
+      - name: Upload live result artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-live-result
+          path: /tmp/live-result.json
+          if-no-files-found: warn
 
+  # ──────────────────────────────────────────────────────────────────────────
+  # Free job — runs without an API key. Validates replay evals, harness
+  # wiring, and skill integration. Runs on every push.
+  # ──────────────────────────────────────────────────────────────────────────
   e2e-dry:
-    name: Dry-run (no API key — validates tooling only)
+    name: Dry-run (no API key — free, runs always)
     runs-on: ubuntu-latest
 
     steps:
@@ -69,23 +103,57 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install pytest pytest-asyncio anthropic httpx fastapi sqlalchemy pydantic
+        run: |
+          pip install pytest pytest-asyncio anthropic httpx \
+                      fastapi sqlalchemy pydantic
 
-      - name: Canary dry-run (no API key — validates harness wiring)
+      - name: Canary — live_api_runner refuses gracefully without API key
         env:
           ANTHROPIC_API_KEY: ''
           PYTHONIOENCODING: utf-8
         run: |
           python skills/one-shot-generator/scripts/live_api_runner.py \
-            --agent architect \
-            --task "add user auth" \
-            --repo-root examples/fastapi-payment-processor-harness \
-            --dry-run
-        # Expected: graceful skip with missing_anthropic_api_key reason
+              --agent architect \
+              --task "add user auth" \
+              --repo-root examples/fastapi-payment-processor-harness \
+              --dry-run
+          # Expected: graceful skip with missing_anthropic_api_key reason
 
-      - name: Run agentic replay evals (no API key needed)
+      - name: Replay evals — all 14 scenarios across 7 agent types
         env:
           PYTHONIOENCODING: utf-8
         run: |
-          python tests/evals/agentic_evals.py --mode replay
-        # Expected: 6/6 scenarios >= 0.93
+          python tests/evals/agentic_evals.py --mode replay --json > /tmp/replay.json
+          python -c "
+          import json
+          results = json.load(open('/tmp/replay.json'))
+          passed = sum(1 for r in results if r['passed'])
+          print(f'{passed}/{len(results)} replays passed')
+          assert passed == len(results), f'{len(results) - passed} replays failed'
+          # By agent: must have ≥1 replay per supported agent type
+          by_agent = {}
+          for r in results:
+              by_agent[r['agent']] = by_agent.get(r['agent'], 0) + 1
+          expected = {'architect', 'implementer', 'test-author',
+                      'reviewer', 'doubter', 'critic', 'handoff'}
+          missing = expected - set(by_agent)
+          assert not missing, f'no replays for agents: {missing}'
+          print('Agents covered:', sorted(by_agent))
+          "
+
+      - name: Skill-wiring tests (mattpocock integration is real)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python -m pytest tests/test_mattpocock_skill_wiring.py -v
+
+      - name: Curriculum seed validation
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python -m pytest tests/test_curriculum_seed.py -v
+
+      - name: Compliance audit (self-audit, not Anthropic-reviewed)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          python skills/one-shot-generator/scripts/compliance_audit.py
+          # Expected: 15/15 PASS, 0 WARN, 0 FAIL
