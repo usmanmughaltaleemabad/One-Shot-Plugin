@@ -1,5 +1,7 @@
 # ONE SHOT PLUGIN (Claude Code Studio)
 
+> **Auditing or evaluating this plugin?** Start with **[AUDIT_ME_FIRST.md](AUDIT_ME_FIRST.md)** — the agentic pipeline lives in `skills/one-shot-generate/SKILL.md`, not in `scripts/`. Reading `scripts/` first leads to the wrong mental model.
+
 **Production agentic one-shot code generation for existing codebases.**
 
 Type `/one-shot "shopping cart with line items and discounts" @./my-project` and Claude conducts a 9-stage pipeline through 10 specialist agents — architect → service-author → implementer×N + test-author (parallel) → reviewer → wirer → migration → critic — to ship verified, FK-aware, migration-emitting, cost-gated code into your project.

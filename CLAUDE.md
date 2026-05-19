@@ -6,21 +6,21 @@ owner: claude
 
 # one-shot-prompting Plugin — v4.15.0
 
+> **Auditing?** Read `SKILL.md` → agents → scripts (in that order).
+> See [AUDIT_ME_FIRST.md](AUDIT_ME_FIRST.md).
+
 Production agentic one-shot generation. 15-stage pipeline → 11
 specialist agents → 30+ deterministic tools. **491 tests green**,
-101 body hints, 30 slash commands.
+101 body hints, 31 slash commands.
 
 ## Quick Navigation
 
 | For... | See... |
 |---|---|
-| Pipeline tier docs (1, 2, 2.5, 3, 3.5, 4, 5) | `docs/tier{1,2,25,3,35-agentic,4-self-extending,5-observability}.md` |
-| Scorecard | `docs/scorecard-v4.md` |
-| Path to 10/10 | `docs/path-to-10.md` |
+| Pipeline tier docs | `docs/tier{1,2,25,3,35-agentic,4-self-extending,5-observability}.md` |
+| Path to 10/10 + Scorecard | `docs/path-to-10.md`, `docs/scorecard-v4.md` |
 | Production deployment | `docs/production-deployment.md` |
 | Observability stack | `docs/observability/` |
-| Cookbook | `docs/cookbook.md` |
-| Standalone usage (without Claude Code) | `docs/standalone-usage.md` |
 | Marketplace submission | `MARKETPLACE_SUBMISSION.md` |
 | Troubleshooting | `TROUBLESHOOTING.md` |
 | Release history | `CHANGELOG.md` |

@@ -12,6 +12,13 @@ argument-hint: "[task description] [@path/to/project] [--apply] [--templated] [-
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Task
 ---
 
+<!--
+  AUDITORS: This file IS the pipeline. Claude reads it and executes it
+  turn by turn. The deterministic helpers live in scripts/ — they are
+  tools this pipeline calls, not the pipeline itself.
+  Start here, not in scripts/. See AUDIT_ME_FIRST.md at the repo root.
+-->
+
 # One-Shot Generate — Agentic Pipeline
 
 You are conducting the one-shot generation pipeline. The user has invoked
