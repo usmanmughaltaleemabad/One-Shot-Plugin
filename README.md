@@ -4,7 +4,7 @@
 
 **Production agentic one-shot code generation for existing codebases.**
 
-Type `/one-shot "shopping cart with line items and discounts" @./my-project` and Claude conducts a 9-stage pipeline through 10 specialist agents — architect → service-author → implementer×N + test-author (parallel) → reviewer → wirer → migration → critic — to ship verified, FK-aware, migration-emitting, cost-gated code into your project.
+Type `/one-shot "shopping cart with line items and discounts" @./my-project` and Claude reads `skills/one-shot-generate/SKILL.md` and orchestrates a 15-stage pipeline through 13 specialist agents — architect → service-author → implementer×N + test-author (parallel) → reviewer → doubter → wirer → critic — to ship verified, FK-aware, migration-emitting, cost-gated code into your project.
 
 Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs. Real bcrypt + JWT auth helpers. Real service layer enforcing business invariants. Cost-tiered model routing (Haiku for file-writers, Sonnet for reasoners) keeps a typical generation at ~$0.50. Free `--templated` fallback for CI / cost-sensitive contexts.
 
@@ -193,16 +193,9 @@ skills/                              ← Claude reads SKILL.md and acts
   mcp_servers.json (4 entries: chrome-devtools, gmail, supabase, vercel)
   learnings.jsonl  (per-agent success-rate tracking)
 
-skills/one-shot-generator/scripts/   ← 25+ deterministic tools
-  Pipeline:     extract_domain_model, codebase_graph, codebase_diff,
-                generate_and_verify, auto_patch, auto_wirer,
-                critic_runner, live_critic, scaffold_planner, body_hints
-  Generation:   migration_generator, openapi_doc_generator, spec_driven_generator
-  Learning:     beads_writer, beads_curriculum, predictive_failure,
-                self_improvement_proposer, auto_rule_extractor, promote_rule,
-                learnings_hub
-  Operations:   cost_budget, sast_runner, perf_profiler, autonomy_level,
-                prompt_versioner, agentic_session_driver, agent_discovery
+skills/one-shot-generator/scripts/   ← deterministic tools shelf (agents call these)
+  390+ helpers: scan, verify, patch, wire, migrate, record, cost-gate.
+  These are NOT the pipeline. See AUDIT_ME_FIRST.md for the distinction.
 ```
 
 **Tier docs** for the full architectural narrative:

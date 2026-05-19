@@ -18,7 +18,7 @@ the relevant block, attach the linked artefact.
 |---|---|
 | **Plugin name** | ONE SHOT PLUGIN (Claude Code Studio) |
 | **Slug** | one-shot-prompting |
-| **Version** | 4.0.0 |
+| **Version** | 4.15.0 |
 | **Author** | Usman Mughal |
 | **Author email** | musman.mughal@taleemabad.com |
 | **GitHub** | https://github.com/usmanmughaltaleemabad/One-Shot-Plugin |
@@ -29,7 +29,7 @@ the relevant block, attach the linked artefact.
 
 ```
 Production agentic one-shot code generation for existing codebases.
-9-stage pipeline, 10 specialist agents, FK-aware migrations, real
+15-stage pipeline, 13 specialist agents, FK-aware migrations, real
 service-layer with invariants. Cost-gated. Self-extending registry.
 ```
 
@@ -37,8 +37,9 @@ service-layer with invariants. Cost-gated. Self-extending registry.
 
 ```markdown
 **ONE SHOT PLUGIN** turns a natural-language feature request into
-production-ready code in your existing project. Claude conducts a
-9-stage pipeline through 10 specialist agents:
+production-ready code in your existing project. Claude reads
+`skills/one-shot-generate/SKILL.md` and orchestrates a 15-stage pipeline
+through 13 specialist agents in `.claude/agents/`:
 
 - **architect** designs the spec (entities, relationships, invariants)
 - **service-author** writes business logic (not just CRUD)
@@ -58,8 +59,9 @@ Self-extending: a registry of external agents/skills/MCPs grows via
 WebSearch through the curator skill (with explicit user approval).
 Agent ratings track per-agent success rates across sessions.
 
-Two modes: **agentic** (Claude reasons, scripts execute, ~$0.30–0.80)
-or **templated** (free fallback, deterministic).
+Two modes: **agentic** (Claude orchestrates via SKILL.md + agent Task
+spawns, ~$0.30–0.80) or **templated** (free fallback, deterministic
+Python path — no Claude tokens).
 
 Supports FastAPI, Django, Spring Boot, Go, Node.js, NestJS.
 ```

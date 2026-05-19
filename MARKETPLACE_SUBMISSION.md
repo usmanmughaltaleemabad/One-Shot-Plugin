@@ -4,15 +4,20 @@ last_verified: 2026-05-18
 owner: claude
 ---
 
-# Marketplace Submission Package — v3.5.0
+# Marketplace Submission Package — v4.15.0
 
 Everything an Anthropic Software Directory submission needs, in one place.
+
+> **Architecture orientation**: the pipeline is `skills/one-shot-generate/SKILL.md`
+> + `.claude/agents/` (13 specialist agent prompts). The `scripts/` directory is a
+> deterministic tools shelf the agents call — not the pipeline itself.
+> See [AUDIT_ME_FIRST.md](AUDIT_ME_FIRST.md) for the full mental model.
 
 ## 1. Plugin metadata (`.claude-plugin/plugin.json`)
 
 ✅ Aligned with directory requirements:
 - `name`: ONE SHOT PLUGIN (CLAUDE CODE STUDIO)
-- `version`: 3.5.0 (semver)
+- `version`: 4.15.0 (semver)
 - `description`: 1-line agentic pipeline summary
 - `author`: Usman Mughal + GitHub URL
 - `homepage`, `repository`, `license` (MIT)
@@ -23,7 +28,7 @@ Everything an Anthropic Software Directory submission needs, in one place.
 | File | Purpose |
 |---|---|
 | [README.md](README.md) | User-facing overview, leads with `/one-shot` |
-| [CHANGELOG.md](CHANGELOG.md) | Full version history (3.5.0 covers Tier 1 → 5) |
+| [CHANGELOG.md](CHANGELOG.md) | Full version history (4.15.0 current) |
 | [SECURITY.md](SECURITY.md) | Vulnerability disclosure, data handling |
 | [SUPPORT.md](SUPPORT.md) | Support channels, maintenance schedule |
 | [PRIVACY.md](PRIVACY.md) | Privacy guarantees, data retention |
@@ -73,7 +78,7 @@ What we DON'T claim:
 
 ## 7. Submission readiness checklist
 
-- ✅ Plugin metadata complete (plugin.json v3.5.0)
+- ✅ Plugin metadata complete (plugin.json v4.15.0)
 - ✅ All required disclosure docs (SECURITY, PRIVACY, SUPPORT)
 - ✅ MIT license
 - ✅ GitHub repository public

@@ -1,12 +1,16 @@
 ---
 type: router
-last_verified: 2026-05-16
+last_verified: 2026-05-19
 owner: claude
 ---
 
 # Skills Directory
 
-The 6 Claude Code skills that make up the one-shot-prompting plugin.
+> **Orientation**: the pipeline is `one-shot-generate/SKILL.md`. The
+> `scripts/` subdirectory is a deterministic tools shelf the agents call —
+> not the pipeline itself. See [AUDIT_ME_FIRST.md](../AUDIT_ME_FIRST.md).
+
+The skills that make up the one-shot-prompting plugin.
 
 ---
 
