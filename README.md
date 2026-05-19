@@ -26,7 +26,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 ```bash
 # 1. Clone + install
 git clone https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
-claude --plugin-dir ./One-Shot-Plugin/one-shot-prompting
+claude --plugin-dir ./One-Shot-Plugin
 
 # 2. Generate a feature (dry-run wire)
 /one-shot "shopping cart with line items and discounts" @./your-fastapi-project

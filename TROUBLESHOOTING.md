@@ -12,19 +12,20 @@ with the error output + `python --version` + which slash command you ran.
 
 ## Installation
 
-### `claude --plugin-dir ./One-Shot-Plugin/one-shot-prompting` says "no commands found"
+### `claude --plugin-dir ./One-Shot-Plugin` says "no commands found"
 
-The plugin directory must be **exactly** `one-shot-prompting` (the
-subfolder containing `.claude-plugin/plugin.json`), not the parent
-`One-Shot-Plugin` repo root.
+The plugin directory must point at the **repo root** (the directory
+containing `.claude-plugin/plugin.json`):
 
 ```bash
-# Correct:
-claude --plugin-dir ./One-Shot-Plugin/one-shot-prompting
-
-# Wrong (parent repo, no plugin.json there):
+# Correct — the cloned repo root:
 claude --plugin-dir ./One-Shot-Plugin
+
+# Verify the manifest is found:
+ls ./One-Shot-Plugin/.claude-plugin/plugin.json
 ```
+
+If the file isn't there, the clone target was wrong or incomplete.
 
 ### `/one-shot` doesn't appear in Claude Code's command palette
 
@@ -206,7 +207,7 @@ tests must declare encoding explicitly.
 Run the registration command manually:
 
 ```bash
-claude --plugin-dir /workspaces/One-Shot-Plugin/one-shot-prompting
+claude --plugin-dir /workspaces/One-Shot-Plugin
 ```
 
 Then restart Claude Code from the VS Code command palette

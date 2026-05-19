@@ -86,7 +86,7 @@ Customize pre_tool_use.sh for your workflow:
 git clone https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
 
 # 2. Set up harness in your Django project
-cp One-Shot-Plugin/one-shot-prompting/.claude/examples/DJANGO_HARNESS_TEMPLATE.md your-project/.claude/CLAUDE.md
+cp One-Shot-Plugin/.claude/examples/DJANGO_HARNESS_TEMPLATE.md your-project/.claude/CLAUDE.md
 
 # 3. Customize
 cd your-project

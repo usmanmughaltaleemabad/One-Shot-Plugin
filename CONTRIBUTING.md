@@ -8,8 +8,8 @@ testable, every agent is documented, every change goes through CI.
 
 ```bash
 git clone https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
-cd One-Shot-Plugin/one-shot-prompting
-python -m pytest tests/           # 143 tests should be green
+cd One-Shot-Plugin
+python -m pytest tests/           # all tests should be green
 bash .claude/scripts/smoke-test.sh
 ```
 
