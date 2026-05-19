@@ -4,10 +4,10 @@ last_verified: 2026-05-19
 owner: claude
 ---
 
-# one-shot-prompting Plugin — v4.14.0
+# one-shot-prompting Plugin — v4.15.0
 
-Production agentic one-shot generation. 14-stage pipeline → 11
-specialist agents → 30+ deterministic tools. **466 tests green**,
+Production agentic one-shot generation. 15-stage pipeline → 11
+specialist agents → 30+ deterministic tools. **491 tests green**,
 101 body hints, 30 slash commands.
 
 ## Quick Navigation
@@ -60,6 +60,7 @@ tests/           466 invocation tests + evals + agentic replays + integration ha
 6.5  migration generator (Alembic / Django / Flyway)
 7    critic (multi-iter loop, max 3) + mutation testing + N+1   ← v4.14
 8    record (graph + beads + learnings.jsonl via run_finalize)
+8.5  dream — pattern mine failures → data-driven curriculum    ← v4.15
 ```
 
 For per-release feature lists see `CHANGELOG.md`.
@@ -85,7 +86,7 @@ For per-release feature lists see `CHANGELOG.md`.
 
 # Operations
 /rollback /docs-drift /autonomy /curate /prune /ship-check /perf-audit
-/learnings /dashboard /interview /refine /context /adr /explain
+/learnings /dashboard /interview /refine /context /adr /explain /dream
 
 # Tests + audit
 bash .claude/scripts/smoke-test.sh

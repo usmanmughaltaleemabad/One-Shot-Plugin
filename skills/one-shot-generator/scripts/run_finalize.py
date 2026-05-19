@@ -187,13 +187,49 @@ def finalize(*, sandbox: Path, agents: List[str], task: str,
         )
         recorded.append({"agent_id": normalised, "outcome": outcome})
 
-    return {
+    summary = {
         "final_verdict": final_verdict,
         "iterations": iterations,
         "task_keywords": keywords,
         "recorded": recorded,
         "sandbox": str(sandbox),
     }
+
+    # Auto-trigger dream consolidation when enough failures have accumulated.
+    # Threshold: 5+ failures. Runs quickly (pure stdlib) so it adds <100ms.
+    _maybe_dream(repo_root)
+    return summary
+
+
+_DREAM_SCRIPT = Path(__file__).resolve().parent / "dream_consolidator.py"
+_DREAM_THRESHOLD = 5  # minimum failure beads before auto-dreaming
+
+
+def _maybe_dream(repo_root: Path) -> None:
+    """Run dream_consolidator if failures.jsonl has ≥ _DREAM_THRESHOLD entries."""
+    failures_path = repo_root / ".beads" / "failures.jsonl"
+    if not failures_path.exists():
+        return
+    try:
+        count = sum(1 for line in failures_path.read_text(
+            encoding="utf-8").splitlines() if line.strip())
+    except OSError:
+        return
+    if count < _DREAM_THRESHOLD:
+        return
+    try:
+        result = subprocess.run(
+            [sys.executable, str(_DREAM_SCRIPT),
+             "--repo-root", str(repo_root),
+             "--min-recurrence", "2"],
+            capture_output=True, text=True, timeout=30,
+        )
+        if result.returncode == 0:
+            logger.info("dream_consolidator: %s", result.stdout.strip().splitlines()[:3])
+        else:
+            logger.warning("dream_consolidator failed: %s", result.stderr[:200])
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        logger.warning("dream_consolidator skipped: %s", exc)
 
 
 # ─── CLI ────────────────────────────────────────────────────────────────────

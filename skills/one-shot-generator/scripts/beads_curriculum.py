@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """
-Beads Curriculum — v0.9.0  (Tier 3 learning loop)
+Beads Curriculum — v1.1.0  (Tier 3 learning loop + dream-backed advice)
 
 Reads ``.beads/failures.jsonl`` and surfaces past failures that look
 similar to the current task, so the orchestrator (and Claude composing the
 response) can pre-empt mistakes the plugin has already made.
 
-The matching is intentionally simple — a Jaccard-style overlap of task
-tokens plus a phase-equality bonus. We don't need embeddings or vector
-search for the current scale; a few hundred beads of accumulated history
-is plenty for keyword overlap to be useful.
+Advice is now two-layer:
+  1. Dynamic advice from ``.beads/curriculum_advice.jsonl`` written by
+     ``dream_consolidator.py`` (data-driven, confidence-ranked, validated
+     against retry-success sequences).
+  2. Static fallback patterns (hardcoded, always available).
+
+Matching: Jaccard-style token overlap + same-phase bonus. No embeddings
+needed at current scale; keyword overlap is plenty for ~hundreds of beads.
 
 CLI:
     python beads_curriculum.py "shopping cart with line items" --phase phase2
@@ -86,31 +90,78 @@ def _summarise_bead(bead: Dict[str, Any]) -> str:
     return f"{bead.get('kind', 'failure')}: {msg[:140]}"
 
 
-def _advice_for(bead: Dict[str, Any]) -> str:
-    """Map known failure signatures to actionable advice for the next attempt."""
+def _load_dynamic_advice(repo_root: Optional[Path] = None) -> Dict[str, str]:
+    """Load data-driven advice from dream_consolidator output, if present."""
+    if repo_root is None:
+        cur = Path.cwd().resolve()
+        while cur != cur.parent and not (cur / ".beads").exists():
+            cur = cur.parent
+        repo_root = cur
+    advice_path = repo_root / ".beads" / "curriculum_advice.jsonl"
+    if not advice_path.exists():
+        return {}
+    result: Dict[str, str] = {}
+    for line in advice_path.read_text(encoding="utf-8").splitlines():
+        try:
+            entry = json.loads(line)
+            pattern = entry.get("pattern")
+            advice = entry.get("advice")
+            if pattern and advice:
+                result[pattern] = advice
+        except json.JSONDecodeError:
+            continue
+    return result
+
+
+_STATIC_ADVICE: Dict[str, tuple] = {
+    "auth_401":       (re.compile(r'\b401\b'),
+                       "test/router contract drift — set test_contract.auth='none' "
+                       "in spec.json if no auth middleware is generated"),
+    "pagination":     (re.compile(r'"next"|pagination', re.I),
+                       "pagination contract drift — set test_contract.pagination='list' "
+                       "or generate a paginated envelope on the router side"),
+    "placeholder":    (re.compile(r'placeholder', re.I),
+                       "template placeholder leaked — run auto_patch with --resource-hint"),
+    "import_error":   (re.compile(r'modulenotfounderror|importerror', re.I),
+                       "missing module — pass codebase_imports so the patcher can rewrite default paths"),
+}
+
+
+def _advice_for(bead: Dict[str, Any],
+                dynamic_advice: Optional[Dict[str, str]] = None) -> str:
+    """Return actionable advice for a failure bead.
+
+    Checks dream_consolidator dynamic advice first (data-driven, validated),
+    then falls back to static patterns.
+    """
     diags = bead.get("diagnostics") or []
     messages = " ".join(
         d.get("message", "") if isinstance(d, dict) else str(d) for d in diags
     ).lower()
-    if "401" in messages:
-        return ("test/router contract drift — set test_contract.auth='none' "
-                "in spec.json if no auth middleware is generated")
-    if '"next"' in messages or "pagination" in messages:
-        return ("pagination contract drift — set test_contract.pagination='list' "
-                "or generate a paginated envelope on the router side")
-    if "placeholder" in messages:
-        return "template placeholder leaked — run auto_patch with --resource-hint"
-    if "modulenotfounderror" in messages or "importerror" in messages:
-        return "missing module — pass codebase_imports so the patcher can rewrite default paths"
+
+    # Dynamic (data-driven) advice from dream_consolidator takes priority
+    if dynamic_advice:
+        for pattern_key, advice in dynamic_advice.items():
+            if pattern_key.lower() in messages or re.search(
+                    re.escape(pattern_key.lower()), messages):
+                return advice
+
+    # Static fallback patterns
+    for _key, (pat, advice) in _STATIC_ADVICE.items():
+        if pat.search(messages):
+            return advice
+
     return "no canned advice — review the bead's diagnostics manually"
 
 
 def consult(*, task: str, phase: Optional[str] = None,
             failures_path: Path,
             min_similarity: float = 0.2,
-            limit: int = 5) -> CurriculumReport:
+            limit: int = 5,
+            repo_root: Optional[Path] = None) -> CurriculumReport:
     if not failures_path.exists():
         return CurriculumReport(task=task, phase=phase, total_beads=0)
+    dynamic_advice = _load_dynamic_advice(repo_root)
     task_tokens = _tokenize(task)
     hits: List[CurriculumHit] = []
     total = 0
@@ -132,7 +183,7 @@ def consult(*, task: str, phase: Optional[str] = None,
             similarity=round(sim, 3),
             same_phase=same_phase,
             summary=_summarise_bead(bead),
-            advice=_advice_for(bead),
+            advice=_advice_for(bead, dynamic_advice=dynamic_advice),
         ))
     hits.sort(key=lambda h: h.similarity, reverse=True)
     return CurriculumReport(task=task, phase=phase, total_beads=total,

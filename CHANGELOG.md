@@ -7,7 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.14.1] — 2026-05-19 (Current) — Audit Response: Doc Drift + Honest Framing
+## [4.15.0] — 2026-05-19 (Current) — Memory and Dreaming: Self-Learning Curriculum
+
+Inspired by the "Memory and dreaming for self-learning agents" workshop
+session. The plugin now processes its own failure history offline to improve
+future runs — not just record them.
+
+### New: `dream_consolidator.py` (stage 8.5)
+
+Offline self-improvement pass. Runs automatically after every `/one-shot`
+finalization when ≥ 5 failures have accumulated:
+
+1. **Pattern mining** — groups `failures.jsonl` by error signature
+   (auth_401, pagination_drift, import_error, timeout, schema_mismatch, etc.)
+2. **Advice validation** — correlates failure → retry-success sequences in
+   `decisions.jsonl`; validated advice gets confidence boost
+3. **Curriculum update** — writes `.beads/curriculum_advice.jsonl`; loaded
+   by `beads_curriculum.py` at stage 0 of every subsequent run
+4. **Hint gap proposals** — clusters unclassified failures → writes
+   `.beads/hint_gap_proposals.jsonl` for human review
+5. **Stale bead pruning** — removes beads older than 90 days with no
+   recent recurrence
+
+### Updated: `beads_curriculum.py` (v0.9 → v1.1)
+
+Advice is now two-layer: dynamic (data-driven, confidence-ranked, from
+dream output) checked before static hardcoded patterns. The curriculum
+learns from real runs rather than relying solely on hardcoded if-chains.
+
+### New: `/dream` slash command
+
+Manual trigger: `/dream [--dry-run] [--min-recurrence N]`
+
+### Tests: 25 new tests in `test_dream_consolidator.py`
+
+Covers: signature extraction, pattern mining, advice validation, hint gap
+detection, pruning, full consolidation (dry-run + write), CLI surface,
+and curriculum integration.
+
+---
+
+## [4.14.1] — 2026-05-19 — Audit Response: Doc Drift + Honest Framing
 
 Maintenance release driven by an external audit. No runtime behavior
 change. Fixes:
