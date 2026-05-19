@@ -7,7 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.14.0] — 2026-05-18 (Current) — All 5 v4.13-Deferred Items Shipped
+## [4.14.1] — 2026-05-19 (Current) — Audit Response: Doc Drift + Honest Framing
+
+Maintenance release driven by an external audit. No runtime behavior
+change. Fixes:
+
+- **Install path**: `claude --plugin-dir ./One-Shot-Plugin` everywhere
+  (was `./One-Shot-Plugin/one-shot-prompting` in README, TROUBLESHOOTING,
+  CONTRIBUTING, .devcontainer/README, examples/README).
+- **Tests broken by v4.14 prompt caching**: 2 tests in
+  `tests/test_live_api_runner.py` updated to handle content-block list
+  `system` param shape.
+- **Production crash in `live_api_runner.py`**: stale `system_prompt`
+  variable reference in the persistence block (line 501) → renamed to
+  `system_prompt_body`. Would NameError on any run with `output_dir`.
+- **CLAUDE.md size**: 114 → 98 lines, synced to v4.14.0 pipeline.
+- **SKILL.md script paths**: `skills/one-shot-generate/SKILL.md` pointed
+  at `./scripts/` but scripts live under `../one-shot-generator/scripts/`.
+- **SUPPORT.md**: stale "Claude Code Studio v2.0.0" name + dead
+  QUICKSTART.md link → rewritten honestly (solo-maintained, no SLA).
+- **ANTHROPIC_COMPLIANCE_CHECKLIST.md**: framed clearly as a SELF-audit
+  with no Anthropic review; submission prepared but not yet submitted.
+- **README**: same softening — "submission form complete" →
+  "submission prepared, not yet submitted"; `15/15 PASS` rows clarified
+  as self-audit; test-suite count 30 → 31.
+- **Example dirs (README-only)**: 5 dirs (`django-order-service`,
+  `django-order-service-harness`, `fastapi-rate-limiter`,
+  `nestjs-realtime-api`, `spring-payment-service`) marked at the top as
+  example *prompts*, not runnable projects; "Run locally" sections
+  rewritten as "How to reproduce".
+- **Version drift**: `.devcontainer/README.md` v4.13.0 → v4.14.0.
+
+## [4.14.0] — 2026-05-18 — All 5 v4.13-Deferred Items Shipped
 
 The five upgrades I deferred from v4.13 (Anthropic prompt caching, OTel
 N+1 detection, mutation testing, AST context pruning, anti-rationalization

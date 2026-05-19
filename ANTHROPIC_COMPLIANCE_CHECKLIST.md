@@ -10,9 +10,9 @@ owner: claude
 > **Self-audit for v4.14.0**
 >
 > This is a self-administered checklist against the Anthropic Software
-> Directory Terms. It has NOT been reviewed or endorsed by Anthropic. The
-> plugin has not yet been submitted to the directory; this document
-> tracks readiness.
+> Directory Terms. No Anthropic review has occurred and the plugin
+> claims no partnership or sponsorship. The plugin has not yet been
+> submitted to the directory; this document tracks readiness.
 
 **Status**: Submission prepared, not yet submitted. Self-audit only.
 **Current Version**: v4.14.0
