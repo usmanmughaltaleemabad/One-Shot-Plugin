@@ -14,7 +14,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 486 / 486 green (31 suites incl. integration harness, Py 3.14 / Windows) |
+| **Tests** | 503 / 503 green (31 suites incl. integration harness, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 — architect replay scenarios only (see [known gaps](#known-gaps)) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 (small sample — treat as ballpark) |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |

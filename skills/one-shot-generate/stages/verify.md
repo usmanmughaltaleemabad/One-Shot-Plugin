@@ -22,6 +22,21 @@ Agent({
 If REVISE, route fixes back to the named agent and re-run reviewer (max 2
 review iterations). If still red after 2, escalate to the user.
 
+**Reviewer input compression (caveman):** If the reviewer prompt would
+exceed ~8000 tokens (verbose generated code + spec + graph), invoke the
+**caveman** skill to compress the input first:
+
+```!
+@./../../caveman/SKILL.md
+```
+
+Pass `--preserve-code --preserve-errors --target-reduction=60`. Caveman
+strips commentary but keeps every code block, error message, and decision.
+Typical savings: 40-75% input tokens for reviewer iteration loops.
+
+Skip caveman when the user passed `--no-compress` or when total prompt
+size is under 8k tokens (no savings worth the extra step).
+
 ---
 
 ## Stage 5.5 — Doubt-driven adversarial pass (DEFAULT ON)

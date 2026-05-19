@@ -61,6 +61,21 @@ lower-quality code. It is a fallback, not the main path.
   catches subtle logic bugs that per-agent review misses
 - `--require-approval-webhook=URL` — Stage 5.9: POST before wiring
 
+**Productivity-skill integration flags** (skills wired into specific stages):
+
+- `--grill` — force grill-me invocation in Stage 1.6 (otherwise fires only
+  when feature description is ambiguous: < 50 chars, 0 entities extracted,
+  or extractor confidence < 0.55)
+- `--tdd-strict` — Stage 3 routes through tdd-cycle skill (RED → GREEN →
+  REFACTOR per entity) instead of parallel implementer + test-author
+- `--no-compress` — skip caveman compression of reviewer/critic inputs in
+  Stages 5 and 7 (DEFAULT ON when prompt > 8k tokens)
+- `--no-systematic-debug` — skip systematic-debug skill in Stage 7 when
+  critic hits the same failure twice (DEFAULT ON: forces 6-phase root-cause
+  investigation instead of guess-loop)
+- `--no-handoff` — skip Stage 8.5 handoff document emission (DEFAULT ON on
+  SHIPPED runs)
+
 ---
 
 ## Pipeline — execute in order
@@ -68,20 +83,24 @@ lower-quality code. It is a fallback, not the main path.
 Read and execute each stage file in sequence:
 
 **PLAN** → `@./stages/plan.md`
-Stages 0 – 2.7: curriculum, scan, extract, cost gate, doc lookup,
-architect, spec review, incremental slice, service-author.
+Stages 0 – 2.7: curriculum, scan, extract, cost gate, **grill-me (1.6)**,
+doc lookup, architect, spec review, incremental slice, service-author.
 
 **BUILD** → `@./stages/build.md`
-Stage 3: implementer × N + test-author (parallel Task spawns).
+Stage 3: implementer × N + test-author (parallel) — or **tdd-cycle**
+when `--tdd-strict`.
 
 **VERIFY** → `@./stages/verify.md`
-Stages 4 – 5.7: auto-patch, reviewer, doubter, consistency + SAST.
+Stages 4 – 5.7: auto-patch, reviewer (with **caveman** compression on
+large inputs), doubter, consistency + SAST.
 
 **SHIP** → `@./stages/ship.md`
-Stages 6 – 7: wire, migrate, approval gate, critic loop (max 3 iter).
+Stages 6 – 7: wire, migrate, approval gate, critic loop (max 3 iter,
+with **systematic-debug** triggered on repeat failures).
 
 **RECORD** → `@./stages/record.md`
-Stages 8 – 8.5: graph refresh, learnings, dream consolidation.
+Stages 8 – 8.5: graph refresh, learnings, dream consolidation,
+**handoff** runbook on SHIPPED.
 
 ---
 

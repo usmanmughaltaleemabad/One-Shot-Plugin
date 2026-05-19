@@ -37,6 +37,30 @@ trap.
 
 ---
 
+## Stage 8.5 — Handoff document (on SHIPPED)
+
+On SHIPPED, produce a compact handoff document for the user that strips
+the verbose generation conversation but preserves every decision and
+artifact. Invoke the **handoff** skill:
+
+```!
+@./../../handoff/SKILL.md
+```
+
+Pass `--from-last-output --format=markdown --audience=developer`. The
+skill emits a runbook with: files generated/modified, migration to apply,
+wire-up changes, test commands, env vars needed, rollback path. Typical
+output is ~10% of the conversation size.
+
+Write the handoff to `/tmp/osp-handoff.md` and reference it in the final
+user-facing summary. This becomes the deployment checklist for the
+generated feature.
+
+Skip on ESCALATE (no handoff needed when the run didn't ship) or when
+`--no-handoff` was passed.
+
+---
+
 ## Hard rules
 
 1. **Always spawn agents in parallel where possible.** Implementer agents

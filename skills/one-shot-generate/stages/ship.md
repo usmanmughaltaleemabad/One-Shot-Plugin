@@ -125,6 +125,23 @@ The driver returns one of three decisions:
     the user-facing message, then write a bead and exit. Common reasons:
     `max_iterations_exceeded`, `iteration_timeout`, `regression_new_failures`.
 
+**Systematic debugging on repeat failures:** If the loop iteration count
+is ≥ 2 AND the same test_nodeid is failing as in the previous iteration,
+the implementer agent is guessing. Before iteration 3, invoke the
+**systematic-debug** skill to break the guess loop:
+
+```!
+@./../../systematic-debug/SKILL.md
+```
+
+Pass the error log + the failing test path. The skill forces a 6-phase
+root-cause investigation (build feedback loop → reproduce → hypothesize
+→ instrument → observe → fix + regression test) instead of letting the
+implementer keep applying gut-feel patches. Returns a concrete root cause
+and the specific fix to apply.
+
+Skip systematic-debug if `--no-systematic-debug` was passed.
+
 The original critic spawn:
 
 ```text

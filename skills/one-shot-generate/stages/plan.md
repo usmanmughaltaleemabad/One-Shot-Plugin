@@ -160,6 +160,32 @@ the highest discovery score.
 
 ---
 
+## Stage 1.6 — Requirement sharpening (grill-me, when ambiguous)
+
+Before the architect commits to a spec, check whether the feature description
+is concrete enough. Trigger conditions (any one):
+
+- `--grill` flag was passed
+- Extracted entities count is 0 (extractor failed to find a domain model)
+- Feature description is under 50 characters
+- Extractor confidence < 0.55 (ambiguous prose)
+
+If any condition is met, invoke the **grill-me** skill before stage 2:
+
+```!
+@./../../grill-me/SKILL.md
+```
+
+Pass the original feature description and the extracted entities (if any) as
+context. The skill returns a sharpened feature spec with hidden constraints
+surfaced. Use that sharpened spec as the architect's input instead of the
+raw user prompt.
+
+If `--force` was passed, skip Stage 1.6 even when conditions would normally
+trigger — the user has explicitly opted out of clarification gates.
+
+---
+
 ## Stage 1.8 — Source-driven doc lookup (BEFORE architect)
 
 > **Order matters.** This stage runs BEFORE the architect (Stage 2),

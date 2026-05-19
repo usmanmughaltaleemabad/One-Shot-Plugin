@@ -79,7 +79,7 @@ it imports.
 # Confirm the deterministic test suite is green
 cd /path/to/one-shot-prompting
 python -m pytest tests/ -q --ignore=tests/integration
-# expected: ~486 passed
+# expected: ~503 passed
 
 # Confirm tests use real temp-project setups (not mocked stubs)
 grep -rn "tmp_path\|TemporaryDirectory" tests/*.py | wc -l

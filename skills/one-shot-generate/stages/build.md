@@ -1,5 +1,24 @@
 ## Stage 3 — Implementer + test-author agents (PARALLEL)
 
+**Mode selection:**
+- Default: parallel mode (implementer × N + test-author all fire at once)
+- `--tdd-strict`: route through the **tdd-cycle** skill instead. One
+  entity at a time, strict RED → GREEN → REFACTOR per behavior:
+
+  ```!
+  @./../../tdd-cycle/SKILL.md
+  ```
+
+  Pass `--phase=red` first for each entity to generate failing tests,
+  verify they fail, THEN generate minimal implementation (`--phase=green`),
+  THEN refactor (`--phase=refactor`). Slower (~3x wall-clock), but
+  prevents hollow test suites where tests just mirror the impl.
+
+  When to use: high-stakes features (auth, payments, compliance) where
+  test correctness matters more than generation speed.
+
+Default-mode behavior continues below.
+
 For every entity in `spec.json` with `action: "create"`, spawn one
 **implementer** agent. In the SAME message, spawn the **test-author**
 agent once. These run in parallel — do not serialize them.
