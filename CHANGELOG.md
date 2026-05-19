@@ -9,7 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] — 2026-05-19 (Current) — First public release
 
-Version reset from internal v4.15 to v1.0.0.
+Version reset from internal v4.15 to v1.0.0. **Post-release cleanup pass
+also landed in this version** (no new minor bump since no breaking changes):
+
+- **Scripts**: 231 → 62 active. 169 dead phase4/phase5 template stubs moved
+  to `.archive/legacy-scripts/`. Active surface is now the real surface.
+- **SKILL.md**: 1,020 lines → 96-line dispatcher + 5 stage files
+  (`stages/{plan,build,verify,ship,record}.md`). Tests use new
+  `conftest.pipeline_text()` helper to read the full pipeline.
+- **Harness examples**: all 5 (FastAPI, Django, Spring, Node, Go) now ship
+  with full `.claude/` stack — agents declared first, hooks wired via
+  `settings.json`, beads placeholder.
+- **CI**: new `e2e.yml` workflow with two jobs — `e2e-dry` (replay evals,
+  no API key needed) + `e2e` (live architect eval, scheduled + manual).
+- **Commands**: 9 marked `status: experimental` (browser-test, strangler,
+  tour, templates, architecture, execute-plan, generate, sys-debug, tdd).
+- **Stale docs archived**: `IMPLEMENTATION_STATUS.md` (v4.10 snapshot) and
+  `VALIDATION_REPORT.md` (May 2026 one-off) moved to
+  `.archive/stale-snapshots/`.
+- **New skills (4)**: `caveman` (token compression), `grill-me` (intensive
+  requirement questioning), `handoff` (conversation-to-runbook), and
+  `write-a-skill` (skill authoring guide) — mattpocock-inspired patterns.
 
 **Why the reset**: The v0.x–v4.x progression reflected solo development iteration
 milestones, not public release boundaries. With zero external users, using v4.x

@@ -28,9 +28,9 @@ specialist agents → 30+ deterministic tools. **486 tests green**,
 ## Structure
 
 ```
-.claude/         hooks, 11 agents (incl. doubter), standards, registry, beads, external/
-skills/          9 skills
-commands/        30 slash commands
+.claude/         hooks, 13 agents (incl. doubter), standards, registry, external/
+skills/          13 skills (one-shot-generate primary; caveman, grill-me, handoff, ...)
+commands/        30 slash commands (9 marked experimental)
 docs/            per-tier reference + observability + cookbook + scorecards + standalone-usage
 tests/           466 invocation tests + evals + agentic replays + integration harness
 .archive/        historical phase4-5 stubs (untracked since v4.13)
