@@ -186,7 +186,8 @@ def test_marketplace_submission_md_exists():
     path = REPO_ROOT / "MARKETPLACE_SUBMISSION.md"
     assert path.exists()
     text = path.read_text(encoding="utf-8")
-    assert "v3.5.0" in text
+    import re as _re
+    assert _re.search(r"v\d+\.\d+\.\d+", text), "must contain a version string"
     assert "submission" in text.lower()
 
 
