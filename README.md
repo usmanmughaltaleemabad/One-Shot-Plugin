@@ -401,9 +401,7 @@ For the full 0-10 honest scoring across 36 dimensions, see [docs/scorecard-v4.md
 | **Marketplace submission** | [MARKETPLACE_SUBMISSION.md](MARKETPLACE_SUBMISSION.md) |
 | **Anthropic Directory submission form** | [DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md) |
 | **Launch materials** | [docs/launch/discord-announcement.md](docs/launch/discord-announcement.md) |
-| **Validation findings (8 real bugs caught)** | [VALIDATION_REPORT.md](VALIDATION_REPORT.md) |
 | **CHANGELOG** | [CHANGELOG.md](CHANGELOG.md) |
-| **Implementation status** | [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) |
 | **Compliance checklist** | [ANTHROPIC_COMPLIANCE_CHECKLIST.md](ANTHROPIC_COMPLIANCE_CHECKLIST.md) |
 | **Per-tier reference** | docs/tier1-pipeline.md … tier5-observability.md |
 

@@ -156,8 +156,8 @@ def test_curate_slash_command_exists():
 # ─── SKILL.md wiring ────────────────────────────────────────────────────────
 
 def test_main_skill_invokes_discovery_at_stage_0_5():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "agent_discovery.py" in text
     assert "Stage 0.5" in text
     assert "route-override" in text
@@ -165,6 +165,6 @@ def test_main_skill_invokes_discovery_at_stage_0_5():
 
 
 def test_main_skill_includes_curator_fallback_hint():
-    skill = REPO_ROOT / "skills" / "one-shot-generate" / "SKILL.md"
-    text = skill.read_text(encoding="utf-8")
+    from conftest import pipeline_text
+    text = pipeline_text()
     assert "/curate" in text or "curator" in text.lower()
