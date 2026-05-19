@@ -1,23 +1,21 @@
 ---
 type: reference
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 owner: claude
 ---
 
 # Anthropic Software Directory Compliance Checklist
 
 > [!NOTE]
-> **Updated for v3.5.0 (Tier 3.5 Agentic Restructure)**
+> **Self-audit for v4.14.0**
 >
-> The compliance posture has improved with Tier 3.5: code generation now
-> happens via Claude (the model) through specialist agents, with
-> deterministic verification + auto-patching. Every requirement below
-> remains satisfied; the architectural details are described in
-> `docs/tier35-agentic.md`.
+> This is a self-administered checklist against the Anthropic Software
+> Directory Terms. It has NOT been reviewed or endorsed by Anthropic. The
+> plugin has not yet been submitted to the directory; this document
+> tracks readiness.
 
-**Status**: Plugin-ready. Awaiting first real-world usage data for
-directory submission.
-**Current Version**: v3.5.0
+**Status**: Submission prepared, not yet submitted. Self-audit only.
+**Current Version**: v4.14.0
 **Target Directory**: Anthropic Software Directory
 
 ---
@@ -30,7 +28,7 @@ directory submission.
 |-------------|--------|---------|
 | Plugin name | ✅ | ONE SHOT PLUGIN (CLAUDE CODE STUDIO) |
 | Description | ✅ | Comprehensive (180+ chars) describing all capabilities |
-| Version | ✅ | v2.0.0 (aligned in plugin.json, CHANGELOG, README) |
+| Version | ✅ | v4.14.0 (aligned in plugin.json, CHANGELOG, README) |
 | Author info | ✅ | Usman Mughal, GitHub URL, contact info |
 | License | ✅ | MIT (LICENSE file present) |
 | Repository | ✅ | GitHub public repository with git history |

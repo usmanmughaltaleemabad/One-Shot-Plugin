@@ -97,4 +97,4 @@ git clone https://github.com/usmanmughaltaleemabad/One-Shot-Plugin
 claude --plugin-dir ./One-Shot-Plugin
 ```
 
-Or pin a specific release: `git checkout v4.13.0` before the `claude` step.
+Or pin a specific release: `git checkout v4.14.0` before the `claude` step.

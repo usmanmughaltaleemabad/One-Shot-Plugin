@@ -15,9 +15,9 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
 | **Scorecard average** | 8.3 / 10 (see [docs/scorecard-v4.md](docs/scorecard-v4.md)) |
-| **Anthropic Directory** | submission form complete (see [DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)) |
+| **Anthropic Directory** | submission prepared, not yet submitted (see [DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)) |
 | **Try it risk-free** | [GitHub Codespaces sandbox](.devcontainer/README.md) — one-click demo, free tier |
-| **Directory compliance** | 15/15 PASS · 0 WARN · 0 FAIL ([`compliance_audit.py`](skills/one-shot-generator/scripts/compliance_audit.py)) |
+| **Directory compliance (self-audit)** | 15/15 PASS · 0 WARN · 0 FAIL ([`compliance_audit.py`](skills/one-shot-generator/scripts/compliance_audit.py)) — not reviewed by Anthropic |
 
 ---
 
@@ -385,8 +385,8 @@ The plugin learns across sessions:
 
 Two things the plugin cannot close from this seat — both wait on external signal:
 
-- **Anthropic Directory listing** — submission form ready ([DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)); review pending on their side.
-- **Marketplace adoption** — submission ready ([`compliance_audit.py`](skills/one-shot-generator/scripts/compliance_audit.py) reports 15/15 PASS against the directory policy); waiting on review.
+- **Anthropic Directory listing** — submission form prepared ([DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)) but not yet submitted; no Anthropic review has occurred.
+- **Marketplace adoption** — [`compliance_audit.py`](skills/one-shot-generator/scripts/compliance_audit.py) is a SELF-audit reporting 15/15 PASS against the directory policy; it is not an Anthropic endorsement.
 
 For the full 0-10 honest scoring across 36 dimensions, see [docs/scorecard-v4.md](docs/scorecard-v4.md); for the roadmap, [docs/path-to-10.md](docs/path-to-10.md).
 
