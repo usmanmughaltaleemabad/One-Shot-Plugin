@@ -6,9 +6,11 @@
 
 Type `/one-shot "shopping cart with line items and discounts" @./my-project` and Claude reads `skills/one-shot-generate/SKILL.md` and orchestrates a multi-stage pipeline through 13 specialist agents — architect → service-author → implementer×N + test-author (parallel) → reviewer → doubter → wirer → critic — to ship verified, FK-aware, migration-emitting, cost-gated code into your project.
 
+**Built on mattpocock/skills patterns.** 6 integrated productivity skills (systematic-debug, tdd-cycle, caveman, grill-me, handoff, write-a-skill) enforce deterministic debugging, tracer-bullet TDD, token compression, exhaustive questioning, runbook generation, and skill authoring at each pipeline stage.
+
 Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs. Real bcrypt + JWT auth helpers. Real service layer enforcing business invariants. Cost-tiered model routing (Haiku for file-writers, Sonnet for reasoners) keeps a typical generation at ~$0.50. Free `--templated` fallback for CI / cost-sensitive contexts.
 
-## ⭐ v4.15 — Status
+## ⭐ v1.0.0 — Status
 
 | Metric | Value |
 |---|---|
@@ -17,6 +19,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 (small sample — treat as ballpark) |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
 | **Scorecard average** | 8.3 / 10 (see [docs/scorecard-v4.md](docs/scorecard-v4.md)) |
+| **Skills integrated** | 11 total: 1 primary (`one-shot-generate`) + 6 from mattpocock/skills patterns + 4 supporting (write-plan, execute-plan, verify-before-complete, curator) |
 | **Anthropic Directory** | submission prepared, not yet submitted (see [DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)) |
 | **Try it risk-free** | [GitHub Codespaces sandbox](.devcontainer/README.md) — one-click demo, free tier |
 | **Directory compliance (self-audit)** | 15/15 PASS · 0 WARN · 0 FAIL ([`compliance_audit.py`](skills/one-shot-generator/scripts/compliance_audit.py)) — not reviewed by Anthropic |
@@ -95,6 +98,21 @@ Stages 5.5, 6, and 2 (ADR emission) are **default-on** — opt out with
 `--no-doubt`, `--no-ship-check`, `--no-adr`.
 
 </details>
+
+### Productivity Skills (mattpocock-inspired)
+
+Six integrated productivity skills enforce deterministic practices across the pipeline:
+
+| Skill | Purpose | When Used |
+|-------|---------|-----------|
+| **grill-me** | Exhaustive requirement questioning (6 categories: scope, data, behavior, integration, non-functional, trade-offs) | PLAN stage — surface hidden constraints before architect runs |
+| **caveman** | Token compression (~75% reduction while preserving technical accuracy; 5 rules: drop filler, deduplicate, bullet lists, verbatim code, priority reorder) | ARCHITECT → compress specs; CRITIC → compress error logs |
+| **tdd-cycle** | Red-green-refactor with tracer bullets (one behavior per cycle; vertical slicing prevents hollow test suites) | BUILD stage — test-author + implementer work in lockstep |
+| **systematic-debug** | 6-phase root cause investigation (build loop → reproduce → hypothesize → instrument → observe → fix + regression test) | SHIP stage — deterministic debugging when tests fail |
+| **handoff** | Conversation-to-runbook: transform verbose logs into compact deployment checklist + next steps | HANDOFF stage — after tests pass, compact logs for human/ops |
+| **write-a-skill** | Skill authoring guide with templates + tests + checklists | When curator discovers gaps or team needs new workflows |
+
+See [skills/MATTPOCOCK_INTEGRATION.md](skills/MATTPOCOCK_INTEGRATION.md) for full integration guide.
 
 ### What ships for a typical multi-entity feature
 
@@ -535,7 +553,7 @@ MIT. See [LICENSE](LICENSE).
 
 ## Versions + cumulative history
 
-**Current: v4.15** (2026-05-19)
+**Current: v1.0.0** (2026-05-19, re-labeled from internal v4.15)
 
 | Release | What |
 |---|---|

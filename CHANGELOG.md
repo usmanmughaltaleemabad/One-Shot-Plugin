@@ -27,9 +27,13 @@ also landed in this version** (no new minor bump since no breaking changes):
 - **Stale docs archived**: `IMPLEMENTATION_STATUS.md` (v4.10 snapshot) and
   `VALIDATION_REPORT.md` (May 2026 one-off) moved to
   `.archive/stale-snapshots/`.
-- **New skills (4)**: `caveman` (token compression), `grill-me` (intensive
-  requirement questioning), `handoff` (conversation-to-runbook), and
-  `write-a-skill` (skill authoring guide) — mattpocock-inspired patterns.
+- **New skills (4)** — mattpocock/skills integration (see [skills/MATTPOCOCK_INTEGRATION.md](skills/MATTPOCOCK_INTEGRATION.md)):
+  - `caveman` (token compression ~75%, drop filler keep data)
+  - `grill-me` (exhaustive questioning, 6 categories: scope/data/behavior/integration/non-functional/trade-offs)
+  - `handoff` (conversation-to-runbook with deployment checklist)
+  - `write-a-skill` (skill authoring templates + tests + checklist)
+  - Plus: `systematic-debug` (6-phase root cause) + `tdd-cycle` (red-green-refactor) adapted from mattpocock in v4.14
+  - Integrated at pipeline stages: PLAN (grill-me) → ARCHITECT (caveman) → BUILD (tdd-cycle) → SHIP (systematic-debug + handoff)
 
 **Why the reset**: The v0.x–v4.x progression reflected solo development iteration
 milestones, not public release boundaries. With zero external users, using v4.x

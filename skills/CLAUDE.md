@@ -2,6 +2,7 @@
 type: router
 last_verified: 2026-05-19
 owner: claude
+mattpocock_integrated: 2026-05-19
 ---
 
 # Skills Directory
