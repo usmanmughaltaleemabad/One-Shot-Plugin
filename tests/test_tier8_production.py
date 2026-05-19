@@ -98,6 +98,38 @@ def test_migration_generator_emits_alembic_revision(tmp_path):
     assert "op.drop_table('line_items')" in text
 
 
+def test_migration_generator_plain_type_key_not_string255(tmp_path):
+    """Spec uses "type": "int" (not "type_hint") — must produce Integer(), not String(255).
+    Regression for the audit finding: int-typed FK col came out sa.String(255)."""
+    spec = {
+        "feature": "user profile",
+        "framework": "fastapi",
+        "entities": [
+            {"name": "Profile", "snake_name": "profile",
+             "plural": "profiles", "action": "create",
+             "attributes": [
+                 {"name": "age",     "type": "int",   "required": True},
+                 {"name": "score",   "type": "float", "required": True},
+                 {"name": "active",  "type": "bool",  "required": True},
+             ]},
+        ],
+        "relationships": [],
+    }
+    spec_path = tmp_path / "spec.json"
+    spec_path.write_text(json.dumps(spec))
+    out_dir = tmp_path / "alembic" / "versions"
+    out_dir.mkdir(parents=True)
+    proc = _run("migration_generator.py", "--spec", str(spec_path),
+                "--out", str(out_dir))
+    assert proc.returncode == 0, proc.stderr
+    text = list(out_dir.glob("*.py"))[0].read_text()
+    assert "sa.Integer()" in text,   "int type must emit Integer(), not String(255)"
+    assert "sa.Float()"   in text,   "float type must emit Float()"
+    assert "sa.Boolean()" in text,   "bool type must emit Boolean()"
+    assert "sa.String(length=255)" not in text or text.count("sa.String") == 0, \
+        "no String columns expected for int/float/bool attrs"
+
+
 def test_migration_generator_django_emits_runbook(tmp_path):
     spec = {
         "feature": "test",

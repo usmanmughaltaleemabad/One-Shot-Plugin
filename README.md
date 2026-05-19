@@ -4,17 +4,17 @@
 
 **Production agentic one-shot code generation for existing codebases.**
 
-Type `/one-shot "shopping cart with line items and discounts" @./my-project` and Claude reads `skills/one-shot-generate/SKILL.md` and orchestrates a 21-stage pipeline through 13 specialist agents — architect → service-author → implementer×N + test-author (parallel) → reviewer → doubter → wirer → critic — to ship verified, FK-aware, migration-emitting, cost-gated code into your project.
+Type `/one-shot "shopping cart with line items and discounts" @./my-project` and Claude reads `skills/one-shot-generate/SKILL.md` and orchestrates a multi-stage pipeline through 13 specialist agents — architect → service-author → implementer×N + test-author (parallel) → reviewer → doubter → wirer → critic — to ship verified, FK-aware, migration-emitting, cost-gated code into your project.
 
 Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs. Real bcrypt + JWT auth helpers. Real service layer enforcing business invariants. Cost-tiered model routing (Haiku for file-writers, Sonnet for reasoners) keeps a typical generation at ~$0.50. Free `--templated` fallback for CI / cost-sensitive contexts.
 
-## ⭐ v4.14 — Status
+## ⭐ v4.15 — Status
 
 | Metric | Value |
 |---|---|
-| **Tests** | 485 / 485 green (31 suites incl. integration harness, Py 3.14 / Windows) |
-| **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
-| **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
+| **Tests** | 486 / 486 green (31 suites incl. integration harness, Py 3.14 / Windows) |
+| **Agentic eval recordings** | 6 / 6 ≥ 0.93 — architect replay scenarios only (see [known gaps](#known-gaps)) |
+| **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 (small sample — treat as ballpark) |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |
 | **Scorecard average** | 8.3 / 10 (see [docs/scorecard-v4.md](docs/scorecard-v4.md)) |
 | **Anthropic Directory** | submission prepared, not yet submitted (see [DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)) |
@@ -60,7 +60,7 @@ Four phases. You only ever type one command; the plugin does the rest.
 
 **Total: ~$0.30–0.80 per multi-entity feature.** Free with `--templated`.
 
-### Under the hood — 12 stages (only if you care)
+### Under the hood — 14 numbered stages (only if you care)
 
 <details>
 <summary>Click to expand the full stage breakdown</summary>
@@ -72,7 +72,7 @@ PLAN
   Stage 1    scan codebase + extract domain model      (free)
   Stage 1.5  cost-budget gate (halts if over --budget) (free)
   Stage 2    architect agent → spec.json + ADR         ~$0.10
-  Stage 2.3  source-driven doc lookup (WebFetch official docs)
+  Stage 1.8  source-driven doc lookup (WebFetch official docs)  ← was 2.3
   Stage 2.5  spec review (--review flag)
   Stage 2.6  incremental slicing (--incremental flag)
   Stage 2.7  service-author (when invariants exist)    ~$0.08
@@ -170,7 +170,7 @@ commands/                            ← 20 slash commands
   (14 legacy commands)                 generate, plan, tdd, debug, ...
 
 skills/                              ← Claude reads SKILL.md and acts
-  one-shot-generate/SKILL.md           ⭐ 9-stage agentic playbook
+  one-shot-generate/SKILL.md           ⭐ agentic pipeline (14 numbered stages)
   one-shot-generator/SKILL.md          legacy templated fallback
   curator/SKILL.md                     external-agent discovery via WebSearch
   write-plan, execute-plan, tdd-cycle, systematic-debug, verify-before-complete
@@ -513,6 +513,22 @@ Run the audit yourself: `python skills/one-shot-generator/scripts/compliance_aud
 
 ---
 
+## Known gaps
+
+Honest limitations as of v4.15:
+
+| Gap | Detail |
+|---|---|
+| **Agentic eval coverage** | Replay evals cover architect agent only (6 scenarios). Implementer, reviewer, doubter, critic have no replay tests — recording infrastructure exists but recordings are empty. |
+| **No end-to-end CI test** | No CI job runs the full `/one-shot` pipeline against a real project and asserts the output compiles + migration applies + tests pass. |
+| **Cost calibration** | `~$0.10 architect / ~$0.50 feature` estimates come from 6 real runs. Directionally right, not statistically robust. |
+| **Zero external users** | The plugin has never shipped code into a project by a user who wasn't the author. All quality claims are self-validated. |
+| **Experimental commands** | Several of the 31 slash commands (`/strangler`, `/tour`, `/templates`, `/browser-test`) are lightly tested. `/one-shot` is the only production-grade command. |
+
+See [docs/scorecard-v4.md](docs/scorecard-v4.md) for the full honest scoring.
+
+---
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
@@ -521,7 +537,7 @@ MIT. See [LICENSE](LICENSE).
 
 ## Versions + cumulative history
 
-**Current: v4.14** (2026-05-18)
+**Current: v4.15** (2026-05-19)
 
 | Release | What |
 |---|---|

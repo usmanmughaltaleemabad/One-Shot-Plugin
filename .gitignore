@@ -25,9 +25,19 @@ build/
 setup.sh
 setup.bat
 
-# Local testing
+# Local testing + dry-run scratch data
 test-output/
 .claude-local/
+.tmp/
+
+# Bead runtime data (local session state, not source)
+.beads/failures.jsonl
+.beads/decisions.jsonl
+.beads/status.jsonl
+.beads/proposed_patch_rules.jsonl
+.beads/curriculum_advice.jsonl
+.beads/hint_gap_proposals.jsonl
+.beads/dream_report.jsonl
 
 # Strategic planning (archived, see .archive/FUTURE_PLAN.md)
 # FUTURE_PLAN.md — archived to .archive/

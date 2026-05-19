@@ -61,10 +61,12 @@ PYTYPE_TO_SQLA = {
 
 def _sqla_col(attr: Dict[str, Any]) -> str:
     name = attr["name"]
-    hint = (attr.get("type_hint") or "str").replace("Optional[", "").rstrip("]")
+    # Accept both "type_hint" (Python annotation style) and "type" (plain spec style)
+    raw = attr.get("type_hint") or attr.get("type") or "str"
+    hint = raw.replace("Optional[", "").rstrip("]")
     sqla_type = PYTYPE_TO_SQLA.get(hint, "sa.String(length=255)")
     nullable = "True" if (
-        "Optional" in (attr.get("type_hint") or "") or not attr.get("required", True)
+        "Optional" in raw or not attr.get("required", True)
     ) else "False"
     return f"sa.Column('{name}', {sqla_type}, nullable={nullable})"
 
