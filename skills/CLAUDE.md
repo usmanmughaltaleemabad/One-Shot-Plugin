@@ -18,14 +18,18 @@ The skills that make up the one-shot-prompting plugin.
 
 | Skill | SKILL.md | Purpose | Lines |
 |-------|----------|---------|-------|
-| **one-shot-generate** ⭐ | [SKILL.md](one-shot-generate/SKILL.md) | **Tier 3.5 agentic pipeline (PRIMARY)** | 230 |
-| **curator** | [SKILL.md](curator/SKILL.md) | **Tier 4: discover external agents/skills/MCP, add to registry** | 150 |
-| one-shot-generator | [SKILL.md](one-shot-generator/SKILL.md) | Legacy template-based generator | 1,677 |
+| **one-shot-generate** ⭐ | [SKILL.md](one-shot-generate/SKILL.md) | **Agentic pipeline (PRIMARY) — dispatcher + 5 stage files** | 96 + stages |
+| **curator** | [SKILL.md](curator/SKILL.md) | Discover external agents/skills/MCP, add to registry | 150 |
+| one-shot-generator | [SKILL.md](one-shot-generator/SKILL.md) | Templated fallback generator (--templated flag) | 1,677 |
 | **write-plan** | [SKILL.md](write-plan/SKILL.md) | Generate plan before code | 78 |
 | **execute-plan** | [SKILL.md](execute-plan/SKILL.md) | Execute generated steps | 84 |
-| **tdd-cycle** | [SKILL.md](tdd-cycle/SKILL.md) | Test → fail → implement → pass | 78 |
+| **tdd-cycle** | [SKILL.md](tdd-cycle/SKILL.md) | Red-Green-Refactor TDD cycle with phase gates | 160 |
 | **systematic-debug** | [SKILL.md](systematic-debug/SKILL.md) | Analyze errors from logs | 99 |
 | **verify-before-complete** | [SKILL.md](verify-before-complete/SKILL.md) | Gate: confirm output | 78 |
+| **caveman** | [SKILL.md](caveman/SKILL.md) | Token compression mode — strip filler, keep data | 160 |
+| **grill-me** | [SKILL.md](grill-me/SKILL.md) | Intensive questioning to surface hidden constraints | 180 |
+| **handoff** | [SKILL.md](handoff/SKILL.md) | Conversation-to-runbook: compact handoff for next phase | 170 |
+| **write-a-skill** | [SKILL.md](write-a-skill/SKILL.md) | Skill authoring guide: templates, tests, checklists | 250 |
 
 ---
 
