@@ -422,30 +422,7 @@ MIT. See [LICENSE](LICENSE).
 
 **Current: v1.0.0** (2026-05-19) — first public release, label reset from internal v4.15.
 
-Pre-release internal milestones preserved for traceability:
-
-| Internal label | What |
-|---|---|
-| v4.14 | Anti-rationalization gate, prompt caching, mutation testing, AST context pruning, OTel N+1 detection |
-| v4.13 | `--resume`, `/prune`, `--explain`, FK cycle-breaking, hybrid lint, Codespaces sandbox |
-| v4.12 | Stage 5.7 consistency + SAST, Stage 0.7 `--legacy-safe` mode |
-| v4.11 | Source-doc lookup moved to Stage 1.8, approval webhook, migration-ordering trade-off |
-| v4.10 | 4 new slash commands closing gaps vs addyosmani/agent-skills, 4-phase README |
-| v4.9 | Headless SDK mode, critic-loop stress tests, cost_calibrator |
-| v4.8 | `--incremental` slicing with Kahn's topo sort + FK-cycle detection |
-| v4.7 | Default-on Stage 5.5/6/2, /adr + /dashboard commands |
-| v4.6 | Patterns inspired by addyosmani/agent-skills — Stage 2.3 source-driven, Stage 5.5 doubt-driven |
-| v4.5 | Tier-3 specialised hints + production OTel guide |
-| v4.4 | Tier-2 production concerns + multi-iteration critic loop driver |
-| v4.3 | Tier-1 production concerns (pagination, idempotency, audit, ...) |
-| v4.2 | Full framework parity — Django/Spring/NestJS/Go/Node.js |
-| v4.1 | Empirical calibration + community launch infra |
-| v4.0 | Production polish — OpenAPI gen, rate-limit + cache hints |
-| v3.5 | Agentic restructure — skills > scripts, Claude > templates |
-| v3.x | Tier 2/3/4 — closed loop, curriculum, self-extending registry |
-| v2.0 | Tier-1 foundations + harness |
-
-Full history: [CHANGELOG.md](CHANGELOG.md).
+Full release history (internal v0.x → v4.15 milestones included): see [CHANGELOG.md](CHANGELOG.md).
 
 **Try it risk-free.** Launch the [Codespaces sandbox](.devcontainer/README.md) for a one-click demo against a broken FastAPI app — no local install required, GitHub's free tier covers it.
 
