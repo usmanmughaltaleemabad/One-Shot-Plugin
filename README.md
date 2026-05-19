@@ -71,8 +71,8 @@ PLAN
   Stage 0.5  external-agent registry discovery         (free)
   Stage 1    scan codebase + extract domain model      (free)
   Stage 1.5  cost-budget gate (halts if over --budget) (free)
+  Stage 1.8  source-driven doc lookup (WebFetch official docs)
   Stage 2    architect agent → spec.json + ADR         ~$0.10
-  Stage 1.8  source-driven doc lookup (WebFetch official docs)  ← was 2.3
   Stage 2.5  spec review (--review flag)
   Stage 2.6  incremental slicing (--incremental flag)
   Stage 2.7  service-author (when invariants exist)    ~$0.08
@@ -256,14 +256,14 @@ RBAC, API versioning, data migrations).
 Total catalogue: **101 hints** (10 × FastAPI, 13 × Django, 10 × Spring,
 10 × NestJS, 10 × Go, 10 × Node.js, 38 × common).
 
-**v4.7 — integration tightening + remaining Osmani absorptions**:
+**v4.7 — integration tightening + patterns inspired by addyosmani/agent-skills**:
 
 - **`/adr`** — standalone slash command for ADR creation outside `/one-shot`
 - **`/dashboard`** — trend analysis + drift detection over a rolling window (flags `degrading` agents when recent success rate drops > 15 points vs prior window). Backed by new `learnings_hub.py dashboard` subcommand.
 - **Stage 2.3 + 5.5 + ship-check + ADR emission now DEFAULT ON in `/one-shot`** — no longer opt-in. Doc lookup runs every architect, doubter runs after every reviewer, ADR lands alongside spec.json, ship-gates run before any `--apply`. Opt-out via `--no-doubt`, `--no-adr`, `--no-ship-check`.
-- **4 new cross-cutting hints**: `performance_optimization`, `error_recovery`, `debugging_strategy`, `git_workflow` (absorbed from Osmani's debugging-and-error-recovery + performance-optimization + git-workflow-and-versioning skills).
+- **4 new cross-cutting hints**: `performance_optimization`, `error_recovery`, `debugging_strategy`, `git_workflow` (patterns inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) — MIT licensed; reimplemented for this plugin's hint format).
 
-**v4.6 — absorbed from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)**:
+**v4.6 — patterns inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) (MIT, reimplemented)**:
 
 - **Stage 2.3 (source-driven)** — [source_docs_fetcher.py](skills/one-shot-generator/scripts/source_docs_fetcher.py) detects the project's pinned framework version (FastAPI / Django / Spring / NestJS / Go / Node) and emits a doc-lookup plan; the orchestrator WebFetches each official-doc URL and inlines excerpts into implementer prompts. Catches API drift bugs (Pydantic v2, Spring Boot 3 jakarta, TypeORM v0.3 DataSource) that training data misses.
 - **Stage 5.5 (doubt-driven)** — fresh-context [doubter agent](.claude/agents/doubter.md) reviews each artifact with ONLY the contract (no spec reasoning, no implementer notes). The withholding prevents agreement bias. [doubt_driver.py](skills/one-shot-generator/scripts/doubt_driver.py) enforces max 2 rounds + theater detection.
@@ -478,8 +478,8 @@ Key safety properties:
 
 ### Anthropic Software Directory — compliance
 
-Audited continuously against the directory policy via `compliance_audit.py`.
-Current state: **15 PASS · 0 WARN · 0 FAIL → READY_FOR_DIRECTORY**.
+Self-audited against the directory policy via `compliance_audit.py`.
+Current state: **15 PASS · 0 WARN · 0 FAIL — OUR_CHECKLIST_GREEN** (self-audit only, not reviewed by Anthropic).
 
 | Requirement (per directory policy) | How we satisfy it |
 |---|---|
@@ -541,7 +541,7 @@ MIT. See [LICENSE](LICENSE).
 
 | Release | What |
 |---|---|
-| **v4.14** | All 5 deferred items shipped: (1) **anti-rationalization gate** catches reviewer rubber-stamping (8-question matrix the agent must fill before PASS, then we verify against actual code evidence — if the agent claimed "no mock" but `Mock()` is in the code, escalate); (2) **Anthropic prompt caching anchors** on `live_api_runner` system prompts cut input-token billing by ~75% across the multi-agent run; (3) **mutation testing** in critic kills hollow test suites by applying small bugs + re-running tests; (4) **AST context pruning** (`context_pruner.py`) uses stdlib `ast` to trace import graph from entry point, shrinks monorepo scope to 5-15% of total files; (5) **OTel-based N+1 detection** asserts DB span counts per test — list endpoints with > 3 queries flagged as N+1. |
+| **v4.14** | All 5 deferred items shipped: (1) **anti-rationalization gate** ([`anti_rationalization_check.py`](skills/one-shot-generator/scripts/anti_rationalization_check.py), [`tests/test_anti_rationalization.py`](tests/test_anti_rationalization.py)) — reviewer must fill an 8-question matrix before PASS; claims are verified against deterministic code signals (claimed "no mock" but `Mock()` found → escalate); (2) **Anthropic prompt caching anchors** on `live_api_runner` system prompts — expected ~75% input-token reduction based on Anthropic's caching docs (not yet measured on this plugin); (3) **mutation testing** ([`mutation_tester.py`](skills/one-shot-generator/scripts/mutation_tester.py)) in critic kills hollow test suites; (4) **AST context pruning** ([`context_pruner.py`](skills/one-shot-generator/scripts/context_pruner.py)) shrinks monorepo scope to 5-15% of total files; (5) **OTel-based N+1 detection** ([`nplus1_detector.py`](skills/one-shot-generator/scripts/nplus1_detector.py)) flags list endpoints with > 3 DB spans. |
 | v4.13 | Five new features closing real Day-2 maintenance + ergonomics gaps: (1) `--resume` state machine; (2) `/prune` zombie-code detector; (3) `--explain` flag; (4) cycle-breaking in `--incremental`; (5) hybrid lint runner. Plus Codespaces sandbox. |
 | v4.12 | Two new safety gates closing real Gemini-flagged risks: (1) Stage 5.7 cross-agent consistency + deterministic SAST deep scan catches subtle drift the per-agent reviews miss; (2) Stage 0.7 `--legacy-safe` mode for critical codebases — caps generation at 3 files, blocks `--apply`, requires `--review`, refuses to mutate any file with `DO_NOT_TOUCH` heat verdict from the new `impact_analyzer.py`. `.archive/` now in `.gitignore`. |
 | v4.11 | Three fixes from Gemini's external code review: (1) source-doc lookup moved from Stage 2.3 → Stage 1.8 so the architect designs the spec with current API conventions, not stale training data; (2) Stage 6.5 migration-ordering trade-off documented for the three sub-cases (greenfield, add NOT NULL, rename/drop); (3) new `approval_gate.py` + `--require-approval-webhook` flag close the HITL gap for autonomous CI runs. |

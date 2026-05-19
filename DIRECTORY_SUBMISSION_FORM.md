@@ -18,7 +18,7 @@ the relevant block, attach the linked artefact.
 |---|---|
 | **Plugin name** | ONE SHOT PLUGIN (Claude Code Studio) |
 | **Slug** | one-shot-prompting |
-| **Version** | 4.15.0 |
+| **Version** | 1.0.0 |
 | **Author** | Usman Mughal |
 | **Author email** | musman.mughal@taleemabad.com |
 | **GitHub** | https://github.com/usmanmughaltaleemabad/One-Shot-Plugin |

@@ -7,7 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [4.15.0] — 2026-05-19 (Current) — Memory and Dreaming: Self-Learning Curriculum
+## [1.0.0] — 2026-05-19 (Current) — First public release
+
+Version reset from internal v4.15 to v1.0.0.
+
+**Why the reset**: The v0.x–v4.x progression reflected solo development iteration
+milestones, not public release boundaries. With zero external users, using v4.x
+was misleading — it implied 4 major breaking-change cycles that never happened.
+v1.0.0 is the correct label for "first stable, tested, publicly available release."
+All prior development history is preserved in CHANGELOG below under the original
+internal version labels for traceability.
+
+No code changes from v4.15.0. This is a label correction only.
+
+---
+
+## [4.15.0] — 2026-05-19 — Memory and Dreaming (internal; published as v1.0.0)
 
 Inspired by the "Memory and dreaming for self-learning agents" workshop
 session. The plugin now processes its own failure history offline to improve

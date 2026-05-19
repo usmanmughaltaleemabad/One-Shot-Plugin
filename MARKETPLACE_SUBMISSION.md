@@ -4,7 +4,7 @@ last_verified: 2026-05-18
 owner: claude
 ---
 
-# Marketplace Submission Package — v4.15.0
+# Marketplace Submission Package — v1.0.0
 
 Everything an Anthropic Software Directory submission needs, in one place.
 
@@ -17,7 +17,7 @@ Everything an Anthropic Software Directory submission needs, in one place.
 
 ✅ Aligned with directory requirements:
 - `name`: ONE SHOT PLUGIN (CLAUDE CODE STUDIO)
-- `version`: 4.15.0 (semver)
+- `version`: 1.0.0 (semver)
 - `description`: 1-line agentic pipeline summary
 - `author`: Usman Mughal + GitHub URL
 - `homepage`, `repository`, `license` (MIT)
@@ -28,7 +28,7 @@ Everything an Anthropic Software Directory submission needs, in one place.
 | File | Purpose |
 |---|---|
 | [README.md](README.md) | User-facing overview, leads with `/one-shot` |
-| [CHANGELOG.md](CHANGELOG.md) | Full version history (4.15.0 current) |
+| [CHANGELOG.md](CHANGELOG.md) | Full version history (1.0.0 current) |
 | [SECURITY.md](SECURITY.md) | Vulnerability disclosure, data handling |
 | [SUPPORT.md](SUPPORT.md) | Support channels, maintenance schedule |
 | [PRIVACY.md](PRIVACY.md) | Privacy guarantees, data retention |
@@ -50,7 +50,7 @@ Everything an Anthropic Software Directory submission needs, in one place.
 
 ## 4. Code quality evidence
 
-- **88 invocation-based tests, all green** on Py 3.14 / Windows
+- **486 invocation-based tests, all green** on Py 3.14 / Windows + Cross-OS CI
 - **3 deterministic evals + 2 agentic replay evals** scoring 1.00
 - **8/8 smoke tests** pass
 - **Cross-OS CI matrix** wired in `.github/workflows/cross-os.yml`
@@ -60,10 +60,10 @@ Everything an Anthropic Software Directory submission needs, in one place.
 
 ## 5. Skills + commands inventory
 
-- **Slash commands**: 17 total; `/one-shot` is the primary agentic entry
+- **Slash commands**: 30 total; `/one-shot` is the primary production-grade entry
 - **Skills**: 9 (one-shot-generate, curator, write-plan, execute-plan,
   tdd-cycle, systematic-debug, verify-before-complete, one-shot-generator, …)
-- **Agents**: 8 with `tools:` + `model:` frontmatter, Task-invocable
+- **Agents**: 13 with `tools:` + `model:` frontmatter, Task-invocable
 
 ## 6. Anti-claims (honest)
 
@@ -78,7 +78,7 @@ What we DON'T claim:
 
 ## 7. Submission readiness checklist
 
-- ✅ Plugin metadata complete (plugin.json v4.15.0)
+- ✅ Plugin metadata complete (plugin.json v1.0.0)
 - ✅ All required disclosure docs (SECURITY, PRIVACY, SUPPORT)
 - ✅ MIT license
 - ✅ GitHub repository public

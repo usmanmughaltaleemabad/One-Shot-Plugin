@@ -4,7 +4,7 @@ last_verified: 2026-05-19
 owner: claude
 ---
 
-# one-shot-prompting Plugin — v4.15.0
+# one-shot-prompting Plugin — v1.0.0
 
 > **Auditing?** Read `SKILL.md` → agents → scripts (in that order).
 > See [AUDIT_ME_FIRST.md](AUDIT_ME_FIRST.md).
@@ -96,4 +96,4 @@ python skills/one-shot-generator/scripts/compliance_audit.py
 
 ---
 
-Updated 2026-05-19 (v4.15.0)
+Updated 2026-05-19 (v1.0.0)
