@@ -34,6 +34,23 @@ also landed in this version** (no new minor bump since no breaking changes):
   - `write-a-skill` (skill authoring templates + tests + checklist)
   - Plus: `systematic-debug` (6-phase root cause) + `tdd-cycle` (red-green-refactor) adapted from mattpocock in v4.14
   - Integrated at pipeline stages: PLAN (grill-me) → ARCHITECT (caveman) → BUILD (tdd-cycle) → SHIP (systematic-debug + handoff)
+- **Skill wiring is real, not marketing**: 5 mattpocock skills wired into specific
+  stage files with explicit trigger conditions. 17 enforcement tests in
+  `tests/test_mattpocock_skill_wiring.py` fail CI if any stage drops a skill.
+- **Replay eval grader extended** from architect-only to 7 agent types
+  (architect, implementer, test-author, reviewer, doubter, critic, handoff).
+  Per-agent scorers + 8 new contract-test fixtures. 14/14 replays passing.
+- **Self-learning loop activated** via shipped curriculum seed:
+  `.claude/registry/curriculum_seed.jsonl` contains 10 distilled session
+  bugs (FK type drift, version drift, SKILL.md test assertions, mac pycache
+  mutation, harness settings.json gap, etc.). Two-layer loader: shipped
+  seed (committed) + runtime advice from `/dream` (gitignored).
+- **E2E CI workflow** split into `e2e-dry` (always runs — replays + wiring
+  + seed + compliance) and `e2e-live` (gated on `ANTHROPIC_API_KEY`, runs
+  one real architect scenario asserting overall ≥ 0.85). See
+  `docs/CI_SETUP.md` for how to enable live verification.
+- **Tests**: 486 → 515 green (added skill-wiring + curriculum-seed +
+  migration regression suites).
 
 **Why the reset**: The v0.x–v4.x progression reflected solo development iteration
 milestones, not public release boundaries. With zero external users, using v4.x

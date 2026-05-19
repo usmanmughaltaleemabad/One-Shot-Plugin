@@ -124,10 +124,13 @@ embedding into the directory listing as a video.
 
 | Metric | Value | Source |
 |---|---|---|
-| Total invocation tests | 143 / 143 green | `pytest tests/` |
+| Total invocation tests | 515 / 515 green | `pytest tests/` |
 | Cross-OS CI configured | Ubuntu × macOS × Windows × Py 3.10–3.12 | `.github/workflows/cross-os.yml` |
+| Live + dry E2E CI | `e2e-dry` runs always; `e2e-live` requires `ANTHROPIC_API_KEY` | `.github/workflows/e2e.yml`, `docs/CI_SETUP.md` |
 | Deterministic evals | 3 / 3 at 1.00 | `tests/evals/eval_runner.py` |
-| Agentic replay evals | 6 / 6 at 1.00 | `tests/evals/agentic_evals.py` |
+| Agentic replay evals | 14 / 14 across 7 agent types | `tests/evals/agentic_evals.py` |
+| Skill-wiring tests | 17 / 17 enforce mattpocock integration | `tests/test_mattpocock_skill_wiring.py` |
+| Curriculum seed | 10 distilled bugs ship with plugin | `.claude/registry/curriculum_seed.jsonl` |
 | pass^k deterministic | 1.0 (zero variance) | `tests/evals/pass_k_runner.py` |
 | Smoke tests | 8 / 8 | `.claude/scripts/smoke-test.sh` |
 | Architect agent dry-runs | 6 logged | `.beads/cost_observations.jsonl` |

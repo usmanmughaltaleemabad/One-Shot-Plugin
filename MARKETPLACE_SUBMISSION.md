@@ -50,7 +50,7 @@ Everything an Anthropic Software Directory submission needs, in one place.
 
 ## 4. Code quality evidence
 
-- **486 invocation-based tests, all green** on Py 3.14 / Windows + Cross-OS CI
+- **515 invocation-based tests, all green** on Py 3.14 / Windows + Cross-OS CI
 - **3 deterministic evals + 2 agentic replay evals** scoring 1.00
 - **8/8 smoke tests** pass
 - **Cross-OS CI matrix** wired in `.github/workflows/cross-os.yml`

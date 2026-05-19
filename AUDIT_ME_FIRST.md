@@ -115,7 +115,7 @@ finds an external-skill gap, not a pipeline stage.
 ```bash
 # Confirm the test suite is green (no API key needed)
 python -m pytest tests/ -q --ignore=tests/integration
-# expected: ~509 passed
+# expected: ~515 passed
 
 # Confirm the skill wiring claims are real (no API key needed)
 python -m pytest tests/test_mattpocock_skill_wiring.py -v
@@ -145,7 +145,7 @@ ls skills/one-shot-generator/scripts/*.py | wc -l
 | **No live end-to-end CI test by default** | `.github/workflows/e2e.yml` has two jobs: `e2e-dry` (always runs, validates 14 replays + wiring + seed) and `e2e-live` (gated on `ANTHROPIC_API_KEY`, costs ~$0.30/run). See [docs/CI_SETUP.md](docs/CI_SETUP.md) to enable live verification. |
 | **Cost calibration** | `~$0.10 architect / ~$0.50 feature` estimates come from 6 real runs. Directionally right, not statistically robust. |
 | **Zero external users** | The plugin has never shipped code into a project by a user who wasn't the author. All quality claims are self-validated. |
-| **Self-learning loop is empty** | Dream consolidator + curriculum advice are wired and tested but `.beads/failures.jsonl` is gitignored and effectively unpopulated. Needs real runs to start working. |
+| **Self-learning loop** | Two-layer advice: shipped seed (`.claude/registry/curriculum_seed.jsonl`, 10 distilled bugs from v1.0.0 development) + runtime advice from local `/dream` runs (gitignored). Seed is active; runtime needs real `/one-shot` runs to populate. |
 
 See `docs/scorecard-v4.md` for the full honest scoring across 36+ dimensions.
 

@@ -14,13 +14,13 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 509 / 509 green (32 suites, cross-OS CI: Ubuntu × macOS × Windows × Py 3.10–3.12) |
+| **Tests** | 515 / 515 green (32 suites, cross-OS CI: Ubuntu × macOS × Windows × Py 3.10–3.12) |
 | **Active scripts** | 62 (down from 231; 169 dead phase4/phase5 stubs archived) |
 | **Specialist agents** | 13 in `.claude/agents/` |
 | **Skills** | 13 (one-shot-generate primary + 6 productivity + 6 supporting) |
 | **Slash commands** | 30 (9 marked experimental) |
 | **Skill-wiring tests** | 17 / 17 enforce mattpocock integration |
-| **Agentic eval recordings** | 6 / 6 ≥ 0.93 — architect replay scenarios only (see [known gaps](#known-gaps)) |
+| **Agentic eval coverage** | 14 / 14 replays passing across 7 agent types (6 real architect recordings + 8 contract-test fixtures for implementer/test-author/reviewer/doubter/critic/handoff) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 (small sample) |
 | **Anthropic Directory** | submission prepared, not yet submitted ([DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md)) |
 | **Directory compliance (self-audit)** | 15/15 PASS · 0 WARN · 0 FAIL ([`compliance_audit.py`](skills/one-shot-generator/scripts/compliance_audit.py)) — not reviewed by Anthropic |
@@ -329,7 +329,7 @@ Honest limitations as of v1.0.0:
 | **Agentic eval coverage** | Replay evals cover architect only (6 scenarios). Implementer, reviewer, doubter, critic, handoff have no replay tests — recording infrastructure exists but recordings haven't been accumulated. |
 | **No live E2E CI by default** | `.github/workflows/e2e.yml` runs full pipeline against a fixture, but gated on `ANTHROPIC_API_KEY` secret (skips on forks). The free-tier job runs every push and validates 14 replay evals across 7 agent types + harness wiring + curriculum seed. See [docs/CI_SETUP.md](docs/CI_SETUP.md) for how to enable the live job (~$0.30 / run). |
 | **Cost calibration** | `~$0.10 architect / ~$0.50 feature` estimates come from 6 real runs. Directionally right, not statistically robust. |
-| **Self-learning loop empty** | Dream consolidator wired + tested. `.beads/failures.jsonl` gitignored. Needs real runs to start adding curriculum value. |
+| **Self-learning loop** | Shipped seed (`.claude/registry/curriculum_seed.jsonl`) ships 10 distilled session bugs as baseline advice. Runtime layer (`/dream` writes to `.beads/curriculum_advice.jsonl`) needs real `/one-shot` runs to populate. |
 | **Experimental commands** | 9 commands marked `status: experimental` (browser-test, strangler, tour, templates, architecture, execute-plan, generate, sys-debug, tdd) — lightly tested. `/one-shot` is the production-grade primary command. |
 
 See [docs/scorecard-v4.md](docs/scorecard-v4.md) for full scoring across 36+ dimensions.
@@ -353,6 +353,7 @@ See [docs/scorecard-v4.md](docs/scorecard-v4.md) for full scoring across 36+ dim
 | [ANTHROPIC_COMPLIANCE_CHECKLIST.md](ANTHROPIC_COMPLIANCE_CHECKLIST.md) | Self-audit compliance matrix |
 | [MARKETPLACE_SUBMISSION.md](MARKETPLACE_SUBMISSION.md) | Marketplace submission artifact |
 | [docs/cookbook.md](docs/cookbook.md) | Worked examples |
+| [docs/CI_SETUP.md](docs/CI_SETUP.md) | How to enable live E2E CI (Anthropic API key setup) |
 | [docs/production-deployment.md](docs/production-deployment.md) | Operational guidance |
 | [docs/scorecard-v4.md](docs/scorecard-v4.md) | Honest 0–10 scoring |
 | [docs/tier35-agentic.md](docs/tier35-agentic.md) | Architecture narrative |

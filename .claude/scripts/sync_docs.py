@@ -57,10 +57,11 @@ def _version() -> str:
 
 
 def _test_count() -> int:
+    """Full suite count — matches what cross-OS CI runs (includes integration)."""
     try:
         result = subprocess.run(
             [sys.executable, "-m", "pytest", "tests/",
-             "--collect-only", "-q", "--ignore=tests/integration"],
+             "--collect-only", "-q"],
             capture_output=True, text=True, cwd=str(ROOT), timeout=30,
         )
         m = re.search(r"(\d+) tests? collected", result.stdout)
