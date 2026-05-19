@@ -1,6 +1,3 @@
-# Archived historical docs (kept locally for reference, not tracked in git)
-.archive/
-
 # Development
 node_modules/
 __pycache__/
