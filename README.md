@@ -4,7 +4,7 @@
 
 **Production agentic one-shot code generation for existing codebases.**
 
-Type `/one-shot "shopping cart with line items and discounts" @./my-project` and Claude reads `skills/one-shot-generate/SKILL.md` and orchestrates a 15-stage pipeline through 13 specialist agents — architect → service-author → implementer×N + test-author (parallel) → reviewer → doubter → wirer → critic — to ship verified, FK-aware, migration-emitting, cost-gated code into your project.
+Type `/one-shot "shopping cart with line items and discounts" @./my-project` and Claude reads `skills/one-shot-generate/SKILL.md` and orchestrates a 21-stage pipeline through 13 specialist agents — architect → service-author → implementer×N + test-author (parallel) → reviewer → doubter → wirer → critic — to ship verified, FK-aware, migration-emitting, cost-gated code into your project.
 
 Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs. Real bcrypt + JWT auth helpers. Real service layer enforcing business invariants. Cost-tiered model routing (Haiku for file-writers, Sonnet for reasoners) keeps a typical generation at ~$0.50. Free `--templated` fallback for CI / cost-sensitive contexts.
 
@@ -12,7 +12,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 466 / 466 green (31 suites incl. integration harness, Py 3.14 / Windows) |
+| **Tests** | 485 / 485 green (31 suites incl. integration harness, Py 3.14 / Windows) |
 | **Agentic eval recordings** | 6 / 6 ≥ 0.93 (architect-* scenarios) |
 | **Cost calibration anchor** | 6 real architect runs, mean 26,621 tokens / 60.4s / ~$0.10 |
 | **Real OpenTelemetry** | validated end-to-end against opentelemetry-sdk 1.40.0 |

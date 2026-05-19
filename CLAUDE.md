@@ -9,9 +9,9 @@ owner: claude
 > **Auditing?** Read `SKILL.md` → agents → scripts (in that order).
 > See [AUDIT_ME_FIRST.md](AUDIT_ME_FIRST.md).
 
-Production agentic one-shot generation. 15-stage pipeline → 11
-specialist agents → 30+ deterministic tools. **491 tests green**,
-101 body hints, 31 slash commands.
+Production agentic one-shot generation. 21-stage pipeline → 11
+specialist agents → 30+ deterministic tools. **485 tests green**,
+101 body hints, 30 slash commands.
 
 ## Quick Navigation
 
@@ -96,4 +96,4 @@ python skills/one-shot-generator/scripts/compliance_audit.py
 
 ---
 
-Updated 2026-05-19 (v4.14.0)
+Updated 2026-05-19 (v4.15.0)

@@ -29,7 +29,7 @@ the relevant block, attach the linked artefact.
 
 ```
 Production agentic one-shot code generation for existing codebases.
-15-stage pipeline, 13 specialist agents, FK-aware migrations, real
+21-stage pipeline, 13 specialist agents, FK-aware migrations, real
 service-layer with invariants. Cost-gated. Self-extending registry.
 ```
 
