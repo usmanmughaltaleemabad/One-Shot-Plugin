@@ -55,35 +55,39 @@ your-fastapi-project/
 ```markdown
 ---
 type: router
-last_verified: 2026-05-17
+last_verified: 2026-05-19
 owner: claude
 ---
 
 # FastAPI Project
 
-## Quick Links
+## Default agent behaviour — READ THIS FIRST
 
-| For... | See... |
-|--------|--------|
-| Code style | `.claude/standards/code-style-fastapi.md` |
-| Adding endpoints | `.claude/examples/fastapi-endpoint-recipe.md` |
-| Testing | `.claude/standards/testing-rules.md` |
-| Security | `.claude/standards/security-rules.md` |
+When working in this project, **always use agents before scripts**:
 
-## Critical Rules
+| Situation | Use this agent — NOT scripts directly |
+|---|---|
+| After generating or editing code | Invoke **`fastapi-reviewer`** automatically |
+| Debugging an error | Invoke **`fastapi-debugger`** with the error message |
+| Unsure about async/Pydantic pattern | Read `.claude/standards/code-style-fastapi.md` first |
+| Security question | Read `.claude/standards/security-rules.md` first |
 
-1. All endpoints must be async (no blocking I/O)
-2. All request/response use Pydantic models
-3. Database queries use SQLAlchemy async ORM
-4. All code must pass pytest (80%+ coverage)
-5. Dependency injection via FastAPI Depends()
+**Automatic review rule:** After every `.py` file write, invoke
+`fastapi-reviewer` immediately. Do not wait to be asked.
+
+## Critical rules (agents enforce these)
+
+1. All endpoints `async def` — no blocking I/O
+2. Business logic in service layer — routers only delegate
+3. All request/response via Pydantic models
+4. No hardcoded secrets — `os.environ` only
+5. Coverage ≥ 80% before any `--apply`
 
 ## Framework
 
 - **Version**: FastAPI 0.104 + SQLAlchemy async
 - **Database**: PostgreSQL (asyncpg)
 - **Testing**: pytest + httpx
-- **Linting**: ruff, black
 ```
 
 ---

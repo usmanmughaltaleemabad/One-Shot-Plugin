@@ -6,21 +6,46 @@ owner: claude
 
 # FastAPI Payment Processor — Harness
 
-This is a working harness example. Copy the `.claude/` directory into your own FastAPI project and customise.
+## Default agent behaviour — READ THIS FIRST
 
-| For... | See... |
+When working in this project, **always use agents before scripts**:
+
+| Situation | Use this agent — NOT scripts directly |
 |---|---|
-| Code style + patterns | `.claude/standards/code-style-fastapi.md` |
-| Testing rules | `.claude/standards/testing-rules.md` |
-| Security rules | `.claude/standards/security-rules.md` |
-| Code review | `/call:fastapi-reviewer` |
-| Debugging | `/call:fastapi-debugger` |
-| Full harness template | `one-shot-prompting/.claude/examples/FASTAPI_HARNESS_TEMPLATE.md` |
+| After generating or editing code | Invoke **`fastapi-reviewer`** automatically |
+| Debugging an error | Invoke **`fastapi-debugger`** with the error message |
+| Unsure about async/Pydantic pattern | Read `.claude/standards/code-style-fastapi.md` first |
+| Security question | Read `.claude/standards/security-rules.md` first |
 
-## Critical rules
+**Automatic review rule:** Any time you write or edit a `.py` file in this
+project, immediately after writing invoke `fastapi-reviewer` on it. Do not
+wait to be asked. The reviewer is the primary quality gate — scripts are
+only for deterministic checks the reviewer cannot do (syntax, imports).
 
-1. All endpoint functions must be `async def`
-2. Business logic in service layer — routers only delegate
+## Project standards (agents enforce these)
+
+1. All endpoint functions `async def` — no blocking I/O
+2. Business logic in `service.py` — routers only delegate
 3. All request/response via Pydantic models
-4. No hardcoded secrets — environment variables only
+4. No hardcoded secrets — `os.environ` only
 5. Coverage ≥ 80% before any `--apply`
+6. Alembic migration required for any schema change
+
+## Available agents
+
+- **`fastapi-reviewer`** — checks async correctness, service-layer separation,
+  Pydantic use, security. Run after every code write.
+- **`fastapi-debugger`** — diagnoses 422 errors, async/await mistakes,
+  SQLAlchemy session issues, Alembic conflicts.
+
+## Standards reference (agents use these)
+
+- `.claude/standards/code-style-fastapi.md` — router + schema + service patterns
+- `.claude/standards/testing-rules.md` — pytest + httpx, 80% coverage floor
+- `.claude/standards/security-rules.md` — bcrypt, JWT, no raw SQL
+
+## Scripts are the fallback
+
+`scripts/` exist for deterministic checks agents cannot do: syntax validation,
+import resolution, migration generation. Do NOT reach for scripts when an agent
+can do the reasoning.

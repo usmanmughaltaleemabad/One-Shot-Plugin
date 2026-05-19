@@ -6,19 +6,44 @@ owner: claude
 
 # Django Order Service — Harness
 
-Working harness for a Django 4.2 + DRF project.
+## Default agent behaviour — READ THIS FIRST
 
-| For... | See... |
+When working in this project, **always use agents before scripts**:
+
+| Situation | Use this agent — NOT scripts directly |
 |---|---|
-| Code style | `.claude/standards/code-style-django.md` |
-| Testing rules | `.claude/standards/testing-rules.md` |
-| Security rules | `.claude/standards/security-rules.md` |
-| Full template | `one-shot-prompting/.claude/examples/DJANGO_HARNESS_TEMPLATE.md` |
+| After generating or editing code | Invoke **`django-reviewer`** automatically |
+| Debugging an error | Invoke **`django-debugger`** with the error message |
+| Unsure about ViewSet/serializer pattern | Read `.claude/standards/code-style-django.md` first |
+| Security question | Read `.claude/standards/security-rules.md` first |
 
-## Critical rules
+**Automatic review rule:** Any time you write or edit a `.py` file in this
+project, immediately after writing invoke `django-reviewer` on it. Do not
+wait to be asked. The reviewer is the primary quality gate.
 
-1. ViewSets for CRUD, APIView only for custom logic
-2. Serializers validate all input — never trust request.data directly
-3. Business logic in service functions, not in views
-4. Use `select_related` / `prefetch_related` — no N+1 queries
-5. All tests use `APITestCase` or `pytest-django`
+## Project standards (agents enforce these)
+
+1. ViewSets for CRUD — `APIView` only for custom logic
+2. Business logic in `services.py` — views only delegate
+3. Serializers validate all input — never trust `request.data` directly
+4. `select_related` / `prefetch_related` on all list views — no N+1
+5. Explicit `permission_classes` on every ViewSet
+6. Migrations present for every model change
+
+## Available agents
+
+- **`django-reviewer`** — checks serializer validation, N+1 queries,
+  permission gaps, service-layer separation. Run after every code write.
+- **`django-debugger`** — diagnoses migration conflicts, N+1 queries,
+  serializer validation failures, Celery task issues.
+
+## Standards reference
+
+- `.claude/standards/code-style-django.md` — ViewSet + serializer + service patterns
+- `.claude/standards/testing-rules.md` — APITestCase, pytest-django, 80% floor
+- `.claude/standards/security-rules.md` — permissions, no raw SQL, secrets
+
+## Scripts are the fallback
+
+Use scripts only for deterministic checks: syntax validation, migration
+generation. Agents handle all reasoning tasks.
