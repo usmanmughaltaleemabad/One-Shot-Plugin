@@ -498,7 +498,7 @@ class LiveApiRunner:
                 "output_tokens": out_tokens,
                 "cost_usd": round(cost, 6),
                 "user_prompt": user_prompt,
-                "system_prompt_chars": len(system_prompt),
+                "system_prompt_chars": len(system_prompt_body),
                 "text": text,
             }, indent=2), encoding="utf-8")
             result.persisted_to = str(out_path)

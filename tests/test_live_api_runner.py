@@ -231,11 +231,17 @@ def test_run_spawn_calls_client_with_correct_model_and_persists(tmp_path):
         context={"graph_summary": "fastapi project"},
     )
 
-    # Client was called correctly
+    # Client was called correctly. v4.14: system is now a content-block
+    # list (with cache_control markers); handle both string and list shapes.
     assert len(fake.messages.calls) == 1
     call = fake.messages.calls[0]
     assert call["model"].startswith("claude-")
-    assert "architect" in call["system"].lower()
+    system = call["system"]
+    if isinstance(system, list):
+        system_text = " ".join(b.get("text", "") for b in system).lower()
+    else:
+        system_text = system.lower()
+    assert "architect" in system_text
     assert "build feature x" in call["messages"][0]["content"]
 
     # Result has the right shape
@@ -275,9 +281,15 @@ def test_run_spawn_resolves_implementer_canonical_name(tmp_path):
                  "spec_excerpt": {}},
     )
     assert result.agent_name == "implementer-shopping_cart"
-    # System prompt came from implementer.md
+    # System prompt came from implementer.md. v4.14: system is a
+    # content-block list with cache_control; coerce to text for assertion.
     call = runner.client.messages.calls[0]
-    assert "implement files" in call["system"].lower()
+    system = call["system"]
+    if isinstance(system, list):
+        system_text = " ".join(b.get("text", "") for b in system).lower()
+    else:
+        system_text = system.lower()
+    assert "implement files" in system_text
 
 
 def test_run_spawn_costs_haiku_cheaper_than_sonnet(tmp_path):
