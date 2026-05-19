@@ -1,6 +1,6 @@
 ---
 type: policy
-last_verified: 2026-05-17
+last_verified: 2026-05-19
 owner: claude
 ---
 
@@ -8,65 +8,52 @@ owner: claude
 
 ## Overview
 
-Claude Code Studio v2.0.0 is a production-ready plugin maintained by the Claude Plugins Community. Support is provided through:
-
-1. **GitHub Issues**: Bug reports and feature requests
-2. **Documentation**: Comprehensive guides and examples
-3. **Community**: Active development and feedback loop
+The one-shot-prompting plugin is solo-maintained. Support is best-effort
+via GitHub. There is no SLA.
 
 ## Support Channels
 
 ### GitHub Issues
-- **Report bugs**: https://github.com/usmanmughaltaleemabad/One-Shot-Plugin/issues
-- **Request features**: Tag with `[feature-request]`
-- **Ask questions**: Tag with `[question]`
+- **Bugs / feature requests / questions**: https://github.com/usmanmughaltaleemabad/One-Shot-Plugin/issues
+- **Discussions**: https://github.com/usmanmughaltaleemabad/One-Shot-Plugin/discussions
 
 ### Documentation
-- **Getting Started**: [QUICKSTART.md](QUICKSTART.md)
-- **Phase Status**: [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)
-- **Skill Guide**: [docs/skill-authoring.md](docs/skill-authoring.md)
+- **Install + first run**: [README.md](README.md)
+- **Troubleshooting**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- **Release history**: [CHANGELOG.md](CHANGELOG.md)
+- **Skill authoring**: [docs/skill-authoring.md](docs/skill-authoring.md)
 - **Testing**: [docs/testing.md](docs/testing.md)
+- **Pipeline tier docs**: [docs/](docs/) (`tier{1,2,25,3,35-agentic,4-self-extending,5-observability}.md`)
 
 ### Examples
-- Django order service: [examples/django-order-service/](examples/django-order-service/)
-- FastAPI rate limiter: [examples/fastapi-rate-limiter/](examples/fastapi-rate-limiter/)
-- Spring Boot payment: [examples/spring-payment-service/](examples/spring-payment-service/)
-- Go trading bot: [examples/go-trading-bot/](examples/go-trading-bot/)
-- NestJS real-time API: [examples/nestjs-realtime-api/](examples/nestjs-realtime-api/)
+Example *prompts* (not runnable projects) under [examples/](examples/).
+See [examples/README.md](examples/README.md) for what each shows.
 
-## Maintenance & Updates
+## Release cadence
 
-### Release Schedule
-- **Major versions**: Significant features (Phase completions)
-- **Minor versions**: Bug fixes, improvements, framework updates
-- **Patch versions**: Critical fixes
-
-### Security Updates
-Security patches are released immediately. Subscribe to GitHub releases for notifications.
+No fixed schedule. Patches ship when a fix lands; minors when a meaningful
+feature lands. See [CHANGELOG.md](CHANGELOG.md) for the actual history.
 
 ## Known Limitations
 
-- **Phase 4-5 modules**: Production-ready patterns; consult documentation for enterprise deployments
-- **Framework support**: Tested on Django 4.2+, FastAPI 0.104+, Spring Boot 3.2+, Go 1.21+, Node.js 18+
-- **Codebase size**: Optimized for projects up to 1M+ LOC; tested on enterprise codebases
-- **External dependencies**: Zero runtime dependencies; uses Python stdlib only
+- **Framework body-hint coverage**: FastAPI is the most mature. Django,
+  Spring, NestJS, Go, Node.js have working hint sets but fewer edge cases.
+- **Cost calibration**: Cost estimates are derived from a small sample of
+  real generations; treat them as ballpark, not contractual.
+- **External dependencies**: Python stdlib only at runtime; optional pip
+  deps degrade gracefully when absent.
 
 ## Getting Help
 
-1. **Read documentation first**: Most questions answered in docs/
-2. **Check examples**: See working implementations in examples/
-3. **Search issues**: Your question may already be answered
-4. **Open issue**: If not found, provide:
-   - Framework and version
-   - Your project structure
-   - The exact request you made
-   - Error output (if applicable)
+1. Read [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — covers the common cases
+2. Search existing issues
+3. If still stuck, open an issue with: framework + version, the exact
+   `/one-shot` command you ran, and any error output
 
 ## Contributing
 
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-**Last Updated**: May 17, 2026  
-**Status**: Production-ready, fully maintained
+**Last Updated**: 2026-05-19
