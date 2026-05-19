@@ -161,12 +161,25 @@ def _iter_target_files(project: Path) -> List[Path]:
     return out
 
 
+def _clear_pycache(project: Path) -> None:
+    """Delete all .pyc files under project so Python re-compiles mutated sources.
+    Needed on macOS (APFS) and fast SSDs where mtime granularity is < 1s and
+    a mutated file may share its mtime with the cached .pyc, causing pytest to
+    import stale bytecode and miss the mutation."""
+    import shutil
+    for cache_dir in project.rglob("__pycache__"):
+        if cache_dir.is_dir():
+            shutil.rmtree(cache_dir, ignore_errors=True)
+
+
 def _run_tests(project: Path, cmd: str, timeout: int = 60) -> Tuple[bool, str]:
     """Returns (all_passed, last_lines_of_output)."""
+    _clear_pycache(project)
     parts = cmd.split() if isinstance(cmd, str) else cmd
+    env = {**__import__("os").environ, "PYTHONDONTWRITEBYTECODE": "1"}
     proc = subprocess.run(
         parts, cwd=str(project), capture_output=True, text=True,
-        encoding="utf-8", timeout=timeout, errors="replace",
+        encoding="utf-8", timeout=timeout, errors="replace", env=env,
     )
     last = "\n".join((proc.stdout + proc.stderr).splitlines()[-5:])
     return proc.returncode == 0, last
