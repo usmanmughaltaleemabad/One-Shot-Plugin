@@ -1,0 +1,267 @@
+---
+version: "1.0"
+created: "2026-05-21"
+description: "Evaluation task suite for one-shot-prompting plugin. 30 scenarios covering all frameworks and difficulty levels."
+
+defaults:
+  metrics:
+    - routing_quality
+    - cost
+    - test_pass_rate
+    - code_quality_score
+    - security_compliance
+
+tasks:
+  # FastAPI - Easy (3 tasks)
+  - id: fastapi-shopping-cart-v1
+    description: "Add shopping cart with line items to existing FastAPI e-commerce project"
+    framework: fastapi
+    difficulty: easy
+    expected_entities: 3  # Cart, LineItem, Product
+    expected_fks: 2       # Cart.user_id, LineItem.cart_id
+    domain: ecommerce
+
+  - id: fastapi-user-authentication-v1
+    description: "Add JWT token-based authentication to FastAPI app"
+    framework: fastapi
+    difficulty: easy
+    expected_entities: 2  # User, Token
+    expected_fks: 1       # Token.user_id
+    domain: authentication
+
+  - id: fastapi-blog-comments-v1
+    description: "Add comments section to blog API (Post → Comment relationships)"
+    framework: fastapi
+    difficulty: easy
+    expected_entities: 2  # Post, Comment
+    expected_fks: 2       # Comment.post_id, Comment.author_id
+    domain: content
+
+  # FastAPI - Medium (3 tasks)
+  - id: fastapi-order-management-v1
+    description: "Add order processing with payments, shipping status tracking"
+    framework: fastapi
+    difficulty: medium
+    expected_entities: 5  # Order, OrderItem, Payment, Shipping, Invoice
+    expected_fks: 4
+    domain: ecommerce
+
+  - id: fastapi-multi-tenant-v1
+    description: "Add multi-tenancy support to existing FastAPI SaaS app"
+    framework: fastapi
+    difficulty: medium
+    expected_entities: 3  # Tenant, Organization, User
+    expected_fks: 2
+    domain: infrastructure
+
+  - id: fastapi-real-time-notifications-v1
+    description: "Add WebSocket real-time notification system"
+    framework: fastapi
+    difficulty: medium
+    expected_entities: 2  # Notification, UserSubscription
+    expected_fks: 1
+    domain: messaging
+
+  # FastAPI - Hard (2 tasks)
+  - id: fastapi-complex-search-v1
+    description: "Add full-text search with Elasticsearch integration"
+    framework: fastapi
+    difficulty: hard
+    expected_entities: 2  # SearchIndex, SearchQuery
+    expected_fks: 0
+    domain: search
+
+  - id: fastapi-workflow-engine-v1
+    description: "Add workflow/state machine for order processing"
+    framework: fastapi
+    difficulty: hard
+    expected_entities: 4  # Workflow, WorkflowStep, Execution, Transition
+    expected_fks: 3
+    domain: workflows
+
+  # Django - Easy (3 tasks)
+  - id: django-user-profiles-v1
+    description: "Add user profile extension to Django auth"
+    framework: django
+    difficulty: easy
+    expected_entities: 1  # UserProfile
+    expected_fks: 1       # UserProfile.user_id
+    domain: authentication
+
+  - id: django-product-reviews-v1
+    description: "Add product review system to Django shop"
+    framework: django
+    difficulty: easy
+    expected_entities: 2  # Review, Rating
+    expected_fks: 2       # Review.product_id, Review.user_id
+    domain: ecommerce
+
+  - id: django-event-calendar-v1
+    description: "Add event scheduling to Django app"
+    framework: django
+    difficulty: easy
+    expected_entities: 2  # Event, Attendee
+    expected_fks: 1       # Event.organizer_id
+    domain: scheduling
+
+  # Django - Medium (3 tasks)
+  - id: django-role-based-access-v1
+    description: "Add RBAC (role-based access control) to Django app"
+    framework: django
+    difficulty: medium
+    expected_entities: 3  # Role, Permission, UserRole
+    expected_fks: 2
+    domain: security
+
+  - id: django-inventory-management-v1
+    description: "Add inventory tracking with warehouse locations"
+    framework: django
+    difficulty: medium
+    expected_entities: 4  # Warehouse, Inventory, Item, Transfer
+    expected_fks: 3
+    domain: ecommerce
+
+  - id: django-audit-logging-v1
+    description: "Add audit trail for model changes"
+    framework: django
+    difficulty: medium
+    expected_entities: 2  # AuditLog, AuditEntry
+    expected_fks: 1
+    domain: compliance
+
+  # Django - Hard (2 tasks)
+  - id: django-advanced-reporting-v1
+    description: "Add advanced reporting engine with custom filters/aggregations"
+    framework: django
+    difficulty: hard
+    expected_entities: 3  # Report, ReportColumn, Filter
+    expected_fks: 1
+    domain: analytics
+
+  - id: django-celery-tasks-v1
+    description: "Add background job queue with Celery integration"
+    framework: django
+    difficulty: hard
+    expected_entities: 2  # Task, TaskLog
+    expected_fks: 1
+    domain: infrastructure
+
+  # Spring Boot - Easy (3 tasks)
+  - id: spring-blog-posts-v1
+    description: "Add blog post management to Spring Boot app"
+    framework: spring
+    difficulty: easy
+    expected_entities: 2  # Post, Category
+    expected_fks: 1
+    domain: content
+
+  - id: spring-user-management-v1
+    description: "Add user CRUD endpoints to Spring Boot"
+    framework: spring
+    difficulty: easy
+    expected_entities: 1  # User
+    expected_fks: 0
+    domain: authentication
+
+  - id: spring-product-catalog-v1
+    description: "Add product catalog with categories"
+    framework: spring
+    difficulty: easy
+    expected_entities: 2  # Product, Category
+    expected_fks: 1
+    domain: ecommerce
+
+  # Spring - Medium (2 tasks)
+  - id: spring-order-service-v1
+    description: "Add order processing microservice"
+    framework: spring
+    difficulty: medium
+    expected_entities: 3  # Order, OrderItem, Payment
+    expected_fks: 2
+    domain: ecommerce
+
+  - id: spring-kafka-events-v1
+    description: "Add Kafka event streaming for domain events"
+    framework: spring
+    difficulty: medium
+    expected_entities: 2  # Event, EventConsumer
+    expected_fks: 1
+    domain: messaging
+
+  # Spring - Hard (1 task)
+  - id: spring-saga-pattern-v1
+    description: "Add distributed saga pattern for order fulfillment"
+    framework: spring
+    difficulty: hard
+    expected_entities: 4  # Saga, SagaStep, Compensation, Participant
+    expected_fks: 3
+    domain: workflows
+
+  # Go - Easy (2 tasks)
+  - id: go-user-service-v1
+    description: "Add user service with GORM"
+    framework: go
+    difficulty: easy
+    expected_entities: 1  # User
+    expected_fks: 0
+    domain: authentication
+
+  - id: go-product-api-v1
+    description: "Add product API endpoints"
+    framework: go
+    difficulty: easy
+    expected_entities: 1  # Product
+    expected_fks: 0
+    domain: ecommerce
+
+  # Go - Medium (1 task)
+  - id: go-trading-bot-v1
+    description: "Add order matching engine for trading platform"
+    framework: go
+    difficulty: medium
+    expected_entities: 3  # Order, Trade, Position
+    expected_fks: 2
+    domain: finance
+
+  # Node/NestJS - Easy (2 tasks)
+  - id: nestjs-user-auth-v1
+    description: "Add user authentication module to NestJS"
+    framework: nestjs
+    difficulty: easy
+    expected_entities: 2  # User, Token
+    expected_fks: 1
+    domain: authentication
+
+  - id: nestjs-todo-api-v1
+    description: "Add todo list API"
+    framework: nestjs
+    difficulty: easy
+    expected_entities: 2  # Todo, List
+    expected_fks: 1
+    domain: productivity
+
+  # Node/NestJS - Medium (1 task)
+  - id: nestjs-realtime-chat-v1
+    description: "Add real-time chat with WebSocket support"
+    framework: nestjs
+    difficulty: medium
+    expected_entities: 3  # Chat, Message, Participant
+    expected_fks: 2
+    domain: messaging
+
+  # Cross-framework - Medium (2 tasks)
+  - id: generic-data-analytics-v1
+    description: "Add analytics dashboard with aggregations (framework-agnostic)"
+    framework: generic
+    difficulty: medium
+    expected_entities: 3  # Dashboard, Widget, Metric
+    expected_fks: 2
+    domain: analytics
+
+  - id: generic-api-versioning-v1
+    description: "Add API versioning strategy to existing REST service"
+    framework: generic
+    difficulty: medium
+    expected_entities: 2  # ApiVersion, EndpointMapping
+    expected_fks: 1
+    domain: infrastructure
