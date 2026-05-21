@@ -14,7 +14,7 @@ Multi-entity, relationship-aware. Real Alembic migrations. Real OpenAPI 3.1 docs
 
 | Metric | Value |
 |---|---|
-| **Tests** | 515 / 515 green (32 suites, cross-OS CI: Ubuntu × macOS × Windows × Py 3.10–3.12) |
+| **Tests** | 531 / 531 green (32 suites, cross-OS CI: Ubuntu × macOS × Windows × Py 3.10–3.12) |
 | **Active scripts** | 62 (down from 231; 169 dead phase4/phase5 stubs archived) |
 | **Specialist agents** | 13 in `.claude/agents/` |
 | **Skills** | 13 (one-shot-generate primary + 6 productivity + 6 supporting) |
