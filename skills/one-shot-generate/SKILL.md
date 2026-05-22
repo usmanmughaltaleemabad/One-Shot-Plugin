@@ -30,7 +30,17 @@ The arguments are: `$ARGUMENTS`
 
 ---
 
-## Step 0 — Route: templated vs agentic (DO THIS FIRST)
+## Step 0 — Initialize routing trace & route: templated vs agentic (DO THIS FIRST)
+
+Initialize the routing trace (enables introspection into decision layers):
+
+```!
+SESSION_ID=$(date +%s)-$(openssl rand -hex 3)
+PROJECT_ROOT="$2"  # from @./path argument
+python "../one-shot-generator/scripts/routing_trace.py" --init "$SESSION_ID" "$PROJECT_ROOT"
+```
+
+**Route on `--templated`:**
 
 If `$ARGUMENTS` contains `--templated` / `--legacy` / `--free`:
 
@@ -38,10 +48,33 @@ If `$ARGUMENTS` contains `--templated` / `--legacy` / `--free`:
 python "../one-shot-generator/scripts/one_shot_orchestrator.py" "$ARGUMENTS"
 ```
 
+Log the decision:
+```python
+from scripts.routing_trace import get_or_create_trace
+trace = get_or_create_trace(SESSION_ID, PROJECT_ROOT)
+trace.log_decision(
+    stage='SKILL.Step0',
+    layer='L1_ROUTER',
+    decision='route_templated',
+    context={'arguments': ARGUMENTS},
+    consequence='Use legacy Python pipeline, zero Claude tokens, lower quality'
+)
+```
+
 Summarise the output and stop. This costs zero Claude tokens but produces
 lower-quality code. It is a fallback, not the main path.
 
-**For everything else: continue below.**
+**For everything else: continue below (agentic route).**
+
+Log the agentic route decision:
+```python
+trace.log_decision(
+    stage='SKILL.Step0',
+    layer='L1_ROUTER',
+    decision='route_agentic',
+    context={'arguments': ARGUMENTS},
+    consequence='Proceed through 5-stage agentic pipeline'
+)
 
 ---
 
@@ -111,3 +144,18 @@ After RECORD completes, give the user a summary:
 - Wire plan (what was added to main.py / urls.py)
 - Total estimated cost
 - Critic verdict (SHIPPED / ESCALATED)
+
+**Emit routing trace summary** (L1 memory introspection):
+```python
+from scripts.routing_trace import get_or_create_trace
+trace = get_or_create_trace(SESSION_ID, PROJECT_ROOT)
+summary = trace.emit_summary()
+print("\n=== L1 Memory Routing Trace ===")
+print(f"Session: {summary['session_id']}")
+print(f"Total decisions: {summary['total_decisions']}")
+print(f"By layer: {summary['by_layer']}")
+print(f"Trace saved: {summary['trace_file']}")
+```
+
+Users can inspect `.one-shot/routing_trace.jsonl` to see the exact layer
+(L1 Router, L2 Module, L3 Data) that made each decision.

@@ -318,35 +318,51 @@ prompt (Stage 2) AND each implementer's prompt (Stage 3).
 
 ---
 
-## Stage 2.5 — Spec review gate (only if `--review` was passed)
+## Stage 2.5 — Zone approval gate (PLAN → BUILD transition)
 
-If the user passed `--review`, stop here and emit the spec.json
-back to them in a human-readable summary:
+**This gate is mandatory** (unless `--force` or `--skip-approval` was passed).
+The architect has now designed the spec; the user must approve before BUILD 
+zone code generation begins.
 
+```!
+python "../one-shot-generator/scripts/zone_approval_gate.py" enforce \
+    --spec /tmp/osp-spec.json \
+    --arguments "$ARGUMENTS"
 ```
-SPEC REVIEW — <feature name>
-─────────────────────────────────────────────────
-ENTITIES TO CREATE
-  • <pascal> (snake_name)
-    fields: <list>
-    invariants: <list>
-RELATIONSHIPS
-  • <from> ── <kind> ──▶ <to>
-API SURFACE
-  • <METHOD> <path>  ← <handler>
-TEST CONTRACT
-  auth: <value>     pagination: <value>     errors: <value>
-WIRING
-  • <target file>: <action>
-COST ESTIMATE (from cost_budget.py)
-  $<usd> across <n> agent invocations
-─────────────────────────────────────────────────
-Proceed?  [y]es / [e]dit / [a]bort
+
+The script emits an interactive review of the spec:
+- Entities to create (names, fields, invariants)
+- Relationships (foreign keys, cascades)
+- API surface (routes, methods)
+- Cost estimate
+
+User options:
+  - **y / yes**: Approve and continue to BUILD zone (Stage 3)
+  - **n / no**: Abort this run
+  - **s / show**: Display full spec.json for detailed review
+
+**Bypass conditions** (approval skipped):
+  - `--force` — user explicitly opts out of review gates
+  - `--skip-approval` — in CI/automation, after prior approval in another session
+
+**Log the approval decision** (L2 module layer):
+```python
+from scripts.routing_trace import get_or_create_trace
+trace = get_or_create_trace(SESSION_ID, PROJECT_ROOT)
+# (zone_approval_gate.py writes its own decision; this logs the routing)
+trace.log_decision(
+    stage='PLAN.Stage2.5',
+    layer='L2_MODULE',
+    decision='zone_approval_gate',
+    context={'spec_file': '/tmp/osp-spec.json'},
+    consequence='User must approve spec before BUILD zone (code generation) proceeds'
+)
 ```
 
 If the user replies:
   - **y / yes**: continue to Stage 3.
-  - **e / edit** + their description of changes: re-spawn the architect
+  - **n / no**: Exit with status 1. Changes: none (dry-run mode is default).
+  - (no edit option — use `--review` flag from prior run if spec needs revision)
     with the original inputs PLUS their edits as additional context.
     Re-emit the spec for another review pass (max 3 review rounds).
   - **a / abort**: stop. Record a bead noting that a spec was reviewed

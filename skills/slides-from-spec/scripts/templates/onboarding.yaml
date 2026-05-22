@@ -1,0 +1,66 @@
+---
+name: onboarding
+description: "Quick onboarding deck for new users (5-7 slides)"
+slides:
+  - id: 1
+    filename: 01_welcome.png
+    prompt_template: |
+      Welcome slide for new One-Shot users.
+      Text: "Welcome to One-Shot"
+      Subtext: "Generate production-ready code in 2-3 minutes"
+      Warm, inviting design.
+    speaker_notes: "Welcome! You're about to save a lot of time."
+
+  - id: 2
+    filename: 02_what_is_it.png
+    prompt_template: |
+      Explain One-Shot in one sentence.
+      Text: "One-Shot generates code that understands your codebase"
+      Show: code files, understanding, generation.
+    speaker_notes: "One-Shot reads your code and generates features that fit perfectly."
+
+  - id: 3
+    filename: 03_quickstart.png
+    prompt_template: |
+      Show the quickstart command in large, easy-to-read format:
+      "/one-shot \"your feature\" @./project"
+      Include explanation: "That's it. One command."
+    speaker_notes: "Here's all you need to know: one command, describe your feature, done."
+
+  - id: 4
+    filename: 04_examples.png
+    prompt_template: |
+      Show 3 example use cases:
+      "Add shopping cart to e-commerce"
+      "Add user authentication"
+      "Add payment processing"
+      Use icons for each example.
+    speaker_notes: "Works with any feature. Here are some examples."
+
+  - id: 5
+    filename: 05_supported_frameworks.png
+    prompt_template: |
+      Show logos for supported frameworks:
+      FastAPI, Django, Spring Boot, Go, Node.js, NestJS
+      Text: "Works with your tech stack"
+    speaker_notes: "One-Shot supports your framework. If you use FastAPI, Django, Spring, Go, or Node, you're covered."
+
+  - id: 6
+    filename: 06_results.png
+    prompt_template: |
+      Show what you get:
+      ✅ Working code
+      ✅ Tests passing
+      ✅ Integrated with your project
+      ✅ Ready to commit
+      Text: "Everything works immediately"
+    speaker_notes: "You get working code, passing tests, and integration. No manual fixes."
+
+  - id: 7
+    filename: 07_try_now.png
+    prompt_template: |
+      Final slide with next steps.
+      Text: "Ready? Try it now"
+      Instructions: "Run: /one-shot \"your feature\" @./my-project"
+      Include: documentation URL, support email.
+    speaker_notes: "That's it. You're ready. Give it a try and let us know what you think."

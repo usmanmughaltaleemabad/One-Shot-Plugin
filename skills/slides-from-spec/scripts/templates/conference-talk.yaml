@@ -1,0 +1,170 @@
+---
+name: conference-talk
+description: "Generate conference talk from positioning (20 slides)"
+slides:
+  - id: 1
+    filename: 01_title.png
+    prompt_template: |
+      Title slide for a tech conference talk.
+      Title: "One-Shot: Code Generation That Understands Your Code"
+      Subtitle: "Usman Mughal, 2026"
+      Professional, bold design. Subtle background pattern.
+    speaker_notes: "Good morning. My name is Usman, and I'm here to talk about code generation."
+
+  - id: 2
+    filename: 02_problem_setup.png
+    prompt_template: |
+      Show a developer looking frustrated, surrounded by boilerplate code.
+      Text overlay: "The scaffolding tax"
+      Visualize: 30 minutes of repetitive work.
+    speaker_notes: "Here's the problem we're solving: every time you want to add a feature, you spend 30 minutes on boilerplate."
+
+  - id: 3
+    filename: 03_why_templates_fail.png
+    prompt_template: |
+      Show a generic template being stretched to fit different projects.
+      Visualize mismatch: square template into circular project.
+      Text: "Generic templates don't understand your code"
+    speaker_notes: "Existing tools use templates. But templates are generic. They don't understand your codebase."
+
+  - id: 4
+    filename: 04_solution_intro.png
+    prompt_template: |
+      Show Claude AI reading and understanding a codebase.
+      Visualize: files opening, relationships forming, patterns being learned.
+      Text: "Claude understands your code"
+    speaker_notes: "Our solution: let Claude read your entire codebase and understand your patterns."
+
+  - id: 5
+    filename: 05_how_it_works_step1.png
+    prompt_template: |
+      Step 1 visualization: /one-shot command with feature description.
+      Show: user types command, code appears to flow into Claude's mind.
+    speaker_notes: "You describe what you want. Claude analyzes your code."
+
+  - id: 6
+    filename: 06_how_it_works_step2.png
+    prompt_template: |
+      Step 2 visualization: Claude generating code, tests, migrations.
+      Show multiple code files appearing, tests running, checkmarks appearing.
+    speaker_notes: "Claude generates idiomatic code. Tests. Migrations. Everything."
+
+  - id: 7
+    filename: 07_how_it_works_step3.png
+    prompt_template: |
+      Step 3 visualization: Code being wired into main.py automatically.
+      Show integration happening, imports being added, everything connected.
+    speaker_notes: "And it auto-wires everything. No manual integration needed."
+
+  - id: 8
+    filename: 08_metrics_title.png
+    prompt_template: |
+      Title slide for metrics section.
+      Text: "What We Built"
+      Visuals: charts, data points, confidence building.
+    speaker_notes: "Let me show you what we actually built."
+
+  - id: 9
+    filename: 09_metric_routing.png
+    prompt_template: |
+      Large number: "99%"
+      Label: "Routing Accuracy"
+      Subtext: "Correct agent chosen first time"
+      Visualization: target with bullseye hit.
+    speaker_notes: "99% routing accuracy. The right tool for the right task."
+
+  - id: 10
+    filename: 10_metric_tests.png
+    prompt_template: |
+      Large number: "94%"
+      Label: "Test Pass Rate"
+      Subtext: "Code works immediately"
+      Visualization: green checkmarks cascading.
+    speaker_notes: "94% of generated code passes tests on day 1. No surprises."
+
+  - id: 11
+    filename: 11_metric_cost.png
+    prompt_template: |
+      Large number: "$0.45"
+      Label: "Cost per Feature"
+      Subtext: "Less than 10 minutes of developer time"
+      Visualization: dollar sign, cost comparison.
+    speaker_notes: "Average cost is 45 cents. Your time costs way more."
+
+  - id: 12
+    filename: 12_metric_speed.png
+    prompt_template: |
+      Large number: "2.5 min"
+      Label: "Generation Time"
+      Subtext: "From idea to working code"
+      Visualization: clock, lightning bolt.
+    speaker_notes: "2.5 minutes. That's how long it takes from prompt to tested, integrated code."
+
+  - id: 13
+    filename: 13_demo_preview.png
+    prompt_template: |
+      Visual preview of a demo in action.
+      Show: before state (empty files), generation happening (progress), after state (complete code).
+      Text: "Live Demo"
+    speaker_notes: "Let me show you a live example."
+
+  - id: 14
+    filename: 14_differentiation.png
+    prompt_template: |
+      Comparison table-like visualization showing One-Shot vs Templates vs Copilot.
+      Rows: Context, Testing, Integration, Speed, Cost
+      Highlight One-Shot's advantages.
+    speaker_notes: "Here's how we compare to other tools."
+
+  - id: 15
+    filename: 15_why_it_matters.png
+    prompt_template: |
+      Show a team being productive with One-Shot.
+      Visualize: developers shipping more features, velocity increase.
+      Text: "Velocity × 10"
+    speaker_notes: "Why does this matter? Because it reclaims developer time for what matters: building business logic."
+
+  - id: 16
+    filename: 16_enterprise.png
+    prompt_template: |
+      Show enterprise safety features.
+      Icons: lock (security), checkmark (compliance), audit trail (transparency).
+      Text: "Enterprise-Ready"
+    speaker_notes: "Enterprise customers care about reversibility, audit trails, and security. We have all of it."
+
+  - id: 17
+    filename: 17_open_source.png
+    prompt_template: |
+      Show open source badges, MIT license logo.
+      Text: "MIT Licensed. No Lock-In."
+      Visualization: community, collaboration.
+    speaker_notes: "We open-sourced this. Community can contribute. No vendor lock-in."
+
+  - id: 18
+    filename: 18_getting_started.png
+    prompt_template: |
+      Show three simple steps:
+      1. Clone repository
+      2. Run /one-shot
+      3. Commit code
+      Use checkmarks for completed steps.
+    speaker_notes: "Getting started is simple. Three steps."
+
+  - id: 19
+    filename: 19_roadmap.png
+    prompt_template: |
+      Timeline showing next features:
+      Q2: IDE Extensions
+      Q3: Team Collaboration
+      Q4: Microservices
+      Use timeline visualization.
+    speaker_notes: "Here's what's coming next. We're moving fast."
+
+  - id: 20
+    filename: 20_cta.png
+    prompt_template: |
+      Final call-to-action slide.
+      Text: "Try One-Shot Today"
+      Include: GitHub URL, QR code if applicable
+      Text: "github.com/usmanmughaltaleemabad/one-shot-prompting"
+    speaker_notes: "Thanks for listening. Try it out. Give us feedback. Let's build better tools together."

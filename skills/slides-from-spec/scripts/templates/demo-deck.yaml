@@ -1,0 +1,87 @@
+---
+name: demo-deck
+description: "Generate demo deck from spec.json (10 slides)"
+slides:
+  - id: 1
+    filename: 01_title.png
+    prompt_template: |
+      Title slide. Feature name in bold text: "{feature_name}".
+      Subtitle: "{description}".
+      Background: Clean, modern gradient. Bottom right: small One-Shot logo.
+    speaker_notes: "Welcome to the {feature_name} demo. Today we'll see how One-Shot generated this feature."
+
+  - id: 2
+    filename: 02_entities.png
+    prompt_template: |
+      Entity relationship diagram showing {entity_count} database models.
+      Show table names, columns, and relationships with arrows.
+      Example: User -> Cart <- CartItem
+      Use simple boxes and lines. Include primary keys and foreign keys.
+    speaker_notes: "This is the data model. {entity_count} entities with cross-references."
+
+  - id: 3
+    filename: 03_code_sample.png
+    prompt_template: |
+      Show a code snippet (Python or JavaScript). Display one model definition.
+      Include type hints, docstring, and relationship declarations.
+      Use monospace font. Syntax highlighting optional.
+    speaker_notes: "Here's a sample of the generated code. Notice the type hints and documentation."
+
+  - id: 4
+    filename: 04_api_endpoints.png
+    prompt_template: |
+      Show 3-4 API endpoint definitions with HTTP methods and paths.
+      Example: POST /carts, GET /carts/{id}, DELETE /carts/{id}
+      Include request/response bodies as pseudo-code or JSON.
+    speaker_notes: "One-Shot also generated the API endpoints automatically."
+
+  - id: 5
+    filename: 05_tests.png
+    prompt_template: |
+      Show test code snippet. Display 2-3 test function names with assertions.
+      Example: test_create_cart_returns_id(), test_add_item_to_cart()
+      Include pytest marks and fixtures if applicable.
+    speaker_notes: "Tests are generated alongside code. 94% pass rate on day 1."
+
+  - id: 6
+    filename: 06_test_results.png
+    prompt_template: |
+      Show green checkmarks and "PASSED" status.
+      Display "12/12 tests passing" in large text.
+      Include code coverage percentage (e.g., "94% coverage").
+      Celebratory tone, maybe confetti.
+    speaker_notes: "All tests pass immediately. No manual fixes needed."
+
+  - id: 7
+    filename: 07_migrations.png
+    prompt_template: |
+      Show database migration preview. Display SQL CREATE TABLE statements.
+      Include the migration file name (e.g., 001_add_cart_tables.sql).
+      Show "UP" and "DOWN" sections (reversible migrations).
+    speaker_notes: "Migrations are reversible. Safe rollback if anything goes wrong."
+
+  - id: 8
+    filename: 08_integration.png
+    prompt_template: |
+      Show a simple diagram of code being inserted into main.py.
+      Label: "Auto-wired to main.py". Show arrow pointing to main application file.
+      Include a checkmark showing the integration is complete.
+    speaker_notes: "One-Shot automatically wires the code into your application. No manual integration needed."
+
+  - id: 9
+    filename: 09_stats.png
+    prompt_template: |
+      Display metrics in large, easy-to-read format:
+      "2.5 minutes total time"
+      "$0.45 cost"
+      "0 manual fixes needed"
+      "100% secure (zero vulns)"
+    speaker_notes: "Here's how this generation performed."
+
+  - id: 10
+    filename: 10_cta.png
+    prompt_template: |
+      Call-to-action slide. Large text: "Ready to commit?"
+      Subtext: "Run: /one-shot \"your feature\" @./project --apply"
+      Include GitHub link and documentation URL.
+    speaker_notes: "That's the whole story. Generate, test, commit. Let's try it together."
