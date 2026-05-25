@@ -29,7 +29,7 @@ the relevant block, attach the linked artefact.
 
 ```
 Production agentic one-shot code generation for existing codebases.
-21-stage pipeline, 16 specialist agents, FK-aware migrations, real
+21-stage pipeline, 17 specialist agents, FK-aware migrations, real
 service-layer with invariants. Cost-gated. Self-extending registry.
 ```
 
@@ -39,7 +39,7 @@ service-layer with invariants. Cost-gated. Self-extending registry.
 **ONE SHOT PLUGIN** turns a natural-language feature request into
 production-ready code in your existing project. Claude reads
 `skills/one-shot-generate/SKILL.md` and orchestrates a 15-stage pipeline
-through 16 specialist agents in `.claude/agents/`:
+through 17 specialist agents in `.claude/agents/`:
 
 - **architect** designs the spec (entities, relationships, invariants)
 - **service-author** writes business logic (not just CRUD)
