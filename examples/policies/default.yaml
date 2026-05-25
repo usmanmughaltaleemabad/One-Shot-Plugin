@@ -1,0 +1,77 @@
+# one-shot Policy Configuration — v1.0.0 (Phase 3-T1)
+#
+# Place this file at: ~/.claude/one-shot.policy.yml
+#
+# Profiles define:
+#   - roles: which agents are allowed (architect, implementer, test-author, reviewer, critic, wirer)
+#   - budgets: cost limits per generation and per month
+#   - autonomy: execution autonomy (none=manual, low=checked, high=self-directed)
+#   - description: human-readable purpose
+#
+# Priority order (highest first):
+#   1. CLI argument: one-shot --profile ci <feature>
+#   2. Environment variable: export OSP_PROFILE=ci
+#   3. Config file: ~/.claude/one-shot.policy.yml
+#   4. Defaults: dev (in memory)
+
+profiles:
+  # Development profile: full access, high budgets
+  dev:
+    roles:
+      - architect
+      - implementer
+      - test-author
+      - reviewer
+      - critic
+      - wirer
+    budgets:
+      cost_per_generation: 10.0  # Max $10 per generation
+      cost_per_month: 500.0      # Max $500 per month
+    autonomy: high
+    description: "Development profile with full agent access and high budgets. Use for rapid iteration and feature development."
+
+  # CI/CD profile: limited agents, tight budgets
+  ci:
+    roles:
+      - implementer
+      - reviewer
+    budgets:
+      cost_per_generation: 2.0   # Max $2 per generation
+      cost_per_month: 100.0      # Max $100 per month
+    autonomy: low
+    description: "CI/CD profile with limited agents (no architect/critic) and tight budgets. For automated pull request generation and validation."
+
+  # Audit profile: review-only, minimal budget
+  audit:
+    roles:
+      - reviewer
+    budgets:
+      cost_per_generation: 5.0   # Max $5 per review
+      cost_per_month: 50.0       # Max $50 per month
+    autonomy: none
+    description: "Audit profile allowing only review agents, no generation. For compliance and code review workflows."
+
+  # Experimental profile: testing new features
+  experimental:
+    roles:
+      - architect
+      - implementer
+      - test-author
+      - reviewer
+      - critic
+    budgets:
+      cost_per_generation: 15.0  # Higher budget for experimentation
+      cost_per_month: 1000.0
+    autonomy: high
+    description: "Experimental profile with expanded budgets for testing new agentic patterns."
+
+  # Lite profile: cost-conscious development
+  lite:
+    roles:
+      - implementer
+      - reviewer
+    budgets:
+      cost_per_generation: 0.5   # Very tight per-generation budget
+      cost_per_month: 50.0
+    autonomy: high
+    description: "Lite profile for cost-conscious developers. Use templated fallback when budget exceeds limit."
