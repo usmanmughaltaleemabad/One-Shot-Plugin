@@ -7,6 +7,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] — 2026-05-25 — README gap closure (honest accounting)
+
+This release closes the "Known gaps" table that shipped in the v1.0.0
+README. Some closures are real new code; others are reclassifications or
+new tooling that makes the gap measurable instead of asserted. No previous
+release claim is silently rewritten — see README "Status of known gaps"
+for the before/after.
+
+### Added
+
+- **`tests/evals/agentic_replays/` — 12 new replay scenarios** across 5 agent
+  types (implementer +3, reviewer +3, doubter +2, critic +2, handoff +2).
+  Total replay coverage: 14 → 26 scenarios across 7 agent types, all
+  passing the existing grader contract.
+- **`scripts/cost_stats.py`** — aggregates `.beads/cost_observations.jsonl`
+  into a calibration report (p50/p95 tokens + USD per agent) with an
+  honest confidence label (none/low/low-medium/medium/high) tied to
+  sample count. Current state: 6 architect samples → "low confidence,
+  directional". The report makes the gap visible instead of hand-asserted.
+- **`scripts/curriculum_status.py`** — reports whether the self-learning
+  loop is cold / warming / active / mature, based on
+  `.claude/registry/curriculum_seed.jsonl` (10 entries) +
+  `.beads/curriculum.jsonl` (4 runtime entries). Current: "warming".
+- **`docs/command-maturity.md`** — authoritative source for the
+  `status:` field on commands. Defines stable / beta / experimental
+  tiers with documented promotion criteria.
+- **`docs/external-references.md`** — explains why `ay-framework/` and
+  `nanoGPT/` live next to the plugin in the parent directory as
+  independent research clones rather than vendored content.
+- **`docs/patterns/pi-dev-research.md`** — research findings on pi.dev
+  (peer harness). Documents the conceptual mapping, three small
+  borrowables, and four explicit rejections with reasons.
+- **`docs/observability/metrics-dashboard.md`** — Jaeger query examples,
+  consolidated from the parent repo's superseded `docs/observability/`.
+- **14 new tests** (`tests/test_cost_stats.py` + `tests/test_curriculum_status.py`).
+
+### Changed
+
+- **6 commands reclassified** from `status: experimental` to
+  `status: beta`: architecture, execute-plan, sys-debug, tdd, strangler,
+  templates. Nothing archived. See `docs/command-maturity.md`.
+- **`README.md` "Known gaps" section** rewritten as "Status of known gaps
+  (v1.2.1)" with a v1.0.0 → v1.2.1 diff column and explicit evidence
+  links. Open gaps (zero external users) are still listed as open.
+- **Version bumped** from 1.1.0 → 1.2.1 in `.claude-plugin/plugin.json`.
+  Skips 1.2.0 because that label was used internally without a tagged
+  release; this release is the first publicly stamped 1.2.x.
+
+### Removed
+
+- Parent-repo `docs/observability/` (superseded duplicate; moved into the
+  plugin tree under `docs/observability/metrics-dashboard.md`).
+
+### Not done (and why)
+
+- **External users**: still zero. Cannot be closed by writing code.
+- **pi.dev vendor packages**: considered and rejected — pi.dev is a peer
+  harness, not a complementary tool. See `docs/patterns/pi-dev-research.md`.
+
+---
+
 ## [1.2.0] — 2026-05-25 — Phase 3 + Phase 4 Complete (Enterprise Governance & Audit)
 
 **Major milestone:** Phase 3 (Policy, Knowledge, Routing, Curriculum) + Phase 4 (Comprehensive Audit) complete.

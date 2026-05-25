@@ -4,7 +4,7 @@ last_verified: 2026-05-25
 owner: claude
 ---
 
-# one-shot-prompting Plugin — v1.2.0
+# one-shot-prompting Plugin — v1.2.1
 
 > **Auditing?** Start with [docs/architecture/agent-first-principle.md](docs/architecture/agent-first-principle.md),
 > then read `SKILL.md` → agents → scripts (in that order).
@@ -113,4 +113,4 @@ python skills/one-shot-generator/scripts/compliance_audit.py
 
 ---
 
-Updated 2026-05-25 (v1.2.0) — Phase 3 + Phase 4 Complete
+Updated 2026-05-25 (v1.2.1) — README gaps closure (see docs/command-maturity.md, scripts/cost_stats.py, scripts/curriculum_status.py, docs/patterns/pi-dev-research.md)

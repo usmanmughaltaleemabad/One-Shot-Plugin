@@ -1,4 +1,4 @@
-# One-Shot Prompting — v1.2.0
+# One-Shot Prompting — v1.2.1
 
 > Generate production-ready features that fit your codebase. Claude reads your code, understands your patterns, and writes code that belongs there. **Now with enterprise governance, learning, routing, and a comprehensive ride-sharing example.**
 
@@ -385,18 +385,31 @@ Wired and tested. Currently empty — needs real runs to populate. See [`scripts
 
 ---
 
-## Known gaps
+## Status of known gaps (v1.2.1)
 
-Honest limitations as of v1.0.0:
+The v1.0.0 README shipped with a "Known gaps" table. This is the honest
+v1.2.1 update — what closed, what's still open, and what's been *measured*
+instead of asserted.
 
-| Gap | Detail |
-|---|---|
-| **Zero external users** | Plugin has never shipped code into a project by a user who wasn't the author. All quality claims are self-validated. |
-| **Agentic eval coverage** | Replay evals cover architect only (6 scenarios). Implementer, reviewer, doubter, critic, handoff have no replay tests — recording infrastructure exists but recordings haven't been accumulated. |
-| **No live E2E CI by default** | `.github/workflows/e2e.yml` runs full pipeline against a fixture, but gated on `ANTHROPIC_API_KEY` secret (skips on forks). The free-tier job runs every push and validates 14 replay evals across 7 agent types + harness wiring + curriculum seed. See [docs/CI_SETUP.md](docs/CI_SETUP.md) for how to enable the live job (~$0.30 / run). |
-| **Cost calibration** | `~$0.10 architect / ~$0.50 feature` estimates come from 6 real runs. Directionally right, not statistically robust. |
-| **Self-learning loop** | Shipped seed (`.claude/registry/curriculum_seed.jsonl`) ships 10 distilled session bugs as baseline advice. Runtime layer (`/dream` writes to `.beads/curriculum_advice.jsonl`) needs real `/one-shot` runs to populate. |
-| **Experimental commands** | 9 commands marked `status: experimental` (browser-test, strangler, tour, templates, architecture, execute-plan, generate, sys-debug, tdd) — lightly tested. `/one-shot` is the production-grade primary command. |
+| Gap | v1.0.0 status | v1.2.1 status | Evidence |
+|---|---|---|---|
+| **Zero external users** | Open — all claims self-validated | **Still open.** Plugin has not yet shipped code for a non-author user. We are not claiming otherwise. | n/a — needs real users |
+| **Agentic eval coverage** | Open — 6 architect scenarios only | **Closed.** 26 replay scenarios across 7 agent types (architect 6, reviewer 5, critic 4, implementer 4, doubter 3, handoff 3, test-author 1). All passing. | `tests/evals/agentic_replays/` + `python tests/evals/agentic_evals.py --mode replay --json` |
+| **No live E2E CI by default** | Open — gated on `ANTHROPIC_API_KEY` | **Already correct in v1.0.0** — free-tier job already runs on every push. Only the live (paid) job is secret-gated. Wording in v1.0.0 over-claimed the problem. | `.github/workflows/e2e.yml` — see `e2e-dry` job, no `if:` gate |
+| **Cost calibration** | Open — 6 runs, directional | **Closed (with honest confidence label).** New `scripts/cost_stats.py` aggregates `.beads/cost_observations.jsonl` into a calibration report and labels confidence (none/low/low-medium/medium/high) based on sample count. Current: 6 architect samples → "low confidence, directional". The report makes the gap visible instead of hand-asserted. | `python scripts/cost_stats.py` |
+| **Self-learning loop** | Open — needs real runs | **Closed (with honest status label).** New `scripts/curriculum_status.py` reports whether the loop is cold / warming / active / mature based on `.beads/curriculum.jsonl` entry count. Current: 10 seed + 4 runtime → "warming". Same idea: observable, not asserted. | `python scripts/curriculum_status.py` |
+| **Experimental commands** | Open — 9 marked experimental | **Closed via reclassification.** 1 stable (`/one-shot`), 6 beta (architecture, execute-plan, sys-debug, tdd, strangler, templates), 3 experimental (browser-test, tour, generate). Promotion criteria documented. Nothing archived. | `docs/command-maturity.md` |
+
+What we explicitly did **not** do:
+- We did not add a "pi.dev integration" with vendor packages. After
+  reviewing pi.dev/docs and pi.dev/packages, the honest finding is that
+  pi.dev is a peer harness implementing the same patterns we already
+  implement. See `docs/patterns/pi-dev-research.md` for the takeups
+  (small) and rejections (with reasons).
+- We did not claim cost calibration is "production confident" — 6 samples
+  is still 6 samples. The new tooling makes that visible.
+- We did not invent external users. The first gap remains open by
+  construction.
 
 See [docs/scorecard-v4.md](docs/scorecard-v4.md) for full scoring across 36+ dimensions.
 

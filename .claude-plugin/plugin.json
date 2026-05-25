@@ -1,7 +1,7 @@
 {
   "name": "ONE SHOT PLUGIN (CLAUDE CODE STUDIO)",
   "description": "Production agentic one-shot code generation with observability, autonomous recovery, and enterprise orchestration. 14-stage pipeline: curriculum check, predictive failure scan (WS4), OTel monitoring (WS1), codebase analysis, architect → service-author → implementer×N + test-author (parallel) → reviewer → doubter → wirer → critic. Features: real-time Jaeger tracing (WS1), docs-drift detection (WS2), autonomous rollback on failure (WS3), ML-based failure prediction (WS4), multi-stage workflow orchestration + MCP service discovery (WS5). Cost-tiered routing (Haiku writers, Sonnet reasoners). Self-extending registry, autonomy-level gating, learnings-hub, auto-patch, Alembic migrations, OpenAPI generation. Multi-entity, FK-aware, cost-budget-gated. Supports FastAPI, Django, Spring, Go, Node, NestJS.",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "author": {
     "name": "Usman Mughal",
     "url": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin"
