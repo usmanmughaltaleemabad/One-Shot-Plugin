@@ -41,15 +41,24 @@ One-Shot generates complete, working features that integrate seamlessly into exi
 **Supported Frameworks:**
 - FastAPI, Django, Spring Boot, Go, Node.js, NestJS
 
-**The Numbers:**
-- 99.79% test pass rate (938/960 tests green)
-- 96% type hint coverage (excellent code safety)
-- 8.3/10 audit score (enterprise-grade)
-- 18-agent orchestration system (sophisticated)
-- $0.45 average cost per feature
-- 2.5 minutes average time
-- 100% security compliance (zero critical issues)
-- 960+ tests passing (938 passing, 938/960 = 99.79%)
+**Verifying any of this yourself:**
+
+Numbers in marketing copy go stale. Pointers to source of truth do not.
+Run these to see the current state:
+
+| What | How to check |
+|---|---|
+| Test suite | `python -m pytest tests/ -q` |
+| Agentic replay scenarios | `python tests/evals/agentic_evals.py --mode replay --json` |
+| Cost calibration (with confidence label) | `python scripts/cost_stats.py` |
+| Self-learning loop state | `python scripts/curriculum_status.py` |
+| Agent list | `ls .claude/agents/` |
+| Command list + maturity | `docs/command-maturity.md` |
+| Smoke check | `bash .claude/scripts/smoke-test.sh` |
+
+The plugin has **zero external users** to date — every quality claim is
+self-validated. See [`docs/validation-pathway.md`](docs/validation-pathway.md)
+for how to be the first external validator.
 
 ---
 
@@ -237,7 +246,7 @@ skills/                          ← Claude reads SKILL.md and acts
   curator                         ← external-agent discovery via WebSearch + MCP (WS5)
   one-shot-generator              ← templated fallback (--templated)
 
-.claude/agents/                  ← 13 specialists + 3 WS1-5 agents = 16 total
+.claude/agents/                  ← specialists (run `ls .claude/agents/` for the current list)
   architect       (sonnet) — designs spec.json
   service-author  (sonnet) — business logic, invariants, transactions, events
   implementer     (haiku)  — writes ONE file per spawn (cost-optimised)
