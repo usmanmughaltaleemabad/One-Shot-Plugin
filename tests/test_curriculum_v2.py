@@ -7,6 +7,7 @@ including curriculum loading, similarity computation, and predictions.
 
 import json
 import sys
+import importlib
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -21,6 +22,9 @@ from curriculum_v2 import (
     load_curriculum,
     predict_failure,
 )
+
+# Keep a reference to the correct curriculum_v2 module for monkeypatching
+import curriculum_v2 as curriculum_v2_module
 
 
 def create_test_curriculum(tmp_path: Path) -> Path:
@@ -139,8 +143,7 @@ class TestFindSimilarFailures:
     def test_find_similar_failures_no_curriculum(self, monkeypatch):
         """Test when curriculum file doesn't exist (returns empty)."""
         # Mock load_curriculum to return empty
-        import curriculum_v2
-        monkeypatch.setattr(curriculum_v2, "load_curriculum", lambda *args, **kw: [])
+        monkeypatch.setattr(curriculum_v2_module, "load_curriculum", lambda *args, **kw: [])
         result = find_similar_failures("test task")
         assert result == []
 
@@ -154,18 +157,17 @@ class TestFindSimilarFailures:
         curriculum = load_curriculum(curriculum_file)
 
         # Mock get_embedding to return None (embeddings unavailable)
-        import curriculum_v2
-        original_get_embedding = curriculum_v2.get_embedding
+        original_get_embedding = curriculum_v2_module.get_embedding
 
         def mock_get_embedding(_: str):
             return None
 
-        curriculum_v2.get_embedding = mock_get_embedding
+        curriculum_v2_module.get_embedding = mock_get_embedding
         try:
             result = find_similar_failures("shopping cart", curriculum=curriculum)
             assert result == []
         finally:
-            curriculum_v2.get_embedding = original_get_embedding
+            curriculum_v2_module.get_embedding = original_get_embedding
 
     def test_find_similar_failures_includes_similarity_score(self, tmp_path):
         """Test that returned results include similarity score."""
