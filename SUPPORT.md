@@ -1,7 +1,8 @@
 ---
 type: policy
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 owner: claude
+version: v1.2.0
 ---
 
 # Support Policy
@@ -56,4 +57,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-**Last Updated**: 2026-05-19
+**Last Updated**: 2026-05-25  
+**Current Version**: v1.2.0 (Phase 3 + Phase 4 Complete)

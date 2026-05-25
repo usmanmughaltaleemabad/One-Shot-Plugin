@@ -4,7 +4,7 @@ last_verified: 2026-05-25
 owner: claude
 ---
 
-# Implementation Status — v1.1.0 (TIER A Complete)
+# Implementation Status — v1.2.0 (Phase 3 + Phase 4 Complete)
 
 Feature-by-feature status tracker. Updated daily during development.
 

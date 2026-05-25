@@ -139,7 +139,8 @@ class TestFindSimilarFailures:
     def test_find_similar_failures_no_curriculum(self, monkeypatch):
         """Test when curriculum file doesn't exist (returns empty)."""
         # Mock load_curriculum to return empty
-        monkeypatch.setattr("curriculum_v2.load_curriculum", lambda *args, **kw: [])
+        import curriculum_v2
+        monkeypatch.setattr(curriculum_v2, "load_curriculum", lambda *args, **kw: [])
         result = find_similar_failures("test task")
         assert result == []
 

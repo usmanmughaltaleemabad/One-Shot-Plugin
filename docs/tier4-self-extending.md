@@ -1,7 +1,8 @@
 ---
 type: reference
-last_verified: 2026-05-18
+last_verified: 2026-05-25
 owner: claude
+version: v1.2.0
 ---
 
 # Tier 4 — Self-Extending Plugin

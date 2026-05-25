@@ -1,7 +1,8 @@
 ---
 type: reference
-last_verified: 2026-05-17
+last_verified: 2026-05-25
 owner: claude
+version: v1.2.0
 ---
 
 # Tier 1 Pipeline — Codebase-Aware, Self-Verifying One-Shot

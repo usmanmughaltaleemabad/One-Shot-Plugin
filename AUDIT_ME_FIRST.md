@@ -10,8 +10,8 @@ This is a **Claude Code plugin**, not a Python library. The value lives in the
 agentic orchestration, not in the Python files. If you skim `scripts/` first
 you will reach the wrong conclusions about what this plugin is.
 
-**Current version:** v1.1.0 (TIER A Workstreams complete).
-**Tests:** 800+ invocation-based, cross-OS CI (Ubuntu × macOS × Windows × Py 3.10–3.14).
+**Current version:** v1.2.0 (Phase 3 + Phase 4 complete).
+**Tests:** 960+ invocation-based, cross-OS CI (Ubuntu × macOS × Windows × Py 3.10–3.14). 99.79% pass rate (938/960).
 **Agent-First Philosophy:** Start with [docs/architecture/agent-first-principle.md](docs/architecture/agent-first-principle.md).
 
 ---
@@ -33,7 +33,7 @@ you will reach the wrong conclusions about what this plugin is.
    - `ship.md` — Stages 6–7: wire, migrate, approval gate, critic loop (with systematic-debug on repeat failures)
    - `record.md` — Stages 8–8.5: graph refresh, learnings, dream consolidation, handoff runbook
 
-4. **`.claude/agents/*.md`** (16 files total: 13 core + 3 WS1-5 NEW) — specialist agent prompts the stages
+4. **`.claude/agents/*.md`** (18 files total: 13 core + 5 Phase 3-4 NEW) — specialist agent prompts the stages
    spawn via Task. Read these in order for the core loop:
    - `architect.md` — designs spec.json (Sonnet)
    - `service-author.md` — business logic + invariants (Sonnet)

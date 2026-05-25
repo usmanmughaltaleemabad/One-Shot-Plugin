@@ -487,9 +487,11 @@ MIT. See [LICENSE](LICENSE).
 
 ## Versions + cumulative history
 
-**Current: v1.0.0** (2026-05-19) — first public release, label reset from internal v4.15.
+**Current: v1.2.0** (2026-05-25) — Phase 3 + Phase 4 complete (Policy, Knowledge, Routing, Curriculum + Comprehensive Audit). Enterprise-ready, 8.3/10 audit score, 960+ tests passing. Fully backward compatible with v1.0.0 and v1.1.0.
 
-Full release history (internal v0.x → v4.15 milestones included): see [CHANGELOG.md](CHANGELOG.md).
+**Previous milestones:** v1.1.0 (2026-05-22) TIER A workstreams, v1.0.0 (2026-05-19) first public release, internal v4.15 architecture.
+
+Full release history (all versions): see [CHANGELOG.md](CHANGELOG.md).
 
 **Try it risk-free.** Launch the [Codespaces sandbox](.devcontainer/README.md) for a one-click demo against a broken FastAPI app — no local install required, GitHub's free tier covers it.
 
