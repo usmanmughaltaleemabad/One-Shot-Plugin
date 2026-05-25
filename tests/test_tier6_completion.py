@@ -183,11 +183,13 @@ def test_telemetry_decorator_applied_to_scaffold_planner():
 # ─── Marketplace + CI + tutorial ────────────────────────────────────────────
 
 def test_marketplace_submission_md_exists():
-    path = REPO_ROOT / "MARKETPLACE_SUBMISSION.md"
-    assert path.exists()
-    text = path.read_text(encoding="utf-8")
-    import re as _re
-    assert _re.search(r"v\d+\.\d+\.\d+", text), "must contain a version string"
+    """v1.2.2 deleted MARKETPLACE_SUBMISSION.md as part of the self-audit
+    cleanup (external audit flagged it as 'doesn't belong in the public
+    repo until you're actually submitting'). The submission packet, when
+    it exists, lives in private notes, not in source control. This test
+    is kept as a placeholder so the removal is intentional, not silent."""
+    import pytest as _pytest
+    _pytest.skip("MARKETPLACE_SUBMISSION.md deliberately removed in v1.2.2")
     assert "submission" in text.lower()
 
 

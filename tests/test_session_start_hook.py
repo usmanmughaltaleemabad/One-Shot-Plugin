@@ -48,12 +48,10 @@ def test_session_start_hook_runs_docs_drift_check(tmp_path):
     # Verify the hook ran successfully
     assert result.returncode == 0, f"Hook failed with code {result.returncode}: {result.stderr}"
 
-    # Check that docs-drift message appears in output
-    output = result.stdout if result.stdout else ""
-    assert "[Hook] Running docs-drift check..." in output, \
-        f"Hook didn't print docs-drift message. Output: {output[:500]}"
-
-    # Verify docs-state.json was created
+    # v1.2.2 made the docs-drift check silent on success (was: '[Hook]
+    # Running docs-drift check...' on every session, which was noise).
+    # The observable contract is that docs-state.json gets written; that
+    # is what we assert.
     docs_state_file = tmp_path / ".beads" / "docs-state.json"
     assert docs_state_file.exists(), f"docs-state.json was not created at {docs_state_file}"
 
@@ -92,13 +90,12 @@ def test_session_start_hook_gracefully_handles_missing_script(tmp_path):
         env=env
     )
 
-    # Verify the hook still ran successfully
+    # Verify the hook still ran successfully even when scripts/codebase_diff.py
+    # is missing. The hook used to print "Skipping docs-drift check" but
+    # v1.2.2 silenced that line (and made the docs-drift check itself
+    # best-effort) — so we just assert clean exit instead of asserting
+    # the presence of a specific log message.
     assert result.returncode == 0, f"Hook failed: {result.stderr}"
-
-    # Check that it emits skip message
-    output = result.stdout if result.stdout else ""
-    assert "Skipping docs-drift check" in output, \
-        f"Hook didn't print skip message. Output: {output[:500]}"
 
     # Verify docs-state.json was NOT created
     docs_state_file = tmp_path / ".beads" / "docs-state.json"
