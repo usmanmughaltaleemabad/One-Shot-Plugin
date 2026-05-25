@@ -115,7 +115,7 @@ finds an external-skill gap, not a pipeline stage.
 ```bash
 # Confirm the test suite is green (no API key needed)
 python -m pytest tests/ -q --ignore=tests/integration
-# expected: ~536 passed
+# expected: ~546 passed
 
 # Confirm the skill wiring claims are real (no API key needed)
 python -m pytest tests/test_mattpocock_skill_wiring.py -v

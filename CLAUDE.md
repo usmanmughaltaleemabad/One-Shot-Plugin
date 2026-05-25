@@ -10,7 +10,7 @@ owner: claude
 > See [AUDIT_ME_FIRST.md](AUDIT_ME_FIRST.md).
 
 Production agentic one-shot generation. 21-stage pipeline → 11
-specialist agents → 30+ deterministic tools. **536 tests green**,
+specialist agents → 30+ deterministic tools. **546 tests green**,
 101 body hints, 30 slash commands.
 
 ## Quick Navigation
