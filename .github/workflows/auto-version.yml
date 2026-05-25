@@ -52,12 +52,38 @@ jobs:
           # [skip ci] prevents this commit from re-triggering the workflow
           git commit -m "chore: bump version to ${{ steps.bump.outputs.version }} [skip ci]"
 
-      - name: Create and push release tag
+      - name: Create and push release tag + GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=${{ steps.bump.outputs.version }}
-          TAG="one-shot-prompting--v$VERSION"
-          # Force-update the tag if it already exists (e.g. re-run on same version)
-          git tag -f -a "$TAG" -m "one-shot-prompting $VERSION"
+          PLUGIN_TAG="one-shot-prompting--v$VERSION"
+          GH_TAG="v$VERSION"
+
+          # Push master with the version bump commit first
           git push origin master
-          git push origin "refs/tags/$TAG" --force
-          echo "Tagged: $TAG"
+
+          # Plugin catalog tag (format the community CI watches)
+          git tag -f -a "$PLUGIN_TAG" -m "one-shot-prompting $VERSION"
+          git push origin "refs/tags/$PLUGIN_TAG" --force
+
+          # GitHub Release tag (standard vX.Y.Z shown on repo page)
+          git tag -f "$GH_TAG"
+          git push origin "refs/tags/$GH_TAG" --force
+
+          # Get the triggering commit message for the release notes
+          COMMIT_MSG=$(git log -2 --pretty=%s | grep -v "\[skip ci\]" | head -1)
+
+          # Delete existing release if it exists, then recreate
+          gh release delete "$GH_TAG" --yes 2>/dev/null || true
+          gh release create "$GH_TAG" \
+            --title "v$VERSION" \
+            --notes "**$COMMIT_MSG**
+
+Install from community marketplace:
+\`\`\`
+/plugin install one-shot-prompting@claude-community
+\`\`\`
+
+See [CHANGELOG.md](https://github.com/usmanmughaltaleemabad/One-Shot-Plugin/blob/master/CHANGELOG.md) for full history." \
+            --latest
