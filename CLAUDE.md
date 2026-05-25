@@ -6,40 +6,37 @@ owner: claude
 
 # one-shot-prompting Plugin — v1.2.2
 
-> **Auditing?** Start with [docs/architecture/agent-first-principle.md](docs/architecture/agent-first-principle.md),
-> then read `SKILL.md` → agents → scripts (in that order).
-> See [AUDIT_ME_FIRST.md](AUDIT_ME_FIRST.md).
+> **Orientation:** read `docs/architecture/agent-first-principle.md`, then
+> `skills/one-shot-generate/SKILL.md`, then `.claude/agents/`. The agents
+> are where the work happens; scripts are deterministic helpers they call.
 
-Production agentic one-shot generation. 14-stage pipeline → 18 specialist agents → 50+ deterministic tools.
-**960+ tests green**, 101 body hints, 35+ slash commands. Phase 3 Complete: Policy engine, knowledge store,
-intent routing, advanced curriculum. Phase 4 Complete: Comprehensive audit (8.3/10 score). PRODUCTION READY.
+Agentic code-generation plugin. `/one-shot` is the primary command.
+For current numbers (test count, agent count, etc.) run the commands
+listed in README §"Verifying any of this yourself" — numbers belong in
+shell output, not in markdown headers.
 
 ## Quick Navigation
 
 | For... | See... |
 |---|---|
-| Phase 3: Policy, Knowledge, Routing | `docs/governance/` + `docs/learning/` + `docs/routing/` |
-| Phase 4 Audit Results (8.3/10) | `audit/AUDIT_SUMMARY_2026-05-25.md` |
-| v1.2.0 Release Notes | `RELEASE_NOTES_v1.2.0.md` |
-| Ride-sharing Example (87 endpoints) | `examples/ride-sharing-system/README.md` |
 | Agent-first principle | `docs/architecture/agent-first-principle.md` |
-| Pipeline tier docs | `docs/tier{1,2,25,3,35-agentic,4-self-extending,5-observability}.md` |
+| Pipeline tier docs | `docs/tier1-pipeline.md` ... `docs/tier35-agentic.md` |
+| Command maturity tiers | `docs/command-maturity.md` |
+| Validation pathway (zero external users today) | `docs/validation-pathway.md` |
 | OTel monitoring guide | `docs/observability/README.md` |
-| Production deployment | `docs/production-deployment.md` |
+| Ride-sharing example (29 of 87 endpoints, runnable) | `examples/ride-sharing-system/README.md` |
 | Troubleshooting | `TROUBLESHOOTING.md` |
 | Release history | `CHANGELOG.md` |
 
 ## Structure
 
 ```
-.claude/         hooks, 18 agents (core + Phase 3 + WS1-5), standards, registry, external/
-skills/          16 skills (one-shot-generate primary; P3 policy/routing/knowledge)
-commands/        35+ slash commands (policy, knowledge, routing, rollback, docs-drift, curate)
-docs/            per-tier reference + Phase 3 guides (governance, learning, routing) + observability
-examples/        ride-sharing-system complete example (87 endpoints, 11 tables)
-tests/           960+ invocation tests + evals + agentic replays + integration harness
-audit/           Phase 4 comprehensive audit (8.3/10 score, production ready)
-.archive/        historical phase4-5 stubs (untracked since v4.13)
+.claude/         hooks, agents (run `ls .claude/agents/` for current list), standards, registry
+skills/          skills (one-shot-generate is primary; see skills/CLAUDE.md for index)
+commands/        slash commands (see docs/command-maturity.md for stable/beta/experimental tiers)
+docs/            per-tier reference + observability + patterns + validation pathway
+examples/        ride-sharing-system (real code), shopping-cart, auth, etc.
+tests/           pytest suite + tests/evals/ replay scenarios
 .claude-plugin/  plugin.json manifest
 ```
 

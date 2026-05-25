@@ -286,7 +286,7 @@ skills/one-shot-generator/scripts/   ← 50+ active deterministic tools + WS1-5 
   WS3 (Rollback): rollback_orchestrator.py, git_safety.py
   WS4 (Predict): failure_predictor.py, embeddings_cache.py
   WS5 (Workflow): mcp_service_registry.py, workflow_orchestrator.py, memory_context.py
-  These are NOT the pipeline. See AUDIT_ME_FIRST.md.
+  These are NOT the pipeline. See `docs/architecture/agent-first-principle.md`.
 ```
 
 ---
@@ -427,8 +427,7 @@ for the v1.2.1 gap-closure detail.
 
 | File | Purpose |
 |---|---|
-| **[AUDIT_ME_FIRST.md](AUDIT_ME_FIRST.md)** | Orientation for reviewers — read first |
-| [README.md](README.md) | This file — overview, quickstart, status |
+| [README.md](README.md) | This file — overview, quickstart, validation pointers |
 | [CHANGELOG.md](CHANGELOG.md) | Full version history |
 | [CLAUDE.md](CLAUDE.md) | Root router for Claude Code sessions |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues + fixes |
@@ -436,9 +435,8 @@ for the v1.2.1 gap-closure detail.
 | [SECURITY.md](SECURITY.md) | Vulnerability disclosure, data handling |
 | [PRIVACY.md](PRIVACY.md) | Privacy guarantees, data retention |
 | [SUPPORT.md](SUPPORT.md) | Support channels, maintenance |
-| [DIRECTORY_SUBMISSION_FORM.md](DIRECTORY_SUBMISSION_FORM.md) | Anthropic Directory submission package |
-| [ANTHROPIC_COMPLIANCE_CHECKLIST.md](ANTHROPIC_COMPLIANCE_CHECKLIST.md) | Self-audit compliance matrix |
-| [MARKETPLACE_SUBMISSION.md](MARKETPLACE_SUBMISSION.md) | Marketplace submission artifact |
+| [docs/command-maturity.md](docs/command-maturity.md) | stable / beta / experimental command tiers |
+| [docs/validation-pathway.md](docs/validation-pathway.md) | How to be the first external validator |
 | [docs/cookbook.md](docs/cookbook.md) | Worked examples |
 | [docs/CI_SETUP.md](docs/CI_SETUP.md) | How to enable live E2E CI (Anthropic API key setup) |
 | [docs/production-deployment.md](docs/production-deployment.md) | Operational guidance |
