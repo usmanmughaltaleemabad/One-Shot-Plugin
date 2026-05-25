@@ -8,9 +8,7 @@ read-only: true
 
 Run a capability scan over the project at $ARGUMENTS (or the current directory if no path is given) and produce a compact health report.
 
-```!
-python "./skills/one-shot-generator/scripts/health_check.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/health_check.py" "$ARGUMENTS"`
 
 The report shows:
 - detected framework, message bus, runtime, testing tool, logger, IaC, migrations

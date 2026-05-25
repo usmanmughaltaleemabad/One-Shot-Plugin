@@ -8,9 +8,7 @@ read-only: true
 
 Scan + report:
 
-```!
-python "./skills/one-shot-generator/scripts/perf_audit.py" $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/perf_audit.py" $ARGUMENTS`
 
 ## What it detects
 

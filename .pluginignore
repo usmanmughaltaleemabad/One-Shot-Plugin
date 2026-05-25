@@ -1,0 +1,19 @@
+# Files/directories excluded from the installed plugin cache.
+# Heavy test/research/example artifacts that users don't need at runtime.
+tests/
+research/
+examples/
+ride-sharing-example/
+docs/superpowers/
+.beads/
+.remember/
+audit/
+*.pyc
+__pycache__/
+.pytest_cache/
+.coverage
+*.egg-info/
+node_modules/
+.git/
+.gitignore
+.gitattributes

@@ -13,9 +13,7 @@ Load and execute a plan file task by task. Each task is verified before proceedi
 
 Parse and validate the plan:
 
-```!
-python "./scripts/plan_executor.py" --phase=load --plan "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/plan_executor.py" --phase=load --plan "$ARGUMENTS"`
 
 This outputs:
 - Task list (JSON)
@@ -38,9 +36,7 @@ Write the file specified in the plan using the **exact code** from the task. Do 
 ### 3. Verify
 Run the task's verify command:
 
-```!
-python "./scripts/plan_executor.py" --phase=verify --task=$TASK_ID --command="$VERIFY_COMMAND" --cwd="."
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/plan_executor.py" --phase=verify --task=$TASK_ID --command="$VERIFY_COMMAND" --cwd="."`
 
 **On PASS:** Proceed to checkpoint.
 **On FAIL:** STOP immediately. Output the failure. Do not proceed. Pause execution.
@@ -48,9 +44,7 @@ python "./scripts/plan_executor.py" --phase=verify --task=$TASK_ID --command="$V
 ### 4. Checkpoint
 Mark task complete:
 
-```!
-python "./scripts/plan_executor.py" --phase=checkpoint --task=$TASK_ID
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/plan_executor.py" --phase=checkpoint --task=$TASK_ID`
 
 ### 5. Next
 - If more tasks: `Proceeding to Task [N+1]`

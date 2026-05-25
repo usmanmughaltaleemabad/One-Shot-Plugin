@@ -13,9 +13,7 @@ Write a detailed, zero-ambiguity plan for implementing a feature. Each task is s
 
 Analyze the codebase to extract framework, language, and patterns:
 
-```!
-python "./scripts/plan_writer.py" --phase=analyze --project "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/plan_writer.py" --phase=analyze --project "$ARGUMENTS"`
 
 ## Plan Writing Instructions
 
@@ -49,9 +47,7 @@ Write your plan with this mandatory structure for **every task**:
 
 Validate the plan for completeness:
 
-```!
-python "./scripts/plan_writer.py" --phase=validate --plan="$PLAN_TEXT"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/plan_writer.py" --phase=validate --plan="$PLAN_TEXT"`
 
 **Blocking rules:**
 - Every task MUST have Goal, File, Code block, Verify, Checkpoint
@@ -62,9 +58,7 @@ python "./scripts/plan_writer.py" --phase=validate --plan="$PLAN_TEXT"
 
 Estimate execution time:
 
-```!
-python "./scripts/plan_writer.py" --phase=estimate --plan="$PLAN_TEXT"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/plan_writer.py" --phase=estimate --plan="$PLAN_TEXT"`
 
 ## Next Step
 

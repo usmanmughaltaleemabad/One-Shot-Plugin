@@ -16,9 +16,7 @@ Each feature = one tracer bullet cycle. Repeat per observable behavior.
 
 Before writing ANY test, align with stakeholders on observable behaviors:
 
-```!
-python "./scripts/tdd_cycle_enforcer.py" --phase=plan --feature="$FEATURE" --cwd="$PROJECT_PATH"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/tdd_cycle_enforcer.py" --phase=plan --feature="$FEATURE" --cwd="$PROJECT_PATH"`
 
 Output shows:
 - **Public interfaces** affected (functions, endpoints, class methods)
@@ -40,9 +38,7 @@ Output shows:
 
 Generate a **minimal, focused failing test** before any implementation:
 
-```!
-python "./scripts/tdd_cycle_enforcer.py" --phase=red --behavior="$PLANNED_BEHAVIOR" --cwd="$PROJECT_PATH"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/tdd_cycle_enforcer.py" --phase=red --behavior="$PLANNED_BEHAVIOR" --cwd="$PROJECT_PATH"`
 
 Output shows:
 - Test file + location
@@ -51,9 +47,7 @@ Output shows:
 - Run command
 
 ### Gate: Confirm Test Fails Correctly
-```!
-[run test command from above]
-```
+!`[run test command from above]`
 
 **MUST see:**
 - ❌ Test fails (not passes, not skipped)
@@ -70,9 +64,7 @@ Output shows:
 
 Generate the **simplest code** to make the failing test pass. No extra features, no optimization:
 
-```!
-python "./scripts/tdd_cycle_enforcer.py" --phase=green --test-file="[test from RED]" --cwd="$PROJECT_PATH"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/tdd_cycle_enforcer.py" --phase=green --test-file="[test from RED]" --cwd="$PROJECT_PATH"`
 
 Output shows:
 - Implementation code (minimal)
@@ -81,9 +73,7 @@ Output shows:
 **RULE:** Write the bare minimum to make the test pass. If the test only checks "return 5", return 5 (not a parametric function).
 
 ### Gate: Confirm Test Passes
-```!
-[run verify command from above]
-```
+!`[run verify command from above]`
 
 **MUST see:**
 - ✅ Failing test now passes
@@ -98,9 +88,7 @@ Output shows:
 
 **Only after all tests pass:** improve code to match codebase conventions. No behavior changes:
 
-```!
-python "./scripts/tdd_cycle_enforcer.py" --phase=refactor --impl-file="[impl file]" --cwd="$PROJECT_PATH"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/tdd_cycle_enforcer.py" --phase=refactor --impl-file="[impl file]" --cwd="$PROJECT_PATH"`
 
 Output shows:
 - Refactored implementation
@@ -108,9 +96,7 @@ Output shows:
 - Verify command
 
 ### Gate: Confirm Tests Still Pass
-```!
-[run verify command]
-```
+!`[run verify command]`
 
 **MUST see:**
 - ✅ All tests still pass (including the one you wrote)
@@ -125,9 +111,7 @@ Output shows:
 
 After REFACTOR passes, the feature is not done. Proceed to next observable behavior:
 
-```!
-python "./scripts/tdd_cycle_enforcer.py" --phase=plan --feature="$FEATURE (next behavior)" --cwd="$PROJECT_PATH"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/tdd_cycle_enforcer.py" --phase=plan --feature="$FEATURE (next behavior)" --cwd="$PROJECT_PATH"`
 
 **Cycle:** Go back to PLAN and repeat RED → GREEN → REFACTOR for each behavior.
 

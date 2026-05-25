@@ -8,9 +8,7 @@ read-only: true
 
 Pipe the user's error text to the debugging helper:
 
-```!
-echo "$ARGUMENTS" | python "./skills/one-shot-generator/scripts/debugging_helpers.py"
-```
+!`echo "$ARGUMENTS" | python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/debugging_helpers.py"`
 
 The script returns a JSON diagnosis with:
 - `pattern` (handler-timeout, queue-backpressure, schema-mismatch, ...)

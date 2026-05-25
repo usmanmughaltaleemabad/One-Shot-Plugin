@@ -8,9 +8,7 @@ read-only: false
 
 Find / clean orphaned files from past /one-shot generations:
 
-```!
-python "./skills/one-shot-generator/scripts/zombie_pruner.py" $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/zombie_pruner.py" $ARGUMENTS`
 
 ## What it does
 

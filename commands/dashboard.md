@@ -8,9 +8,7 @@ read-only: true
 
 Surface trends + drift warnings across the cross-agent learnings hub:
 
-```!
-python "./skills/one-shot-generator/scripts/learnings_hub.py" dashboard $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/learnings_hub.py" dashboard $ARGUMENTS`
 
 ## What the output tells you
 

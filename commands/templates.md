@@ -7,9 +7,7 @@ destructive: false
 read-only: true
 ---
 
-```!
-python "./skills/one-shot-generator/scripts/template_library.py" $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/template_library.py" $ARGUMENTS`
 
 Examples:
 - `/one-shot-prompting:templates list` -- show every template

@@ -6,9 +6,7 @@ destructive: false
 read-only: true
 ---
 
-```!
-python "./skills/one-shot-generator/scripts/cost_management.py" $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/cost_management.py" $ARGUMENTS`
 
 Examples:
 - `set-budget --monthly 100000` -- cap usage at 100k tokens per month.

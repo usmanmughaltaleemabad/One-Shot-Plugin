@@ -8,9 +8,7 @@ read-only: false
 
 Manage Architecture Decision Records:
 
-```!
-python "./skills/one-shot-generator/scripts/adr_writer.py" $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/adr_writer.py" $ARGUMENTS`
 
 ## When to write an ADR
 

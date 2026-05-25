@@ -12,7 +12,7 @@ python -c "
 import sys, json
 from skills.one_shot_generator.scripts.strangler_pattern import StranglerGenerator  # noqa
 " 2>/dev/null; \
-python "./skills/one-shot-generator/scripts/strangler_pattern.py"
+python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/strangler_pattern.py"
 ```
 
 After the scaffold is generated, walk the user through:

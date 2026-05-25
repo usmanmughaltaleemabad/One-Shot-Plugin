@@ -8,9 +8,7 @@ read-only: false
 
 Manage autonomy level:
 
-```!
-python "./skills/one-shot-generator/scripts/autonomy_level.py" --repo-root . $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/autonomy_level.py" --repo-root . $ARGUMENTS`
 
 The 5 levels (from Anthropic's autonomy framework):
 

@@ -8,9 +8,7 @@ read-only: false
 
 Inspect the cross-agent learnings registry:
 
-```!
-python "./skills/one-shot-generator/scripts/learnings_hub.py" $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/learnings_hub.py" $ARGUMENTS`
 
 ## What lives in the registry
 

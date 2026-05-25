@@ -44,9 +44,7 @@ ships code from the phase 0-5 scripts under `scripts/`.
 
 Run the analyzer to extract codebase context before generation:
 
-```!
-python "./scripts/analyze_codebase.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/analyze_codebase.py" "$ARGUMENTS"`
 
 The analyzer outputs a `CODEBASE CONTEXT` block above. Use it to inform all generation decisions below. If the path was not found or context is sparse, use intelligent fallbacks: assume Python + Django (most common), document all assumptions, provide slash command overrides so user can adjust if needed.
 
@@ -56,9 +54,7 @@ The analyzer outputs a `CODEBASE CONTEXT` block above. Use it to inform all gene
 
 Evaluate all major decisions silently using codebase analysis. The wrapper runs both analyzer and planner:
 
-```!
-python "./scripts/analyze_and_plan.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/analyze_and_plan.py" "$ARGUMENTS"`
 
 This outputs:
 1. **CODEBASE CONTEXT** — framework, language, patterns, libraries detected
@@ -85,9 +81,7 @@ Each decision includes a confidence score (1-10):
 
 Before generating, check for optional harness module flags and invoke them:
 
-```!
-python "./scripts/orchestrate_harness_modules.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrate_harness_modules.py" "$ARGUMENTS"`
 
 This detects flags and outputs which modules to invoke. **Implementation logic (Claude, execute this):**
 
@@ -95,7 +89,7 @@ This detects flags and outputs which modules to invoke. **Implementation logic (
 
 2. **If `--preview` detected:**
    ```!
-   python "./scripts/preview_mode.py" "$ARGUMENTS"
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/preview_mode.py" "$ARGUMENTS"
    ```
    Output preview outline (file list, key decisions, est. integration time). **STOP** — don't generate full code.
 
@@ -103,43 +97,43 @@ This detects flags and outputs which modules to invoke. **Implementation logic (
 
 4. **If `--review` detected:**
    ```!
-   python "./scripts/code_review_automation.py" "$ARGUMENTS"
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/code_review_automation.py" "$ARGUMENTS"
    ```
    Run linting, security, type coverage, test coverage gates. Block on critical issues (hardcoded secrets, SQL injection, shell=True).
 
 5. **If `--strangler` detected:**
    ```!
-   python "./scripts/strangler_pattern.py" "$ARGUMENTS"
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/strangler_pattern.py" "$ARGUMENTS"
    ```
    Generate router + adapter + dual-run + parity test + cutover plan for legacy migration.
 
 6. **If `--catalog` detected:**
    ```!
-   python "./scripts/event_catalog.py" "$ARGUMENTS"
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/event_catalog.py" "$ARGUMENTS"
    ```
    Validate generated events against provided catalog.
 
 7. **If `--detect-bus` detected:**
    ```!
-   python "./scripts/detect_message_bus.py" "$ARGUMENTS"
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/detect_message_bus.py" "$ARGUMENTS"
    ```
    Auto-detect message bus and async runtime, inject bus-native code.
 
 8. **If `--observability` detected:**
    ```!
-   python "./scripts/domain_observability.py" "$ARGUMENTS"
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/domain_observability.py" "$ARGUMENTS"
    ```
    Inject domain-tuned metrics (games/trading/ml/generic).
 
 9. **If `--budget` or `--usage` detected:**
    ```!
-   python "./scripts/cost_management.py" "$ARGUMENTS"
+   python "${CLAUDE_PLUGIN_ROOT}/scripts/cost_management.py" "$ARGUMENTS"
    ```
    Track token usage; warn if exceeds budget.
 
 10. **If `--debug` detected:**
     ```!
-    python "./scripts/debugging_helpers.py" "$ARGUMENTS"
+    python "${CLAUDE_PLUGIN_ROOT}/scripts/debugging_helpers.py" "$ARGUMENTS"
     ```
     Pattern-match error and return ranked fixes + repro snippet.
 
@@ -152,7 +146,7 @@ This detects flags and outputs which modules to invoke. **Implementation logic (
 Detect REST API generation requests and route to the specialized REST API orchestrator:
 
 ```!
-python "./scripts/phase2_runner.py" "$ARGUMENTS"
+python "${CLAUDE_PLUGIN_ROOT}/scripts/phase2_runner.py" "$ARGUMENTS"
 ```
 
 **Detection Triggers:**
@@ -214,15 +208,11 @@ Detect batch job generation requests and route to the specialized batch job orch
 
 When `--batch` or `--jobs` flags are detected, orchestrate_harness_modules.py automatically routes to the Phase 3 batch job specialist:
 
-```!
-python "./scripts/orchestrate_harness_modules.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrate_harness_modules.py" "$ARGUMENTS"`
 
 Then invokes:
 
-```!
-python "./scripts/phase3_batch_jobs/phase3_runner.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/phase3_batch_jobs/phase3_runner.py" "$ARGUMENTS"`
 
 **Detection Triggers:**
 - User asks for "batch jobs", "job queue", "background tasks", "scheduled tasks"
@@ -261,7 +251,7 @@ python "./scripts/phase3_batch_jobs/phase3_runner.py" "$ARGUMENTS"
 **New Enhanced Mode (`--enhanced` flag):**
 Add OneShot-inspired vault-centric stateful orchestration:
 ```
-python "./scripts/phase3_batch_jobs/phase3_runner.py" --framework django --enhanced --vault-dir ./my_vault
+python "${CLAUDE_PLUGIN_ROOT}/scripts/phase3_batch_jobs/phase3_runner.py" --framework django --enhanced --vault-dir ./my_vault
 ```
 Provides:
 - Persistent job state storage in vault directory
@@ -340,7 +330,7 @@ Deploy jobs to Google Cloud's fully-managed task queue service.
 
 **Usage:**
 ```
-python "./scripts/phase3_batch_jobs/phase3_runner.py" \
+python "${CLAUDE_PLUGIN_ROOT}/scripts/phase3_batch_jobs/phase3_runner.py" \
   --framework django \
   --queue-type=gcloud_tasks \
   --job-name process_data
@@ -387,7 +377,7 @@ Deploy jobs to Amazon's Simple Queue Service for reliable message processing.
 
 **Usage:**
 ```
-python "./scripts/phase3_batch_jobs/phase3_runner.py" \
+python "${CLAUDE_PLUGIN_ROOT}/scripts/phase3_batch_jobs/phase3_runner.py" \
   --framework django \
   --queue-type=sqs \
   --job-name send_email
@@ -432,47 +422,33 @@ Complete multi-framework integration with auto-wiring, migrations, configuration
 When `--gaps` or integration gap keywords are detected, invoke appropriate gap generators:
 
 ### Gap 3: Migration File Generation
-```!
-python "./scripts/generate_migrations.py" --framework "$FRAMEWORK" --project-root "$PROJECT_ROOT" --feature-name "$FEATURE" --models-file "$MODELS_PATH"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/generate_migrations.py" --framework "$FRAMEWORK" --project-root "$PROJECT_ROOT" --feature-name "$FEATURE" --models-file "$MODELS_PATH"`
 Generates: Django `.py` migrations, Alembic revisions, Flyway SQL, golang-migrate files
 
 ### Gap 4: Slash Command / CLI Scaffolding
-```!
-python "./scripts/slash_command_scaffolder.py" --platform discord --language python "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/slash_command_scaffolder.py" --platform discord --language python "$ARGUMENTS"`
 Generates: Platform-specific command wrappers (Discord, Slack, Telegram, CLI)
 
 ### Gap 5: Dependency Injection Wrapping
-```!
-python "./scripts/di_aware_generator.py" --framework "$FRAMEWORK" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/di_aware_generator.py" --framework "$FRAMEWORK" "$ARGUMENTS"`
 Generates: @Service, @Autowired (Spring), Depends() (FastAPI), @Injectable() (NestJS), wire.Build() (Go)
 
 ### Gap 6: Multi-Handler Orchestration
-```!
-python "./scripts/multi_handler_orchestrator.py" --framework "$FRAMEWORK" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/multi_handler_orchestrator.py" --framework "$FRAMEWORK" "$ARGUMENTS"`
 Generates: Multiple coordinated handlers, event bus wiring, workflow diagrams, integration tests
 
 ### Gap 7: Configuration File Generation
-```!
-python "./scripts/config_generator.py" --framework "$FRAMEWORK" --feature-name "$FEATURE" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/config_generator.py" --framework "$FRAMEWORK" --feature-name "$FEATURE" "$ARGUMENTS"`
 Generates: `.env.example`, Django settings files, FastAPI Pydantic configs, Spring YAML, Docker secrets
 
 ### Gap 8: OpenAPI / Swagger Documentation
-```!
-python "./scripts/openapi_generator.py" --framework "$FRAMEWORK" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/openapi_generator.py" --framework "$FRAMEWORK" "$ARGUMENTS"`
 Generates: OpenAPI 3.0.0 YAML specs, framework decorators, Swagger UI setup
 
 **Orchestrated Invocation (Recommended):**
 When `--gaps` or integration gap keywords are detected, invoke Phase 1 gap orchestrator:
 
-```!
-python "./scripts/phase1_gap_runner.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/phase1_gap_runner.py" "$ARGUMENTS"`
 
 **Detection Triggers:**
 - User asks for "setup migrations", "generate config", "dependency injection"
@@ -583,9 +559,7 @@ User: Set up complete Django project with migrations, config, and Docker @/my-dj
 Enterprise-grade patterns for production systems: DDD, CQRS, Event Sourcing, TDD, cost optimization, chaos engineering, compliance.
 
 **Master Orchestrator:**
-```!
-python "./scripts/phase4_and_5_master_orchestrator.py" --framework "$FRAMEWORK" --phase 4.$SUBPHASE
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/phase4_and_5_master_orchestrator.py" --framework "$FRAMEWORK" --phase 4.$SUBPHASE`
 
 ### Phase 4.1: Architecture Design (DDD, CQRS, Event Sourcing, Sagas, Hexagonal)
 - **Generates:** Aggregates, entities, value objects, bounded contexts, domain services
@@ -628,9 +602,7 @@ User: Add DDD architecture with event sourcing @/my-project
 Microservices, real-time, GraphQL, ML integration, legacy modernization.
 
 **Master Orchestrator:**
-```!
-python "./scripts/phase4_and_5_master_orchestrator.py" --framework "$FRAMEWORK" --phase 5.$SUBPHASE
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/phase4_and_5_master_orchestrator.py" --framework "$FRAMEWORK" --phase 5.$SUBPHASE`
 
 ### Phase 5.1: Microservices Orchestration ✅ COMPLETE
 - Kubernetes manifests (deployments, services, ingress)
@@ -674,9 +646,7 @@ Enterprise-grade architecture patterns for scalability, resilience, testing, and
 
 When `--patterns` or hardening keywords are detected, invoke Phase 4 pattern orchestrator:
 
-```!
-python "./scripts/phase4_patterns_runner.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/phase4_patterns_runner.py" "$ARGUMENTS"`
 
 **Detection Triggers:**
 - User asks for "DDD domain models", "CQRS architecture", "event sourcing"
@@ -880,9 +850,7 @@ Identify extractable features from a monolith and plan a phased migration to mic
 
 Run the strangler analyzer to identify extractable features:
 
-```!
-python "./scripts/strangler_analyzer.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/strangler_analyzer.py" "$ARGUMENTS"`
 
 **Capabilities:**
 - ✅ Scans entire monolith (1K-100K+ LOC codebases)
@@ -945,9 +913,7 @@ User: Identify microservices in this 10-year-old Spring monolith @/path/to/sprin
 
 Once you've identified extraction targets from Phase 1, generate complete microservice code:
 
-```!
-python "./scripts/strangler_extractor.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/strangler_extractor.py" "$ARGUMENTS"`
 
 **Capabilities:**
 - ✅ Generates microservice boilerplate (Go or FastAPI)
@@ -1007,9 +973,7 @@ Before deploying extracted services, validate safety and plan your timeline.
 
 ### Pre-Flight Validation (/strangler-validate)
 
-```!
-python "./scripts/strangler_validate.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/strangler_validate.py" "$ARGUMENTS"`
 
 **Validates 5 Categories of Risk:**
 1. **Library Compatibility** - go.mod, requirements.txt, version conflicts
@@ -1056,9 +1020,7 @@ User: Validate @/path/to/notification-service --language fastapi
 
 ### Extraction Timeline & Planning (/strangler-roadmap)
 
-```!
-python "./scripts/strangler_roadmap.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/strangler_roadmap.py" "$ARGUMENTS"`
 
 **Generates 12-24 Month Plan:**
 - Feature prioritization (GREEN → YELLOW → RED = lowest to highest risk)
@@ -1137,9 +1099,7 @@ When user requests a feature, generate ALL files needed for that feature in ONE 
 
 **Generate all files.** Use the format_multifile_output.py script to present them clearly:
 
-```!
-python "./scripts/format_multifile_output.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/format_multifile_output.py" "$ARGUMENTS"`
 
 Output includes:
 - Clear file boundaries and paths
@@ -1152,9 +1112,7 @@ Output includes:
 
 After generating all files, optionally auto-wire them into the codebase:
 
-```!
-python "./scripts/autowire_into_project.py" "$PROJECT_ROOT" "$FRAMEWORK"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/autowire_into_project.py" "$PROJECT_ROOT" "$FRAMEWORK"`
 
 This automatically:
 1. Copies files to correct locations
@@ -1167,9 +1125,7 @@ This automatically:
 
 For features that define new models, auto-generate database migration files:
 
-```!
-python "./scripts/generate_migrations.py" "$PROJECT_ROOT" "$FRAMEWORK" "$FEATURE_NAME"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/generate_migrations.py" "$PROJECT_ROOT" "$FRAMEWORK" "$FEATURE_NAME"`
 
 Supports all major frameworks:
 - **Django:** Creates timestamped `.py` migration files (e.g., `0002_add_user_auth.py`)

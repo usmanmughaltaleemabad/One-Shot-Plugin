@@ -8,9 +8,7 @@ read-only: false
 
 Run the 10-gate production-readiness checklist:
 
-```!
-python "./skills/one-shot-generator/scripts/ship_gates.py" $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/ship_gates.py" $ARGUMENTS`
 
 ## Verdict
 

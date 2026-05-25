@@ -7,8 +7,6 @@ destructive: false
 read-only: true
 ---
 
-```!
-python "./skills/one-shot-generator/scripts/architecture_design.py" $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/architecture_design.py" $ARGUMENTS`
 
 Show the markdown blueprint. The blueprint ends with a ready-to-run `one-shot-generator` command -- offer the user the choice between accepting that command or adjusting the constraints first.

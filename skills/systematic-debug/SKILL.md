@@ -21,9 +21,7 @@ Before hypothesizing, ensure you have a deterministic pass/fail signal. Ranked b
 5. **Trace replay** (post-mortem analysis)
 6. **Throwaway harness** (reproducible code snippet)
 
-```!
-python "./scripts/systematic_debug.py" --phase=build-loop --symptom="$ERROR_DESCRIPTION" --feedback-method="test"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/systematic_debug.py" --phase=build-loop --symptom="$ERROR_DESCRIPTION" --feedback-method="test"`
 
 **[BLOCKED]** If you cannot build a deterministic loop within 2 iterations, escalate: "I cannot construct a reproducible feedback loop for this failure. Recommend HITL [human-in-the-loop] diagnosis."
 
@@ -33,9 +31,7 @@ python "./scripts/systematic_debug.py" --phase=build-loop --symptom="$ERROR_DESC
 
 Execute the feedback loop and confirm the failure matches user's report:
 
-```!
-python "./scripts/systematic_debug.py" --phase=reproduce --feedback-method="test"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/systematic_debug.py" --phase=reproduce --feedback-method="test"`
 
 **Checklist:**
 - ✅ Error is reproducible (runs consistently)
@@ -51,9 +47,7 @@ python "./scripts/systematic_debug.py" --phase=reproduce --feedback-method="test
 
 Generate 3–5 ranked hypotheses **before testing**:
 
-```!
-python "./scripts/systematic_debug.py" --phase=hypothesize --error="$ERROR_DESCRIPTION" --language="python"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/systematic_debug.py" --phase=hypothesize --error="$ERROR_DESCRIPTION" --language="python"`
 
 Output shows ranked hypotheses in **falsifiable format**:
 - Hypothesis ID
@@ -72,9 +66,7 @@ Output shows ranked hypotheses in **falsifiable format**:
 
 Generate temporary logging code targeting highest-confidence hypothesis:
 
-```!
-python "./scripts/systematic_debug.py" --phase=instrument --hypothesis=$HYPOTHESIS_ID --language="python"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/systematic_debug.py" --phase=instrument --hypothesis=$HYPOTHESIS_ID --language="python"`
 
 Output shows:
 - Logging code (framework-aware: Python logging, structlog, pytest fixtures)
@@ -95,9 +87,7 @@ Output shows:
 
 Compare observed output against hypothesis predictions:
 
-```!
-python "./scripts/systematic_debug.py" --phase=observe --hypothesis=$HYPOTHESIS_ID --output="$PASTED_LOGS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/systematic_debug.py" --phase=observe --hypothesis=$HYPOTHESIS_ID --output="$PASTED_LOGS"`
 
 Output shows:
 - ✅ **Confirmed hypotheses** (evidence supporting each)
@@ -113,9 +103,7 @@ Output shows:
 
 Generate targeted fix **and regression test**:
 
-```!
-python "./scripts/systematic_debug.py" --phase=fix --root-cause=$CONFIRMED_CAUSE_ID --language="python"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/systematic_debug.py" --phase=fix --root-cause=$CONFIRMED_CAUSE_ID --language="python"`
 
 Output shows:
 - Fix description (why it works)
@@ -134,9 +122,7 @@ Output shows:
 
 ## PHASE 6: Cleanup + Post-Mortem
 
-```!
-python "./scripts/systematic_debug.py" --phase=cleanup --root-cause=$CONFIRMED_CAUSE_ID
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/systematic_debug.py" --phase=cleanup --root-cause=$CONFIRMED_CAUSE_ID`
 
 Output shows:
 - Instrumentation removed ✅

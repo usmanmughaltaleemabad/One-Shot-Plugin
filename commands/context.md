@@ -8,9 +8,7 @@ read-only: false
 
 Generate or refresh a project's CLAUDE.md:
 
-```!
-python "./skills/one-shot-generator/scripts/context_writer.py" $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/context_writer.py" $ARGUMENTS`
 
 ## What it does
 

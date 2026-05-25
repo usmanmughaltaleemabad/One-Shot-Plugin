@@ -6,9 +6,7 @@ destructive: false
 read-only: true
 ---
 
-```!
-python "./skills/one-shot-generator/scripts/consistency_checker.py" "$ARGUMENTS"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/consistency_checker.py" "$ARGUMENTS"`
 
 Show the JSON report. If `inconsistencies` is non-empty, suggest running:
 `/one-shot-prompting:standardize` (which calls `consistency_checker.py` again and writes the proposed shared library skeleton).

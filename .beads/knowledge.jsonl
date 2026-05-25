@@ -19,3 +19,5 @@
 {"id": "kf-538a0936f62c", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T19:21:34.473420", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
 {"id": "kf-7b9941aa5ab2", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T21:11:49.035442", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
 {"id": "kf-109ea6781c81", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T21:17:29.144815", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
+{"id": "kf-c5e474fc390f", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T21:28:51.876930", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
+{"id": "kf-0e885d6e6b62", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T21:35:04.968687", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}

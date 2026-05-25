@@ -13,9 +13,7 @@ allowed-tools: Bash(python *)
 
 Run fresh verification gates:
 
-```!
-python "./scripts/completion_gate.py" --gate=all --cwd "$PROJECT_PATH"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/completion_gate.py" --gate=all --cwd "$PROJECT_PATH"`
 
 Output structure:
 ```json
@@ -35,21 +33,15 @@ Output structure:
 
 ### Syntax Gate
 Validate code syntax across all files:
-```!
-python "./scripts/completion_gate.py" --gate=syntax --cwd "$PROJECT_PATH"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/completion_gate.py" --gate=syntax --cwd "$PROJECT_PATH"`
 
 ### Tests Gate
 Auto-detect test runner (pytest/jest/go test/mvn) and run full suite:
-```!
-python "./scripts/completion_gate.py" --gate=tests --cwd "$PROJECT_PATH"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/completion_gate.py" --gate=tests --cwd "$PROJECT_PATH"`
 
 ### Lint Gate
 Run security, linting, type coverage checks:
-```!
-python "./scripts/completion_gate.py" --gate=lint --cwd "$PROJECT_PATH"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/completion_gate.py" --gate=lint --cwd "$PROJECT_PATH"`
 
 ---
 

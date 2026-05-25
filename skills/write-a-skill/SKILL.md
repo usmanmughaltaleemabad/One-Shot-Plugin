@@ -83,9 +83,7 @@ Format:
 
 [1-2 sentence goal]
 
-```!
-python "./scripts/[script].py" --phase=[N] --flag=$ARGUMENT
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/[script].py" --phase=[N] --flag=$ARGUMENT`
 
 Output shows:
 - [Key output 1]
@@ -105,9 +103,7 @@ Example (from tdd-cycle):
 
 Before writing ANY test, align on observable behaviors.
 
-```!
-python "./scripts/tdd_cycle_enforcer.py" --phase=plan --feature="$FEATURE"
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/tdd_cycle_enforcer.py" --phase=plan --feature="$FEATURE"`
 
 Output shows:
 - Public interfaces affected
@@ -293,9 +289,7 @@ allowed-tools: Read, Write, Bash(python *)
 
 [Goal]
 
-```!
-python "./scripts/[script].py" --phase=1 --flag=$ARG
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/[script].py" --phase=1 --flag=$ARG`
 
 Output shows:
 - [Output 1]

@@ -45,9 +45,7 @@ You DO:
 The user invokes you with a topic or a recent failed-match. Run
 `agent_discovery.py` first to see what we already have:
 
-```!
-python "./scripts/agent_discovery.py" "$ARGUMENTS" --json
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/scripts/agent_discovery.py" "$ARGUMENTS" --json`
 
 If the discovery shows a strong local match (score ≥ 0.5), tell the user
 "we already have a good fit (`local_agent_name`) — do you still want to

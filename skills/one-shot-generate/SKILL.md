@@ -68,9 +68,7 @@ print(f"[OTel] Initialized tracer for session {SESSION_ID}")
 
 If `$ARGUMENTS` contains `--templated` / `--legacy` / `--free`:
 
-```!
-python "../one-shot-generator/scripts/one_shot_orchestrator.py" "$ARGUMENTS"
-```
+!`python "../one-shot-generator/scripts/one_shot_orchestrator.py" "$ARGUMENTS"`
 
 Log the decision:
 ```python

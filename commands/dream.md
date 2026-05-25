@@ -8,9 +8,7 @@ read-only: false
 
 Run the dream consolidator against accumulated bead history:
 
-```!
-python "./skills/one-shot-generator/scripts/dream_consolidator.py" $ARGUMENTS
-```
+!`python "${CLAUDE_PLUGIN_ROOT}/skills/one-shot-generator/scripts/dream_consolidator.py" $ARGUMENTS`
 
 ## What it does
 
