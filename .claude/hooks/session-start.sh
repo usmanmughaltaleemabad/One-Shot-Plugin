@@ -1,9 +1,16 @@
 #!/bin/bash
-# SessionStart hook: inject context at session start
+# SessionStart hook: inject minimal context at session start.
+#
+# This hook prints information that is useful to Claude inside an
+# interactive session. It does NOT make claims about the codebase that
+# could drift from reality (the prior version printed a hardcoded
+# "Phase 4-5 are STUBS" warning that contradicted the README and was
+# flagged by external audit). If you need to know which phases/modules
+# are real, run `python -m pytest tests/` and look at the actual code.
 
 echo "=== PLUGIN SESSION START ==="
 
-# Show open beads (active work)
+# Show open beads (active work). Best-effort; failure is non-fatal.
 if [ -f ".beads/status.jsonl" ]; then
   OPEN=$(grep '"status":"open"' .beads/status.jsonl 2>/dev/null | tail -5)
   if [ -n "$OPEN" ]; then
@@ -14,44 +21,27 @@ for line in sys.stdin:
     try:
         d = json.loads(line)
         print(f\"  [{d.get('priority','?').upper()}] {d.get('id','?')}: {d.get('title','?')}\")
-    except: pass
+    except Exception:
+        pass
 " 2>/dev/null || echo "  [unable to parse beads]"
   else
-    echo "No open beads (all work closed)."
+    echo "No open beads."
   fi
-else
-  echo "No .beads/status.jsonl yet. Create it with: .beads/status.jsonl"
 fi
 
-# Show phase status (CRITICAL: real vs stub modules)
-echo ""
-echo "PHASE STATUS (Real vs Stub):"
-if [ -f "docs/phase-status.md" ]; then
-  grep -E "^\| \*\*[0-9]\*\*|^Total| Status" docs/phase-status.md | head -8
-  echo ""
-  echo "⚠️  Phase 4-5 are STUBS only (not implemented). See docs/phase-status.md."
-else
-  echo "  [docs/phase-status.md not found — run 'git pull' to update]"
-fi
-
-# Check CLAUDE.md size
+# CLAUDE.md size policy: keep this file ≤100 lines so it loads cheaply.
 if [ -f "CLAUDE.md" ]; then
   LINES=$(wc -l < CLAUDE.md)
   if [ "$LINES" -gt 100 ]; then
-    echo "⚠️  CLAUDE.md has $LINES lines (target: <100). Trim before next session."
+    echo "⚠️  CLAUDE.md has $LINES lines (target: ≤100). Trim before next session."
   fi
 fi
 
 echo "================================"
 
-# Watch for docs drift
+# Best-effort docs-drift check. Silent on success, advisory on failure.
 if [ -f "scripts/codebase_diff.py" ]; then
-    echo ""
-    echo "[Hook] Running docs-drift check..."
-    python3 scripts/codebase_diff.py . > .beads/docs-state.json 2>&1
-else
-    echo ""
-    echo "[Hook] Skipping docs-drift check: scripts/codebase_diff.py not found"
+    python3 scripts/codebase_diff.py . > .beads/docs-state.json 2>&1 || true
 fi
 
 exit 0
