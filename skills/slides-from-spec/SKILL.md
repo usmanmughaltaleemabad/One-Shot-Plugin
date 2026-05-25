@@ -1,5 +1,6 @@
 ---
 type: skill
+name: slides-from-spec
 description: Generate presentation decks from one-shot spec.json or positioning narrative
 author: usman
 model: sonnet
