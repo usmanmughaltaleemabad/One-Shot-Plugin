@@ -6,6 +6,12 @@ Use instead of reading SKILL.md directly in tests so splits stay
 transparent.
 """
 from pathlib import Path
+from unittest.mock import MagicMock
+import sys
+
+# Mock the Jaeger exporter to avoid environment variable import errors
+sys.modules['opentelemetry.exporter.jaeger'] = MagicMock()
+sys.modules['opentelemetry.exporter.jaeger.thrift'] = MagicMock()
 
 REPO_ROOT = Path(__file__).parent.parent
 
