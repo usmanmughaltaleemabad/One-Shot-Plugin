@@ -1,4 +1,5 @@
 ---
+type: skill
 name: docs-drift
 description: Detect codebase changes and auto-generate documentation updates
 trigger: manual or scheduled
@@ -83,8 +84,16 @@ else:
     drafts_dir.mkdir(parents=True, exist_ok=True)
 
     # Dispatch docs-author agent via Task tool
-    # (Implementation would use Task tool here to invoke agent)
+    agent_input = {
+        "changes": changes,
+        "codebase_root": str(project_root),
+        "docs_root": str(project_root / "docs"),
+        "files_touched": list(current_state.keys())
+    }
     print(f"[Docs Drift] Dispatching docs-author agent...")
+    # Task tool invocation: agent="docs-author", input=agent_input
+    # The skill framework will use Task tool to dispatch the agent
+    # with the structured input containing change detection results
 
     # Save updated state
     docs_state_path.write_text(json.dumps(current_state, indent=2))
