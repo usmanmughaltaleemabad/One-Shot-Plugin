@@ -172,25 +172,28 @@ class CompletionGate:
             ('gradle', 'gradle test'),
         ]
 
+        import shlex
         for name, cmd in test_commands:
             try:
-                # Check if test framework is available
+                # Check if test framework is available (shell=False, no injection risk)
+                exe = shlex.split(cmd)[0]
                 check = subprocess.run(
-                    cmd.split()[0] + ' --version' if ' ' not in cmd else cmd.split()[0],
+                    [exe, '--version'],
                     capture_output=True,
                     timeout=5,
-                    shell=True,
+                    shell=False,
                 )
                 if check.returncode != 0:
                     continue
 
-                # Run tests
+                # Run tests (shell=False — cmd is a hardcoded string, split safely)
                 proc = subprocess.run(
-                    cmd,
+                    shlex.split(cmd),
                     capture_output=True,
                     text=True,
                     timeout=60,
                     cwd=str(self.project_root),
+                    shell=False,
                 )
 
                 result.output = proc.stdout + proc.stderr

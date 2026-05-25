@@ -230,14 +230,19 @@ class VerifyCommandRunner:
 
     def run(self, command: str, cwd: Optional[str] = None) -> Tuple[bool, str]:
         """
-        Run a verify command.
+        Run a verify command safely.
 
-        Returns: (success: bool, output: str)
+        Uses shlex.split + shell=False to prevent shell injection from
+        user-supplied plan file commands. Returns: (success: bool, output: str)
         """
+        import shlex
         try:
+            args = shlex.split(command)
+            if not args:
+                return False, "ERROR: empty command"
             result = subprocess.run(
-                command,
-                shell=True,
+                args,
+                shell=False,
                 capture_output=True,
                 text=True,
                 timeout=30,

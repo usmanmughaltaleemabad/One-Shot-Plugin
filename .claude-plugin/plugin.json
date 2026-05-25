@@ -24,5 +24,7 @@
     "implementer-agent",
     "critic-loop"
   ],
-  "displayName": "One-Shot \u2014 Agentic Feature Generation"
+  "displayName": "One-Shot \u2014 Agentic Feature Generation",
+  "mayMakeExternalNetworkCalls": true,
+  "externalNetworkCallsDescription": "The approval-gate stage (--require-approval-webhook flag) sends code diffs and generation summaries to a user-configured webhook URL for human approval before applying changes. This is opt-in and only active when the user explicitly sets a webhook URL."
 }
