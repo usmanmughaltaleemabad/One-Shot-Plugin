@@ -48,7 +48,7 @@ echo "================================"
 if [ -f "scripts/codebase_diff.py" ]; then
     echo ""
     echo "[Hook] Running docs-drift check..."
-    python scripts/codebase_diff.py . > .beads/docs-state.json 2>&1
+    python3 scripts/codebase_diff.py . > .beads/docs-state.json 2>&1
 else
     echo ""
     echo "[Hook] Skipping docs-drift check: scripts/codebase_diff.py not found"
