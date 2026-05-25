@@ -1,0 +1,311 @@
+{
+  "request": "Create a simple User CRUD",
+  "intent": "simple_crud",
+  "complexity": "low",
+  "risk": "experimental",
+  "agent_name": "SimpleCRUD",
+  "cost_estimate": 0.3,
+  "duration_estimate": 5,
+  "confidence": 0.29,
+  "entities_detected": [
+    "user"
+  ],
+  "features_detected": [
+    "create"
+  ],
+  "special_handling": [],
+  "similar_past_requests": []
+}
+{
+  "request": "Build e-commerce with Product, Order, Review entities with relationships",
+  "intent": "complex_multi_entity",
+  "complexity": "high",
+  "risk": "standard",
+  "agent_name": "ComplexDomain",
+  "cost_estimate": 1.5,
+  "duration_estimate": 20,
+  "confidence": 0.39,
+  "entities_detected": [
+    "order",
+    "product",
+    "review"
+  ],
+  "features_detected": [],
+  "special_handling": [],
+  "similar_past_requests": []
+}
+{
+  "request": "Implement real-time notification system using WebSocket",
+  "intent": "real_time_system",
+  "complexity": "medium",
+  "risk": "production_critical",
+  "agent_name": "ComplexDomain",
+  "cost_estimate": 1.5,
+  "duration_estimate": 20,
+  "confidence": 0.65,
+  "entities_detected": [
+    "notification"
+  ],
+  "features_detected": [
+    "notification",
+    "real-time"
+  ],
+  "special_handling": [],
+  "similar_past_requests": []
+}
+{
+  "request": "Integrate Stripe payment processing",
+  "intent": "payment_system",
+  "complexity": "medium",
+  "risk": "production_critical",
+  "agent_name": "PaymentSpecialist",
+  "cost_estimate": 2.5,
+  "duration_estimate": 30,
+  "confidence": 0.43,
+  "entities_detected": [
+    "order"
+  ],
+  "features_detected": [],
+  "special_handling": [
+    "pci_compliance_check",
+    "encryption_validation",
+    "token_handling"
+  ],
+  "similar_past_requests": []
+}
+{
+  "request": "Design REST API with authentication",
+  "intent": "api_design",
+  "complexity": "low",
+  "risk": "standard",
+  "agent_name": "APIDesigner",
+  "cost_estimate": 1.2,
+  "duration_estimate": 18,
+  "confidence": 0.62,
+  "entities_detected": [],
+  "features_detected": [
+    "api"
+  ],
+  "special_handling": [
+    "schema_validation",
+    "versioning_strategy"
+  ],
+  "similar_past_requests": []
+}
+{
+  "request": "Create admin dashboard with analytics",
+  "intent": "admin_panel",
+  "complexity": "medium",
+  "risk": "experimental",
+  "agent_name": "AdminDashboard",
+  "cost_estimate": 1.4,
+  "duration_estimate": 22,
+  "confidence": 0.62,
+  "entities_detected": [
+    "user"
+  ],
+  "features_detected": [
+    "create",
+    "analytics"
+  ],
+  "special_handling": [
+    "query_optimization",
+    "pagination_strategy"
+  ],
+  "similar_past_requests": []
+}
+{
+  "request": "Sync data with external API using OAuth",
+  "intent": "integration",
+  "complexity": "low",
+  "risk": "standard",
+  "agent_name": "IntegrationSpecialist",
+  "cost_estimate": 1.6,
+  "duration_estimate": 24,
+  "confidence": 0.68,
+  "entities_detected": [],
+  "features_detected": [
+    "api"
+  ],
+  "special_handling": [
+    "oauth_flow",
+    "webhook_signature_validation",
+    "rate_limiting"
+  ],
+  "similar_past_requests": []
+}
+{
+  "request": "Build batch processing pipeline with cron jobs",
+  "intent": "data_pipeline",
+  "complexity": "low",
+  "risk": "experimental",
+  "agent_name": "DataPipelineSpecialist",
+  "cost_estimate": 1.3,
+  "duration_estimate": 20,
+  "confidence": 0.68,
+  "entities_detected": [],
+  "features_detected": [],
+  "special_handling": [
+    "job_scheduling",
+    "error_recovery",
+    "idempotency"
+  ],
+  "similar_past_requests": []
+}
+{
+  "request": "Create a simple User CRUD",
+  "intent": "simple_crud",
+  "complexity": "low",
+  "risk": "experimental",
+  "agent_name": "SimpleCRUD",
+  "cost_estimate": 0.3,
+  "duration_estimate": 5,
+  "confidence": 0.29,
+  "entities_detected": [
+    "user"
+  ],
+  "features_detected": [
+    "create"
+  ],
+  "special_handling": [],
+  "similar_past_requests": []
+}
+{
+  "request": "Build e-commerce with Product, Order, Review entities with relationships",
+  "intent": "complex_multi_entity",
+  "complexity": "high",
+  "risk": "standard",
+  "agent_name": "ComplexDomain",
+  "cost_estimate": 1.5,
+  "duration_estimate": 20,
+  "confidence": 0.39,
+  "entities_detected": [
+    "order",
+    "product",
+    "review"
+  ],
+  "features_detected": [],
+  "special_handling": [],
+  "similar_past_requests": []
+}
+{
+  "request": "Implement real-time notification system using WebSocket",
+  "intent": "real_time_system",
+  "complexity": "medium",
+  "risk": "production_critical",
+  "agent_name": "RealTimeSpecialist",
+  "cost_estimate": 1.8,
+  "duration_estimate": 25,
+  "confidence": 0.65,
+  "entities_detected": [
+    "notification"
+  ],
+  "features_detected": [
+    "notification",
+    "real-time"
+  ],
+  "special_handling": [
+    "async_validation",
+    "connection_pool_testing"
+  ],
+  "similar_past_requests": []
+}
+{
+  "request": "Integrate Stripe payment processing",
+  "intent": "payment_system",
+  "complexity": "medium",
+  "risk": "production_critical",
+  "agent_name": "PaymentSpecialist",
+  "cost_estimate": 2.5,
+  "duration_estimate": 30,
+  "confidence": 0.43,
+  "entities_detected": [
+    "order"
+  ],
+  "features_detected": [],
+  "special_handling": [
+    "pci_compliance_check",
+    "encryption_validation",
+    "token_handling"
+  ],
+  "similar_past_requests": []
+}
+{
+  "request": "Design REST API with authentication",
+  "intent": "api_design",
+  "complexity": "low",
+  "risk": "standard",
+  "agent_name": "APIDesigner",
+  "cost_estimate": 1.2,
+  "duration_estimate": 18,
+  "confidence": 0.62,
+  "entities_detected": [],
+  "features_detected": [
+    "api"
+  ],
+  "special_handling": [
+    "schema_validation",
+    "versioning_strategy"
+  ],
+  "similar_past_requests": []
+}
+{
+  "request": "Create admin dashboard with analytics",
+  "intent": "admin_panel",
+  "complexity": "medium",
+  "risk": "experimental",
+  "agent_name": "AdminDashboard",
+  "cost_estimate": 1.4,
+  "duration_estimate": 22,
+  "confidence": 0.62,
+  "entities_detected": [
+    "user"
+  ],
+  "features_detected": [
+    "create",
+    "analytics"
+  ],
+  "special_handling": [
+    "query_optimization",
+    "pagination_strategy"
+  ],
+  "similar_past_requests": []
+}
+{
+  "request": "Sync data with external API using OAuth",
+  "intent": "integration",
+  "complexity": "low",
+  "risk": "standard",
+  "agent_name": "IntegrationSpecialist",
+  "cost_estimate": 1.6,
+  "duration_estimate": 24,
+  "confidence": 0.68,
+  "entities_detected": [],
+  "features_detected": [
+    "api"
+  ],
+  "special_handling": [
+    "oauth_flow",
+    "webhook_signature_validation",
+    "rate_limiting"
+  ],
+  "similar_past_requests": []
+}
+{
+  "request": "Build batch processing pipeline with cron jobs",
+  "intent": "data_pipeline",
+  "complexity": "low",
+  "risk": "experimental",
+  "agent_name": "DataPipelineSpecialist",
+  "cost_estimate": 1.3,
+  "duration_estimate": 20,
+  "confidence": 0.68,
+  "entities_detected": [],
+  "features_detected": [],
+  "special_handling": [
+    "job_scheduling",
+    "error_recovery",
+    "idempotency"
+  ],
+  "similar_past_requests": []
+}
