@@ -13,6 +13,12 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Task
 ---
 
 <!--
+  OTel Span Propagation: This skill emits spans for all 9 pipeline stages.
+  Spans are exported to Jaeger on localhost:6831 for observability.
+  See docs/observability/span-propagation.md for architecture details.
+-->
+
+<!--
   AUDITORS: This file is the pipeline dispatcher. The stages live in
   stages/plan.md, stages/build.md, stages/verify.md, stages/ship.md,
   stages/record.md. Claude reads all of them in sequence.
@@ -38,6 +44,24 @@ Initialize the routing trace (enables introspection into decision layers):
 SESSION_ID=$(date +%s)-$(openssl rand -hex 3)
 PROJECT_ROOT="$2"  # from @./path argument
 python "../one-shot-generator/scripts/routing_trace.py" --init "$SESSION_ID" "$PROJECT_ROOT"
+```
+
+Initialize OTel tracer for span propagation across all 9 pipeline stages:
+
+```!
+import sys
+import os
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+
+from otel_tracer import init_tracer, trace_stage
+from trace_context import capture_context, restore_context
+
+# Initialize tracer for this invocation
+tracer = init_tracer("one-shot-generate")
+print(f"[OTel] Initialized tracer for session {SESSION_ID}")
 ```
 
 **Route on `--templated`:**
@@ -113,27 +137,89 @@ trace.log_decision(
 
 ## Pipeline — execute in order
 
-Read and execute each stage file in sequence:
+Read and execute each stage file in sequence. Each stage is instrumented with
+OTel spans for observability (see `docs/observability/span-propagation.md`).
 
-**PLAN** → `@./stages/plan.md`
-Stages 0 – 2.7: curriculum, scan, extract, cost gate, **grill-me (1.6)**,
+### PLAN Phase
+
+Stages 0 – 2.7: curriculum check, scan & extract, cost gate, **grill-me (1.6)**,
 doc lookup, architect, spec review, incremental slice, service-author.
 
-**BUILD** → `@./stages/build.md`
+```!
+# Stage 0: Curriculum check (curriculum_check span)
+with tracer.start_as_current_span("curriculum_check") as span:
+    span.set_attribute("stage", "curriculum_check")
+    # Executed below via @./stages/plan.md
+```
+
+**PLAN** → `@./stages/plan.md`
+
+### BUILD Phase
+
 Stage 3: implementer × N + test-author (parallel) — or **tdd-cycle**
 when `--tdd-strict`.
 
-**VERIFY** → `@./stages/verify.md`
+```!
+# Stage 3: Code generation (write_code span)
+with tracer.start_as_current_span("write_code") as span:
+    span.set_attribute("stage", "write_code")
+    span.set_attribute("parallel", True)
+    # Executed below via @./stages/build.md
+```
+
+**BUILD** → `@./stages/build.md`
+
+### VERIFY Phase
+
 Stages 4 – 5.7: auto-patch, reviewer (with **caveman** compression on
 large inputs), doubter, consistency + SAST.
 
-**SHIP** → `@./stages/ship.md`
+```!
+# Stage 4: Verify & patch (verify_and_patch span)
+with tracer.start_as_current_span("verify_and_patch") as span:
+    span.set_attribute("stage", "verify_and_patch")
+    # Executed below via @./stages/verify.md
+
+# Stage 5: Security review (security_review span)
+with tracer.start_as_current_span("security_review") as span:
+    span.set_attribute("stage", "security_review")
+    # Executed below via @./stages/verify.md
+```
+
+**VERIFY** → `@./stages/verify.md`
+
+### SHIP Phase
+
 Stages 6 – 7: wire, migrate, approval gate, critic loop (max 3 iter,
 with **systematic-debug** triggered on repeat failures).
 
-**RECORD** → `@./stages/record.md`
+```!
+# Stage 6: Auto-wire main.py (auto_wire_main span)
+with tracer.start_as_current_span("auto_wire_main") as span:
+    span.set_attribute("stage", "auto_wire_main")
+    # Executed below via @./stages/ship.md
+
+# Stage 7: Run tests & critic (run_tests span)
+with tracer.start_as_current_span("run_tests") as span:
+    span.set_attribute("stage", "run_tests")
+    # Executed below via @./stages/ship.md
+```
+
+**SHIP** → `@./stages/ship.md`
+
+### RECORD Phase
+
 Stages 8 – 8.5: graph refresh, learnings, dream consolidation,
 **handoff** runbook on SHIPPED.
+
+```!
+# Stage 8: Record beads & learnings (record_beads span)
+with tracer.start_as_current_span("record_beads") as span:
+    span.set_attribute("stage", "record_beads")
+    # Executed below via @./stages/record.md
+```
+
+**RECORD** → `@./stages/record.md`
 
 ---
 
@@ -159,3 +245,14 @@ print(f"Trace saved: {summary['trace_file']}")
 
 Users can inspect `.one-shot/routing_trace.jsonl` to see the exact layer
 (L1 Router, L2 Module, L3 Data) that made each decision.
+
+**Emit OTel trace summary** (Observability):
+```python
+print("\n=== OTel Span Propagation ===")
+print(f"Service: one-shot-generate")
+print(f"Session ID: {SESSION_ID}")
+print(f"Spans emitted for all 9 stages (0–8)")
+print(f"Trace available in Jaeger at http://localhost:16686")
+print(f"Search for traces with service='one-shot-generate'")
+print(f"View span-propagation.md for detailed architecture")
+```
