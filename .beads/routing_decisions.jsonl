@@ -563,3 +563,116 @@
     "Build a User model with CRUD operations"
   ]
 }
+{
+  "request": "Create a User entity with CRUD operations",
+  "intent": "simple_crud",
+  "complexity": "low",
+  "risk": "experimental",
+  "agent_name": "SimpleCRUD",
+  "cost_estimate": 0.3,
+  "duration_estimate": 5,
+  "confidence": 0.34,
+  "entities_detected": [
+    "user"
+  ],
+  "features_detected": [
+    "create"
+  ],
+  "special_handling": [],
+  "similar_past_requests": []
+}
+{
+  "request": "Create a User model",
+  "intent": "simple_crud",
+  "complexity": "low",
+  "risk": "experimental",
+  "agent_name": "SimpleCRUD",
+  "cost_estimate": 0.3,
+  "duration_estimate": 5,
+  "confidence": 0.1,
+  "entities_detected": [
+    "user"
+  ],
+  "features_detected": [
+    "create"
+  ],
+  "special_handling": [],
+  "similar_past_requests": []
+}
+{
+  "request": "Create a User entity with CRUD operations",
+  "intent": "simple_crud",
+  "complexity": "low",
+  "risk": "experimental",
+  "agent_name": "SimpleCRUD",
+  "cost_estimate": 0.3,
+  "duration_estimate": 5,
+  "confidence": 0.34,
+  "entities_detected": [
+    "user"
+  ],
+  "features_detected": [
+    "create"
+  ],
+  "special_handling": [],
+  "similar_past_requests": []
+}
+{
+  "request": "Create a User entity with CRUD operations",
+  "intent": "simple_crud",
+  "complexity": "low",
+  "risk": "experimental",
+  "agent_name": "SimpleCRUD",
+  "cost_estimate": 0.3,
+  "duration_estimate": 5,
+  "confidence": 0.34,
+  "entities_detected": [
+    "user"
+  ],
+  "features_detected": [
+    "create"
+  ],
+  "special_handling": [],
+  "similar_past_requests": [
+    "Create a User entity with CRUD operations"
+  ]
+}
+{
+  "request": "Build a User model with CRUD operations",
+  "intent": "simple_crud",
+  "complexity": "low",
+  "risk": "experimental",
+  "agent_name": "SimpleCRUD",
+  "cost_estimate": 0.3,
+  "duration_estimate": 5,
+  "confidence": 0.34,
+  "entities_detected": [
+    "user"
+  ],
+  "features_detected": [],
+  "special_handling": [],
+  "similar_past_requests": []
+}
+{
+  "request": "Build a User entity with create, read, update, delete operations",
+  "intent": "simple_crud",
+  "complexity": "medium",
+  "risk": "experimental",
+  "agent_name": "SimpleCRUD",
+  "cost_estimate": 0.3,
+  "duration_estimate": 5,
+  "confidence": 0.42,
+  "entities_detected": [
+    "user"
+  ],
+  "features_detected": [
+    "create",
+    "read",
+    "update",
+    "delete"
+  ],
+  "special_handling": [],
+  "similar_past_requests": [
+    "Build a User model with CRUD operations"
+  ]
+}
