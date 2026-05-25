@@ -1,0 +1,26 @@
+{
+  "scenario": "implementer-auth-jwt-middleware",
+  "agent": "implementer",
+  "fixture_type": "contract-test",
+  "note": "Tests implementer output for JWT auth middleware. Verifies 401 emission, no hardcoded secrets, dependency injection pattern.",
+  "input": {
+    "spec_entity": "AuthMiddleware",
+    "target_file": "auth/dependencies.py",
+    "feature": "JWT bearer token verification dependency"
+  },
+  "expected_output_contract": {
+    "must_contain": [
+      "from fastapi import",
+      "HTTPException",
+      "HTTP_401_UNAUTHORIZED",
+      "Depends",
+      "Bearer"
+    ],
+    "must_not_contain": [
+      "SECRET_KEY = \"",
+      "jwt_secret = 'changeme'",
+      "verify=False"
+    ]
+  },
+  "recorded_output": "from fastapi import Depends, HTTPException, status\nfrom fastapi.security import HTTPBearer, HTTPAuthorizationCredentials\nimport jwt\n\nfrom auth.config import get_jwt_settings\nfrom auth.schemas import TokenData\n\nbearer_scheme = HTTPBearer()\n\n\nasync def get_current_user(\n    creds: HTTPAuthorizationCredentials = Depends(bearer_scheme),\n) -> TokenData:\n    settings = get_jwt_settings()\n    try:\n        payload = jwt.decode(\n            creds.credentials,\n            settings.secret_key,\n            algorithms=[settings.algorithm],\n        )\n    except jwt.PyJWTError as exc:\n        raise HTTPException(\n            status_code=status.HTTP_401_UNAUTHORIZED,\n            detail=\"invalid token\",\n        ) from exc\n    return TokenData(**payload)\n"
+}

@@ -1,0 +1,18 @@
+{
+  "scenario": "doubter-missing-error-codes",
+  "agent": "doubter",
+  "fixture_type": "contract-test",
+  "note": "Doubter catches missing error responses and idempotency contract for a money-moving endpoint.",
+  "input": {
+    "spec_excerpt": {
+      "endpoint": "POST /carts/{cart_id}/checkout",
+      "description": "checkout a cart and create an order",
+      "success_response": "201 Order"
+    }
+  },
+  "expected_output_contract": {
+    "expected_findings": ["error responses", "idempotency", "404", "409", "side effects"],
+    "must_not_reference": ["implementer chose"]
+  },
+  "recorded_output": "## Doubter Findings\n\nFINDING: error responses undefined\n  Spec lists only 201. What about: 404 (cart not found), 409 (already checked out), 422 (empty cart), 502 (payment provider failed). Without these, implementer will guess and clients will see undocumented behavior.\n\nFINDING: idempotency contract missing\n  Checkout creates an Order and charges money. A duplicate POST from a network retry will double-charge unless the spec mandates Idempotency-Key. Real money bug class.\n\nFINDING: side effects of checkout undocumented\n  Does checkout decrement inventory, emit a CartCheckedOut event, queue a confirmation email? Each is a crosscutting concern that the spec should pin down.\n\nRecommendation: extend spec with {error_responses: [404, 409, 422, 502], idempotency: required (Idempotency-Key), side_effects: [decrement_inventory, emit_event, queue_email]}.\n"
+}

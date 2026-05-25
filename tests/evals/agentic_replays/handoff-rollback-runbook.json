@@ -1,0 +1,15 @@
+{
+  "scenario": "handoff-rollback-runbook",
+  "agent": "handoff",
+  "fixture_type": "contract-test",
+  "note": "Handoff: compact runbook covering required shipping sections.",
+  "input": {
+    "feature": "shopping cart with line items and discounts",
+    "files_changed": ["cart/router.py", "cart/service.py", "cart/models.py", "alembic/versions/0042_cart.py"]
+  },
+  "expected_output_contract": {
+    "required_sections": ["files", "migration", "wire", "rollback", "on-call"],
+    "max_chars": 3000
+  },
+  "recorded_output": "## Handoff: shopping cart\n\nFiles: cart/router.py, cart/service.py, cart/models.py, alembic/versions/0042_cart.py\n\nMigration: alembic upgrade head (adds carts + line_items tables, FK Integer→Integer)\n\nWire: cart router already mounted in main.py at /api/v1/carts via include_router.\n\nObservability gates (first 30 min):\n- p95 latency < 200ms on /api/v1/carts\n- 5xx rate < 0.1%\n- DB pool saturation < 70%\n\nRollback (on SLO breach):\n1. kubectl rollout undo deployment/api\n2. alembic downgrade -1\n3. git revert <merge_sha>; git push\n\nOn-call: cart-team primary, platform secondary, dba-oncall for DB issues.\n\nFollow-ups (next): BD-followup deprecate utcnow(); BD-followup add 1000 RPS load test.\n"
+}

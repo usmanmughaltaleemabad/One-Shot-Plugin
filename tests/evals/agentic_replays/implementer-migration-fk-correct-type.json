@@ -1,0 +1,26 @@
+{
+  "scenario": "implementer-migration-fk-correct-type",
+  "agent": "implementer",
+  "fixture_type": "contract-test",
+  "note": "Tests that implementer generates Alembic migration with FK column type matching referenced PK (Integer == Integer, not String).",
+  "input": {
+    "spec_entity": "LineItem",
+    "target_file": "alembic/versions/0042_add_line_items.py",
+    "feature": "add line_items table with FK to carts.id (Integer)"
+  },
+  "expected_output_contract": {
+    "must_contain": [
+      "def upgrade()",
+      "def downgrade()",
+      "sa.Integer()",
+      "sa.ForeignKey('carts.id'",
+      "op.create_table"
+    ],
+    "must_not_contain": [
+      "sa.String(",
+      "sa.VARCHAR(",
+      "nullable=True, primary_key=True"
+    ]
+  },
+  "recorded_output": "from alembic import op\nimport sqlalchemy as sa\n\nrevision = '0042'\ndown_revision = '0041'\n\n\ndef upgrade() -> None:\n    op.create_table(\n        'line_items',\n        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),\n        sa.Column('cart_id', sa.Integer(), sa.ForeignKey('carts.id', ondelete='CASCADE'), nullable=False, index=True),\n        sa.Column('product_id', sa.Integer(), sa.ForeignKey('products.id'), nullable=False),\n        sa.Column('quantity', sa.Integer(), nullable=False, server_default='1'),\n        sa.Column('unit_price_cents', sa.Integer(), nullable=False),\n    )\n\n\ndef downgrade() -> None:\n    op.drop_table('line_items')\n"
+}

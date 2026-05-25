@@ -1,0 +1,16 @@
+{
+  "scenario": "handoff-feature-flag-rollout",
+  "agent": "handoff",
+  "fixture_type": "contract-test",
+  "note": "Handoff: graduated flag rollout with kill switch.",
+  "input": {
+    "feature": "new pricing engine with dynamic discounts",
+    "risk_level": "high",
+    "flag_name": "pricing_engine_v2"
+  },
+  "expected_output_contract": {
+    "required_sections": ["files", "migration", "wire", "rollback", "on-call"],
+    "max_chars": 3000
+  },
+  "recorded_output": "## Handoff: pricing_engine_v2 (HIGH risk)\n\nFiles: pricing/engine.py, pricing/router.py, pricing/flags.py, alembic/versions/0043_pricing_v2.py\n\nMigration: alembic upgrade head (adds pricing_rules table, additive only)\n\nWire: pricing router mounted in main.py; flag pricing_engine_v2 default OFF.\n\nGraduated rollout via flag:\n  Stage 1: 1%   hold 2h    gate: err rate within 10% of baseline, revenue/session within 5%\n  Stage 2: 10%  hold 24h   gate: same + manual sign-off pricing-team\n  Stage 3: 50%  hold 48h   gate: same + p95 latency within 20%\n  Stage 4: 100% full launch\n\nObservability gates auto-pause: revenue_per_checkout within ±5%, pricing.error_rate < 0.1%, pricing.p95 < 250ms.\n\nRollback / kill switch: flip pricing_engine_v2 flag to OFF (no deploy). Fallback env DISABLE_PRICING_V2=1 if flag service unhealthy.\n\nOn-call: pricing-team primary, platform secondary, finance-eng notified per stage (revenue impact).\n"
+}

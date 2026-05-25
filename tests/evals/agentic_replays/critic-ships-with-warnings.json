@@ -1,0 +1,13 @@
+{
+  "scenario": "critic-ships-with-warnings",
+  "agent": "critic",
+  "fixture_type": "contract-test",
+  "note": "Critic emits JSON SHIPPED when all tests pass even with non-blocking warnings.",
+  "input": {
+    "pytest_summary": "==== 21 passed, 2 warnings in 3.10s ====\nWarning: DeprecationWarning: datetime.datetime.utcnow() is deprecated\nWarning: PytestUnraisableExceptionWarning: Exception ignored in: <coroutine>"
+  },
+  "expected_output_contract": {
+    "expected_verdict": "SHIPPED"
+  },
+  "recorded_output": "{\n  \"verdict\": \"SHIPPED\",\n  \"tests_passed\": 21,\n  \"tests_failed\": 0,\n  \"warnings\": [\n    {\n      \"category\": \"DeprecationWarning\",\n      \"detail\": \"datetime.datetime.utcnow() is deprecated\",\n      \"follow_up\": \"Replace with datetime.datetime.now(datetime.UTC). Track as BD-followup.\"\n    },\n    {\n      \"category\": \"PytestUnraisableExceptionWarning\",\n      \"detail\": \"Exception ignored in coroutine\",\n      \"follow_up\": \"Investigate which coroutine is abandoned; likely missing await. Track as BD-followup.\"\n    }\n  ],\n  \"reason\": \"All 21 tests passing; warnings are non-blocking but should be tracked as beads.\"\n}\n"
+}

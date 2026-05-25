@@ -1,0 +1,13 @@
+{
+  "scenario": "critic-loops-on-failing-tests",
+  "agent": "critic",
+  "fixture_type": "contract-test",
+  "note": "Critic emits JSON LOOP verdict with routes_by_agent map when tests fail.",
+  "input": {
+    "pytest_summary": "==== 3 failed, 18 passed in 4.20s ====\nFAILED tests/test_cart.py::test_checkout_empty - assert 422 == 201\nFAILED tests/test_cart.py::test_checkout_double - assert 409 == 200\nFAILED tests/test_cart.py::test_total_with_discount - assert 950 == 1000"
+  },
+  "expected_output_contract": {
+    "expected_verdict": "LOOP"
+  },
+  "recorded_output": "{\n  \"verdict\": \"LOOP\",\n  \"iteration\": 1,\n  \"max_iterations\": 3,\n  \"failing_tests\": [\n    \"tests/test_cart.py::test_checkout_empty\",\n    \"tests/test_cart.py::test_checkout_double\",\n    \"tests/test_cart.py::test_total_with_discount\"\n  ],\n  \"routes_by_agent\": {\n    \"implementer\": [\n      \"cart/service.py:CartService.checkout — raise 422 when cart.items is empty\",\n      \"cart/service.py:CartService.checkout — raise 409 when cart.status == 'completed'\",\n      \"cart/service.py:CartService.compute_total — apply spec.discount multiplier to line totals\"\n    ]\n  },\n  \"reason\": \"3 spec violations in cart service. Re-run implementer with these constraints; tests are not flaky.\"\n}\n"
+}

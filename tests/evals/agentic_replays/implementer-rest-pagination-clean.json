@@ -1,0 +1,27 @@
+{
+  "scenario": "implementer-rest-pagination-clean",
+  "agent": "implementer",
+  "fixture_type": "contract-test",
+  "note": "Synthetic fixture testing implementer output for a REST endpoint with cursor pagination. Tests that pagination envelope (next/prev) and limit clamping are present.",
+  "input": {
+    "spec_entity": "Product",
+    "target_file": "products/router.py",
+    "feature": "list products with cursor pagination"
+  },
+  "expected_output_contract": {
+    "must_contain": [
+      "from fastapi import APIRouter",
+      "async def list_products",
+      "limit:",
+      "cursor:",
+      "next_cursor",
+      "router = APIRouter"
+    ],
+    "must_not_contain": [
+      "OFFSET",
+      "session.execute(f\"",
+      "limit=100000"
+    ]
+  },
+  "recorded_output": "from fastapi import APIRouter, Depends, Query\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nfrom products.schemas import ProductRead, ProductPage\nfrom products.service import ProductService\nfrom common.db import get_db\n\nrouter = APIRouter(prefix=\"/api/v1/products\", tags=[\"products\"])\n\n\n@router.get(\"/\", response_model=ProductPage)\nasync def list_products(\n    cursor: str | None = Query(default=None),\n    limit: int = Query(default=20, ge=1, le=100),\n    db: AsyncSession = Depends(get_db),\n) -> ProductPage:\n    svc = ProductService(db)\n    items, next_cursor = await svc.list_page(cursor=cursor, limit=limit)\n    return ProductPage(items=items, next_cursor=next_cursor)\n"
+}

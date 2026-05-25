@@ -1,0 +1,14 @@
+{
+  "scenario": "reviewer-flags-n-plus-one",
+  "agent": "reviewer",
+  "fixture_type": "contract-test",
+  "note": "Reviewer must detect N+1 query pattern and emit REVISE with file:line.",
+  "input": {
+    "review_target": "users/service.py",
+    "code_under_review": "async def list_users_with_posts(db):\n    users = await db.scalars(select(User))\n    result = []\n    for u in users.all():\n        posts = await db.scalars(select(Post).where(Post.user_id == u.id))\n        result.append({\"user\": u, \"posts\": posts.all()})\n    return result"
+  },
+  "expected_output_contract": {
+    "expected_verdict": "REVISE"
+  },
+  "recorded_output": "REVIEW: REVISE\n\nservice.py:4 — N+1 query pattern.\n\nFor each user returned at service.py:2, an additional SELECT is issued at service.py:4 to fetch their posts. With 1000 users this becomes 1001 round-trips.\n\nFix at service.py:2-6 — use eager loading:\n    from sqlalchemy.orm import selectinload\n    stmt = select(User).options(selectinload(User.posts))\n    users = await db.scalars(stmt)\n    return [{\"user\": u, \"posts\": u.posts} for u in users.all()]\n\nAlso add a query-count assertion in tests/test_users.py to prevent regression.\n\nSeverity: high (performance).\n"
+}

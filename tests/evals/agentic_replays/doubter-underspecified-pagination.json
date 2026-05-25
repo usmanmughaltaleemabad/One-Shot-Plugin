@@ -1,0 +1,18 @@
+{
+  "scenario": "doubter-underspecified-pagination",
+  "agent": "doubter",
+  "fixture_type": "contract-test",
+  "note": "Doubter must catch missing pagination details. Uses structured FINDING format with expected_findings keywords.",
+  "input": {
+    "spec_excerpt": {
+      "endpoint": "GET /products",
+      "description": "list products",
+      "response": "array of Product"
+    }
+  },
+  "expected_output_contract": {
+    "expected_findings": ["pagination", "page size", "cursor", "sort order"],
+    "must_not_reference": ["implementer chose", "implementer reasoning"]
+  },
+  "recorded_output": "## Doubter Findings\n\nFINDING: pagination strategy unspecified\n  The endpoint returns 'array of Product' with no bound. offset/limit vs cursor vs page/per_page each imply different contracts and storage semantics. Pick one in the spec.\n\nFINDING: default page size unspecified\n  Returning the full table on an unparameterized request will silently break once products grow past a few thousand rows.\n\nFINDING: max page size unspecified\n  Without a server-enforced cap, callers can request limit=1000000 and exhaust DB memory.\n\nFINDING: sort order unspecified\n  Without a stable ORDER BY, the cursor pages will be non-deterministic and skip/repeat rows across requests.\n\nRecommendation: extend the spec with {pagination: cursor, default_limit: 20, max_limit: 100, order_by: id ASC}.\n"
+}

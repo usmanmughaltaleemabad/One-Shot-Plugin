@@ -1,0 +1,14 @@
+{
+  "scenario": "reviewer-flags-sql-injection",
+  "agent": "reviewer",
+  "fixture_type": "contract-test",
+  "note": "Reviewer must flag f-string SQL injection and emit REVISE verdict with file:line.",
+  "input": {
+    "review_target": "user_repo.py",
+    "code_under_review": "def get_user(user_id):\n    query = f\"SELECT * FROM users WHERE id={user_id}\"\n    return db.execute(query)"
+  },
+  "expected_output_contract": {
+    "expected_verdict": "REVISE"
+  },
+  "recorded_output": "REVIEW: REVISE\n\nuser_repo.py:2 — SQL injection via f-string interpolation.\n\nThe query string concatenates raw user_id input directly into SQL. This permits arbitrary SQL injection if user_id is attacker-controlled.\n\nFix at user_repo.py:2 — replace with parameterized form:\n    db.execute(sa.text(\"SELECT * FROM users WHERE id = :id\"), {\"id\": user_id})\nor with ORM:\n    db.query(User).filter(User.id == user_id).first()\n\nSeverity: critical. Must be fixed before merge.\n"
+}
