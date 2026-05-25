@@ -1,6 +1,6 @@
 ---
 description: Generate a strangler-pattern migration scaffold (router + adapter + dual-run + parity tests + rollback + cutover plan) for a legacy module.
-status: experimental
+status: beta
 argument-hint: "--legacy <legacy.py> --new <new.py> --flag <FEATURE_FLAG>"
 allowed-tools: Bash(python *)
 destructive: true

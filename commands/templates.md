@@ -1,6 +1,6 @@
 ---
 description: Browse, search, and show curated one-shot-prompting templates (25+ proven prompts for messaging, APIs, deployment, observability, refactoring).
-status: experimental
+status: beta
 argument-hint: "[list|show|search|tags] [args]"
 allowed-tools: Bash(python *)
 destructive: false
