@@ -385,33 +385,32 @@ Wired and tested. Currently empty — needs real runs to populate. See [`scripts
 
 ---
 
-## Status of known gaps (v1.2.1)
+## Validation
 
-The v1.0.0 README shipped with a "Known gaps" table. This is the honest
-v1.2.1 update — what closed, what's still open, and what's been *measured*
-instead of asserted.
+The plugin reports its own confidence signals — you don't have to take
+the README's word for anything:
 
-| Gap | v1.0.0 status | v1.2.1 status | Evidence |
-|---|---|---|---|
-| **Zero external users** | Open — all claims self-validated | **Still open.** Plugin has not yet shipped code for a non-author user. We are not claiming otherwise. | n/a — needs real users |
-| **Agentic eval coverage** | Open — 6 architect scenarios only | **Closed.** 26 replay scenarios across 7 agent types (architect 6, reviewer 5, critic 4, implementer 4, doubter 3, handoff 3, test-author 1). All passing. | `tests/evals/agentic_replays/` + `python tests/evals/agentic_evals.py --mode replay --json` |
-| **No live E2E CI by default** | Open — gated on `ANTHROPIC_API_KEY` | **Already correct in v1.0.0** — free-tier job already runs on every push. Only the live (paid) job is secret-gated. Wording in v1.0.0 over-claimed the problem. | `.github/workflows/e2e.yml` — see `e2e-dry` job, no `if:` gate |
-| **Cost calibration** | Open — 6 runs, directional | **Closed (with honest confidence label).** New `scripts/cost_stats.py` aggregates `.beads/cost_observations.jsonl` into a calibration report and labels confidence (none/low/low-medium/medium/high) based on sample count. Current: 6 architect samples → "low confidence, directional". The report makes the gap visible instead of hand-asserted. | `python scripts/cost_stats.py` |
-| **Self-learning loop** | Open — needs real runs | **Closed (with honest status label).** New `scripts/curriculum_status.py` reports whether the loop is cold / warming / active / mature based on `.beads/curriculum.jsonl` entry count. Current: 10 seed + 4 runtime → "warming". Same idea: observable, not asserted. | `python scripts/curriculum_status.py` |
-| **Experimental commands** | Open — 9 marked experimental | **Closed via reclassification.** 1 stable (`/one-shot`), 6 beta (architecture, execute-plan, sys-debug, tdd, strangler, templates), 3 experimental (browser-test, tour, generate). Promotion criteria documented. Nothing archived. | `docs/command-maturity.md` |
+```bash
+python scripts/cost_stats.py          # cost calibration with confidence label
+python scripts/curriculum_status.py   # self-learning loop state
+python tests/evals/agentic_evals.py --mode replay --json
+                                      # 26 graded replay scenarios across 7 agents
+```
 
-What we explicitly did **not** do:
-- We did not add a "pi.dev integration" with vendor packages. After
-  reviewing pi.dev/docs and pi.dev/packages, the honest finding is that
-  pi.dev is a peer harness implementing the same patterns we already
-  implement. See `docs/patterns/pi-dev-research.md` for the takeups
-  (small) and rejections (with reasons).
-- We did not claim cost calibration is "production confident" — 6 samples
-  is still 6 samples. The new tooling makes that visible.
-- We did not invent external users. The first gap remains open by
-  construction.
+**Command maturity** is documented per-command (stable / beta /
+experimental) in [`docs/command-maturity.md`](docs/command-maturity.md).
+Only `/one-shot` is marked stable today; six commands are beta; three
+are still experimental — with reasons.
 
-See [docs/scorecard-v4.md](docs/scorecard-v4.md) for full scoring across 36+ dimensions.
+**Want to be the first external validator?** The pathway is documented in
+[`docs/validation-pathway.md`](docs/validation-pathway.md). Tier 1
+(dry-run on your own codebase) takes about three minutes. Negative
+evidence is also evidence — a failure report is more useful than ten
+more self-validated replays.
+
+See [`docs/scorecard-v4.md`](docs/scorecard-v4.md) for full scoring
+across 36+ dimensions, and [`CHANGELOG.md`](CHANGELOG.md#121--2026-05-25--readme-gap-closure-honest-accounting)
+for the v1.2.1 gap-closure detail.
 
 ---
 
@@ -500,9 +499,9 @@ MIT. See [LICENSE](LICENSE).
 
 ## Versions + cumulative history
 
-**Current: v1.2.0** (2026-05-25) — Phase 3 + Phase 4 complete (Policy, Knowledge, Routing, Curriculum + Comprehensive Audit). Enterprise-ready, 8.3/10 audit score, 960+ tests passing. Fully backward compatible with v1.0.0 and v1.1.0.
+**Current: v1.2.1** (2026-05-25) — README gap closure: 26 replay scenarios across 7 agents, command maturity tiers (stable/beta/experimental), cost + curriculum reporters with honest confidence labels, pi.dev research, folder consolidation. See [CHANGELOG.md](CHANGELOG.md#121--2026-05-25--readme-gap-closure-honest-accounting).
 
-**Previous milestones:** v1.1.0 (2026-05-22) TIER A workstreams, v1.0.0 (2026-05-19) first public release, internal v4.15 architecture.
+**Previous milestones:** v1.2.0 (2026-05-25) Phase 3 + Phase 4 (Policy, Knowledge, Routing, Curriculum, Audit 8.3/10), v1.1.0 (2026-05-22) TIER A workstreams, v1.0.0 (2026-05-19) first public release.
 
 Full release history (all versions): see [CHANGELOG.md](CHANGELOG.md).
 
