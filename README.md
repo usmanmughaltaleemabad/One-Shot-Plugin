@@ -1,4 +1,4 @@
-# One-Shot Prompting — v1.2.1
+# One-Shot Prompting — v1.2.2
 
 > Generate production-ready features that fit your codebase. Claude reads your code, understands your patterns, and writes code that belongs there. **Now with enterprise governance, learning, routing, and a comprehensive ride-sharing example.**
 

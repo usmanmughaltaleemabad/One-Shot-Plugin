@@ -4,7 +4,7 @@ last_verified: 2026-05-25
 owner: claude
 ---
 
-# one-shot-prompting Plugin — v1.2.1
+# one-shot-prompting Plugin — v1.2.2
 
 > **Auditing?** Start with [docs/architecture/agent-first-principle.md](docs/architecture/agent-first-principle.md),
 > then read `SKILL.md` → agents → scripts (in that order).

@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.2] — 2026-05-25 — Audit response: deletions, corrections, no new features
+
+External audit verified concrete contradictions between marketing and
+reality. This release is corrections only — net deletions, no new
+features, no new tiers, no new doc layers. See commits for the eight
+specific fixes.
+
+### Removed
+- `.claude/agents/jugnu-*` (3 unrelated marketing agents) +
+  `skills/jugnu-positioning/` — belonged to a separate product.
+- 32 hardcoded `C:\\Projects\\plugin\\...` Path() strings in
+  `tests/test_awesome_examples.py`. Replaced with REPO_ROOT-relative paths.
+- `.npmignore` — leftover from a JS template; this is a Python plugin.
+- Self-audit + phase-summary bulk (~14 root files + `audit/` directory):
+  AUDIT_ME_FIRST.md, HARNESS_REPORT.md, COMPREHENSIVE_HARNESS_REPORT.md,
+  IMPLEMENTATION_STATUS.md, PHASE_3_T3_SUMMARY.md, PHASE_3_T4_IMPLEMENTATION.md,
+  PHASE_5_COMPLETION_SUMMARY.md, RELEASE_NOTES_v1.2.0.md, RELEASE_NOTES_v1.2.1.md,
+  MARKETPLACE_SUBMISSION.md, DIRECTORY_SUBMISSION_FORM.md,
+  ANTHROPIC_COMPLIANCE_CHECKLIST.md, EXECUTION_AUTOMATION.sh,
+  README.md.backup-pre-positioning, audit/.
+
+### Changed
+- README: specific test/agent/script counts removed. Replaced with
+  pointers to source-of-truth shell commands (`pytest tests/`,
+  `ls .claude/agents/`). Numbers in marketing copy go stale; pointers
+  to source of truth do not.
+- Version reconciled to **1.2.2** across plugin.json, README, CLAUDE.md,
+  CHANGELOG. Patch bump because these are corrections, not features.
+- `.claude/hooks/session-start.sh`: removed stale "Phase 4-5 are STUBS"
+  warning that contradicted the README.
+- CLAUDE.md trimmed to ≤100 lines (was 116; smoke-test policy).
+- 5 docs gained YAML frontmatter to pass smoke-test.
+
+### Fixed
+- Smoke test: 6/8 → **8/8**.
+
+---
+
 ## [1.2.1] — 2026-05-25 — README gap closure (honest accounting)
 
 This release closes the "Known gaps" table that shipped in the v1.0.0
