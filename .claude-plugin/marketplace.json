@@ -9,15 +9,17 @@
   "plugins": [
     {
       "name": "one-shot",
-      "description": "Generates production-ready features that fit your existing codebase. Reads your code, understands your patterns, writes code that belongs there. Supports FastAPI, Django, Spring Boot, Go, Node.js, NestJS.",
+      "description": "Generates production-ready features that fit your existing codebase. Reads your code, understands your patterns, and writes idiomatic code with tests, migrations, and wiring included. Supports FastAPI, Django, Spring Boot, Go, Node.js, NestJS.",
       "author": {
         "name": "Usman Mughal"
       },
       "category": "development",
       "source": {
-        "source": "git",
+        "source": "git-subdir",
         "url": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin.git",
-        "ref": "master"
+        "path": ".",
+        "ref": "master",
+        "sha": "6a1b855d90d3122375fb7148ec274e7d6afb0847"
       },
       "homepage": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin"
     }

@@ -24,10 +24,5 @@
     "implementer-agent",
     "critic-loop"
   ],
-  "displayName": "One-Shot \u2014 Agentic Feature Generation",
-  "agents": "agents/",
-  "hooks": "hooks/hooks.json",
-  "skills": "skills/",
-  "commands": "commands/",
-  "mcpServers": {}
+  "displayName": "One-Shot \u2014 Agentic Feature Generation"
 }
