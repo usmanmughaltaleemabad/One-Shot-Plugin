@@ -7,48 +7,25 @@ from pathlib import Path
 
 import pytest
 
+from conftest import resolve_project_root, load_json_safe, detect_changes
+
 
 class TestProjectRootResolution:
     """Test project root argument resolution."""
 
     def test_resolve_absolute_path(self, tmp_path):
         """Resolving absolute path should return normalized Path."""
-        # Simulate the resolve_project_root function
-        def resolve_project_root(arg):
-            if arg == "@.":
-                return Path.cwd().resolve()
-            path = Path(arg).resolve()
-            if not path.is_dir():
-                raise ValueError(f"Project root does not exist: {path}")
-            return path
-
         result = resolve_project_root(str(tmp_path))
         assert result == tmp_path.resolve()
         assert isinstance(result, Path)
 
     def test_resolve_at_dot_argument(self):
         """Resolving @. should return current working directory."""
-        def resolve_project_root(arg):
-            if arg == "@.":
-                return Path.cwd().resolve()
-            path = Path(arg).resolve()
-            if not path.is_dir():
-                raise ValueError(f"Project root does not exist: {path}")
-            return path
-
         result = resolve_project_root("@.")
         assert result == Path.cwd().resolve()
 
     def test_resolve_nonexistent_path_raises(self):
         """Resolving nonexistent path should raise ValueError."""
-        def resolve_project_root(arg):
-            if arg == "@.":
-                return Path.cwd().resolve()
-            path = Path(arg).resolve()
-            if not path.is_dir():
-                raise ValueError(f"Project root does not exist: {path}")
-            return path
-
         with pytest.raises(ValueError, match="does not exist"):
             resolve_project_root("/nonexistent/path")
 
@@ -58,30 +35,12 @@ class TestJsonHandling:
 
     def test_load_nonexistent_json_returns_default(self, tmp_path):
         """Loading nonexistent JSON should return default dict."""
-        def load_json_safe(path, default=None):
-            if not path.exists():
-                return default if default is not None else {}
-            try:
-                return json.loads(path.read_text())
-            except json.JSONDecodeError as e:
-                print(f"[WARN] Corrupt JSON at {path}: {e}. Using empty state.")
-                return default if default is not None else {}
-
         path = tmp_path / "missing.json"
         result = load_json_safe(path)
         assert result == {}
 
     def test_load_valid_json_returns_data(self, tmp_path):
         """Loading valid JSON should return parsed data."""
-        def load_json_safe(path, default=None):
-            if not path.exists():
-                return default if default is not None else {}
-            try:
-                return json.loads(path.read_text())
-            except json.JSONDecodeError as e:
-                print(f"[WARN] Corrupt JSON at {path}: {e}. Using empty state.")
-                return default if default is not None else {}
-
         path = tmp_path / "valid.json"
         data = {"classes": [], "functions": []}
         path.write_text(json.dumps(data))
@@ -91,15 +50,6 @@ class TestJsonHandling:
 
     def test_load_corrupt_json_returns_default(self, tmp_path, capsys):
         """Loading corrupt JSON should return default and emit warning."""
-        def load_json_safe(path, default=None):
-            if not path.exists():
-                return default if default is not None else {}
-            try:
-                return json.loads(path.read_text())
-            except json.JSONDecodeError as e:
-                print(f"[WARN] Corrupt JSON at {path}: {e}. Using empty state.")
-                return default if default is not None else {}
-
         path = tmp_path / "corrupt.json"
         path.write_text("{ invalid json }")
 
@@ -114,24 +64,6 @@ class TestChangeDetection:
 
     def test_no_changes_detected(self):
         """Unchanged state should report zero changes."""
-        def detect_changes(old_state, new_state):
-            changes = {
-                "added_classes": [],
-                "removed_classes": [],
-                "added_functions": [],
-                "removed_functions": [],
-                "modified_classes": [],
-            }
-            old_classes = {e.get("name") for f in old_state.values() for e in f.get("classes", []) if e.get("name")}
-            new_classes = {e.get("name") for f in new_state.values() for e in f.get("classes", []) if e.get("name")}
-            changes["added_classes"] = sorted(list(new_classes - old_classes))
-            changes["removed_classes"] = sorted(list(old_classes - new_classes))
-            old_functions = {e.get("name") for f in old_state.values() for e in f.get("functions", []) if e.get("name")}
-            new_functions = {e.get("name") for f in new_state.values() for e in f.get("functions", []) if e.get("name")}
-            changes["added_functions"] = sorted(list(new_functions - old_functions))
-            changes["removed_functions"] = sorted(list(old_functions - new_functions))
-            return changes
-
         old = {
             "app.py": {
                 "classes": [{"name": "User", "methods": ["__init__"]}],
@@ -148,24 +80,6 @@ class TestChangeDetection:
 
     def test_detects_added_entity(self):
         """Should detect added classes."""
-        def detect_changes(old_state, new_state):
-            changes = {
-                "added_classes": [],
-                "removed_classes": [],
-                "added_functions": [],
-                "removed_functions": [],
-                "modified_classes": [],
-            }
-            old_classes = {e.get("name") for f in old_state.values() for e in f.get("classes", []) if e.get("name")}
-            new_classes = {e.get("name") for f in new_state.values() for e in f.get("classes", []) if e.get("name")}
-            changes["added_classes"] = sorted(list(new_classes - old_classes))
-            changes["removed_classes"] = sorted(list(old_classes - new_classes))
-            old_functions = {e.get("name") for f in old_state.values() for e in f.get("functions", []) if e.get("name")}
-            new_functions = {e.get("name") for f in new_state.values() for e in f.get("functions", []) if e.get("name")}
-            changes["added_functions"] = sorted(list(new_functions - old_functions))
-            changes["removed_functions"] = sorted(list(old_functions - new_functions))
-            return changes
-
         old = {
             "app.py": {
                 "classes": [{"name": "User", "methods": ["__init__"]}],
@@ -188,24 +102,6 @@ class TestChangeDetection:
 
     def test_detects_removed_entity(self):
         """Should detect removed classes."""
-        def detect_changes(old_state, new_state):
-            changes = {
-                "added_classes": [],
-                "removed_classes": [],
-                "added_functions": [],
-                "removed_functions": [],
-                "modified_classes": [],
-            }
-            old_classes = {e.get("name") for f in old_state.values() for e in f.get("classes", []) if e.get("name")}
-            new_classes = {e.get("name") for f in new_state.values() for e in f.get("classes", []) if e.get("name")}
-            changes["added_classes"] = sorted(list(new_classes - old_classes))
-            changes["removed_classes"] = sorted(list(old_classes - new_classes))
-            old_functions = {e.get("name") for f in old_state.values() for e in f.get("functions", []) if e.get("name")}
-            new_functions = {e.get("name") for f in new_state.values() for e in f.get("functions", []) if e.get("name")}
-            changes["added_functions"] = sorted(list(new_functions - old_functions))
-            changes["removed_functions"] = sorted(list(old_functions - new_functions))
-            return changes
-
         old = {
             "app.py": {
                 "classes": [
@@ -228,24 +124,6 @@ class TestChangeDetection:
 
     def test_detects_added_function(self):
         """Should detect added functions."""
-        def detect_changes(old_state, new_state):
-            changes = {
-                "added_classes": [],
-                "removed_classes": [],
-                "added_functions": [],
-                "removed_functions": [],
-                "modified_classes": [],
-            }
-            old_classes = {e.get("name") for f in old_state.values() for e in f.get("classes", []) if e.get("name")}
-            new_classes = {e.get("name") for f in new_state.values() for e in f.get("classes", []) if e.get("name")}
-            changes["added_classes"] = sorted(list(new_classes - old_classes))
-            changes["removed_classes"] = sorted(list(old_classes - new_classes))
-            old_functions = {e.get("name") for f in old_state.values() for e in f.get("functions", []) if e.get("name")}
-            new_functions = {e.get("name") for f in new_state.values() for e in f.get("functions", []) if e.get("name")}
-            changes["added_functions"] = sorted(list(new_functions - old_functions))
-            changes["removed_functions"] = sorted(list(old_functions - new_functions))
-            return changes
-
         old = {
             "app.py": {
                 "classes": [],
@@ -268,24 +146,6 @@ class TestChangeDetection:
 
     def test_detects_removed_function(self):
         """Should detect removed functions."""
-        def detect_changes(old_state, new_state):
-            changes = {
-                "added_classes": [],
-                "removed_classes": [],
-                "added_functions": [],
-                "removed_functions": [],
-                "modified_classes": [],
-            }
-            old_classes = {e.get("name") for f in old_state.values() for e in f.get("classes", []) if e.get("name")}
-            new_classes = {e.get("name") for f in new_state.values() for e in f.get("classes", []) if e.get("name")}
-            changes["added_classes"] = sorted(list(new_classes - old_classes))
-            changes["removed_classes"] = sorted(list(old_classes - new_classes))
-            old_functions = {e.get("name") for f in old_state.values() for e in f.get("functions", []) if e.get("name")}
-            new_functions = {e.get("name") for f in new_state.values() for e in f.get("functions", []) if e.get("name")}
-            changes["added_functions"] = sorted(list(new_functions - old_functions))
-            changes["removed_functions"] = sorted(list(old_functions - new_functions))
-            return changes
-
         old = {
             "app.py": {
                 "classes": [],
@@ -308,24 +168,6 @@ class TestChangeDetection:
 
     def test_multiple_changes(self):
         """Should detect multiple different change types simultaneously."""
-        def detect_changes(old_state, new_state):
-            changes = {
-                "added_classes": [],
-                "removed_classes": [],
-                "added_functions": [],
-                "removed_functions": [],
-                "modified_classes": [],
-            }
-            old_classes = {e.get("name") for f in old_state.values() for e in f.get("classes", []) if e.get("name")}
-            new_classes = {e.get("name") for f in new_state.values() for e in f.get("classes", []) if e.get("name")}
-            changes["added_classes"] = sorted(list(new_classes - old_classes))
-            changes["removed_classes"] = sorted(list(old_classes - new_classes))
-            old_functions = {e.get("name") for f in old_state.values() for e in f.get("functions", []) if e.get("name")}
-            new_functions = {e.get("name") for f in new_state.values() for e in f.get("functions", []) if e.get("name")}
-            changes["added_functions"] = sorted(list(new_functions - old_functions))
-            changes["removed_functions"] = sorted(list(old_functions - new_functions))
-            return changes
-
         old = {
             "app.py": {
                 "classes": [{"name": "OldClass", "methods": []}],
@@ -558,25 +400,6 @@ class TestIntegration:
         state_path = beads_dir / "docs-state.json"
         state_path.write_text(json.dumps(state))
 
-        # Simulate change detection
-        def detect_changes(old_state, new_state):
-            changes = {
-                "added_classes": [],
-                "removed_classes": [],
-                "added_functions": [],
-                "removed_functions": [],
-                "modified_classes": [],
-            }
-            old_classes = {e.get("name") for f in old_state.values() for e in f.get("classes", []) if e.get("name")}
-            new_classes = {e.get("name") for f in new_state.values() for e in f.get("classes", []) if e.get("name")}
-            changes["added_classes"] = sorted(list(new_classes - old_classes))
-            changes["removed_classes"] = sorted(list(old_classes - new_classes))
-            old_functions = {e.get("name") for f in old_state.values() for e in f.get("functions", []) if e.get("name")}
-            new_functions = {e.get("name") for f in new_state.values() for e in f.get("functions", []) if e.get("name")}
-            changes["added_functions"] = sorted(list(new_functions - old_functions))
-            changes["removed_functions"] = sorted(list(old_functions - new_functions))
-            return changes
-
         changes = detect_changes(state, state)
         total_changes = sum(len(v) for v in changes.values() if isinstance(v, list))
 
@@ -606,25 +429,6 @@ class TestIntegration:
                 "functions": [{"name": "main", "params": []}]
             }
         }
-
-        # Simulate change detection
-        def detect_changes(old_state, new_state):
-            changes = {
-                "added_classes": [],
-                "removed_classes": [],
-                "added_functions": [],
-                "removed_functions": [],
-                "modified_classes": [],
-            }
-            old_classes = {e.get("name") for f in old_state.values() for e in f.get("classes", []) if e.get("name")}
-            new_classes = {e.get("name") for f in new_state.values() for e in f.get("classes", []) if e.get("name")}
-            changes["added_classes"] = sorted(list(new_classes - old_classes))
-            changes["removed_classes"] = sorted(list(old_classes - new_classes))
-            old_functions = {e.get("name") for f in old_state.values() for e in f.get("functions", []) if e.get("name")}
-            new_functions = {e.get("name") for f in new_state.values() for e in f.get("functions", []) if e.get("name")}
-            changes["added_functions"] = sorted(list(new_functions - old_functions))
-            changes["removed_functions"] = sorted(list(old_functions - new_functions))
-            return changes
 
         changes = detect_changes(old_state, new_state)
         total_changes = sum(len(v) for v in changes.values() if isinstance(v, list))

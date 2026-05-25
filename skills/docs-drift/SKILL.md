@@ -40,8 +40,6 @@ import subprocess
 import json
 from pathlib import Path
 import sys
-from datetime import datetime
-import os
 
 def resolve_project_root(arg):
     """Convert @. argument to absolute path. Returns Path object."""
@@ -179,7 +177,7 @@ else:
         "changes": changes,
         "codebase_root": str(project_root),
         "docs_root": str(project_root / "docs"),
-        "files_touched": list(current_state.keys())
+        "files_touched": list(current_state.keys()) if current_state else []
     }
     
     print(f"\n[Docs Drift] Dispatching docs-author agent...")
@@ -187,7 +185,6 @@ else:
     print(f"  Output will be written to: {drafts_dir}")
     
     # Task tool invocation (Claude Code framework will dispatch)
-    # Parameters: agent="docs-author", input=agent_input
     # Framework converts this to: Task(name="docs-author", input_json=json.dumps(agent_input))
     task_payload = {
         "agent": "docs-author",
