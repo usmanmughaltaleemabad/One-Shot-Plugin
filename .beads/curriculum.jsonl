@@ -1,0 +1,4 @@
+{"id": "bd-001", "task_text": "shopping cart with line items and discounts", "reason": "FK column type mismatch: spec says int but migration generated String(255)", "mitigation": "Check type: key in spec.json matches migration_generator.py type mapping"}
+{"id": "bd-002", "task_text": "REST API with pagination endpoint", "reason": "Pagination envelope mismatch: test_contract expects 'next' key but router doesn't emit it", "mitigation": "Set test_contract.pagination='list' or add next/prev to router response"}
+{"id": "bd-003", "task_text": "authentication middleware for API", "reason": "401 response missing when auth middleware not generated", "mitigation": "Ensure spec includes auth_required=true for endpoints needing auth"}
+{"id": "bd-004", "task_text": "database migration with foreign keys", "reason": "Migration fails because FK reference column has wrong type", "mitigation": "Verify both columns use same integer type (Integer, not String)"}
