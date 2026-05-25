@@ -134,11 +134,29 @@ def detect_language_and_framework(project_path):
     pyproject = p / "pyproject.toml"
     setup_py = p / "setup.py"
 
+    # Monorepo support: if root pyproject.toml is a workspace definition
+    # (no [project.dependencies]), look inside common sub-dirs for one
+    # that contains actual app dependencies.
+    _SUBPROJECT_DIRS = ["backend", "src", "app", "api", "server"]
+    _extra_pyproject = None
+    if pyproject.exists():
+        _root_text = read_file_safe(pyproject).lower()
+        _has_deps = "dependencies" in _root_text and "[project]" in _root_text
+        if not _has_deps:
+            for subdir in _SUBPROJECT_DIRS:
+                candidate = p / subdir / "pyproject.toml"
+                if candidate.exists():
+                    _extra_pyproject = candidate
+                    break
+
     if req_file.exists() or pyproject.exists() or setup_py.exists():
         language = "python"
         deps_text = ""
         if req_file.exists():
             deps_text = read_file_safe(req_file).lower()
+        elif _extra_pyproject:
+            # Use the subproject pyproject.toml for dep detection
+            deps_text = read_file_safe(_extra_pyproject).lower()
         elif pyproject.exists():
             deps_text = read_file_safe(pyproject).lower()
 
@@ -157,6 +175,8 @@ def detect_language_and_framework(project_path):
         # ORM detection
         if "django" in deps_text:
             orm = "Django ORM"
+        elif "sqlmodel" in deps_text:
+            orm = "SQLModel"
         elif "sqlalchemy" in deps_text:
             orm = "SQLAlchemy"
         elif "tortoise" in deps_text:
@@ -172,15 +192,42 @@ def detect_language_and_framework(project_path):
         elif "motor" in deps_text or "pymongo" in deps_text:
             database = "MongoDB"
 
-        # Key libs (top 5)
+        # Key libs — handle both requirements.txt and pyproject.toml formats.
+        # TOML dependency lines look like:
+        #   "fastapi[standard]<1.0.0,>=0.114.2",
+        #   pydantic>2.0
+        # requirements.txt lines look like:
+        #   fastapi==0.114.2
+        #   -e .[extras]    ← editable install, skip
+        # TOML section headers and keys are *not* package names.
+        _TOML_NOISE = {"dependencies", "dev", "members", "requires-python",
+                       "name", "version", "description", "readme", "license",
+                       "authors", "classifiers", "keywords", "urls", "scripts",
+                       "optional-dependencies", "build-system", "tool", "project"}
+        _TOML_SECTION = re.compile(r"^\[")
         lib_candidates = []
         for line in deps_text.splitlines():
-            line = line.strip()
-            if line and not line.startswith("#"):
-                name = re.split(r"[=~><!@]", line)[0].strip()
-                if name and len(name) > 1:
-                    lib_candidates.append(name)
-        key_libs = lib_candidates[:5]
+            line = line.strip().strip('"').strip("',").strip()
+            # Skip blanks, comments, TOML section headers, editable installs
+            if not line or line.startswith("#") or _TOML_SECTION.match(line):
+                continue
+            if line.startswith("-e ") or line.startswith("-r "):
+                continue
+            # Extract package name: stop at extras bracket, version specifier, space
+            name = re.split(r"[\[=~><!@\s]", line)[0].strip().strip("\"'")
+            # Skip TOML structural keys and very short tokens
+            if not name or len(name) < 2 or name in _TOML_NOISE:
+                continue
+            lib_candidates.append(name)
+        # Deduplicate preserving order, take top 6
+        seen: set = set()
+        key_libs = []
+        for n in lib_candidates:
+            if n not in seen:
+                seen.add(n)
+                key_libs.append(n)
+            if len(key_libs) >= 6:
+                break
 
     # Go
     elif (p / "go.mod").exists():
@@ -457,8 +504,14 @@ def main():
         # Join all arguments into one string
         args_str = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else ""
 
-        # Extract @path argument
-        path_match = re.search(r"@(\S+)", args_str)
+        # Extract @path argument.
+        # Handles both bare paths (@/no/spaces) and quoted paths (@"/path with spaces").
+        # Priority: quoted form first, then unquoted (stops at whitespace).
+        path_match = re.search(r'@"([^"]+)"', args_str)  # quoted: @"path with spaces"
+        if not path_match:
+            path_match = re.search(r"@'([^']+)'", args_str)  # single-quoted
+        if not path_match:
+            path_match = re.search(r"@(\S+)", args_str)  # unquoted (legacy)
         if path_match:
             project_path = path_match.group(1)
             task = args_str[:path_match.start()].strip() + args_str[path_match.end():].strip()
