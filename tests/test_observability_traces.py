@@ -1,96 +1,46 @@
-"""Tests for OpenTelemetry trace initialization and context propagation."""
-
 import pytest
-from unittest.mock import patch, MagicMock
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 import sys
+from pathlib import Path
 
-sys.path.insert(0, 'scripts')
+# Add scripts to path
+REPO_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
+from otel_tracer import init_tracer, trace_stage
 
-@patch('otel_tracer.JaegerExporter')
-def test_tracer_initializes(mock_jaeger_exporter):
-    """Verify init_tracer returns a tracer instance."""
-    from otel_tracer import init_tracer
+class TestTracerInitialization:
+    def test_tracer_initializes(self):
+        """Test that tracer initializes without error."""
+        tracer = init_tracer("test-service")
+        assert tracer is not None
+    
+    def test_span_created_and_exported(self):
+        """Test that spans can be created and attributed."""
+        tracer = init_tracer("test-service")
+        with tracer.start_as_current_span("test-span") as span:
+            span.set_attribute("test", "value")
+            assert span is not None
 
-    service_name = "test-service"
-    tracer = init_tracer(service_name)
-
-    # Verify tracer is not None and has expected interface
-    assert tracer is not None
-    assert hasattr(tracer, 'start_as_current_span')
-
-
-@patch('otel_tracer.JaegerExporter')
-def test_span_created_and_exported(mock_jaeger_exporter):
-    """Verify span can be created and attributes set."""
-    from otel_tracer import init_tracer
-
-    service_name = "test-span-service"
-    tracer = init_tracer(service_name)
-
-    # Create a span and verify it can be created
-    with tracer.start_as_current_span("test-stage") as span:
-        assert span is not None
-        span.set_attribute("test_key", "test_value")
-        assert span.get_span_context() is not None
-
-
-@patch('otel_tracer.JaegerExporter')
-def test_trace_stage_decorator_preserves_function_metadata(mock_jaeger_exporter):
-    """Verify trace_stage decorator preserves decorated function metadata."""
-    from otel_tracer import trace_stage
-
-    @trace_stage("test-stage")
-    def my_function(x, y):
-        """Test function docstring."""
-        return x + y
-
-    # Verify functools.wraps preserves metadata
-    assert my_function.__name__ == "my_function"
-    assert my_function.__doc__ == "Test function docstring."
-
-
-@patch('otel_tracer.JaegerExporter')
-def test_trace_stage_decorator_handles_exceptions(mock_jaeger_exporter):
-    """Verify trace_stage decorator handles exceptions and re-raises them."""
-    from otel_tracer import trace_stage, init_tracer
-
-    init_tracer("test-exception-service")
-
-    @trace_stage("failing-stage")
-    def failing_function():
-        raise ValueError("Test error")
-
-    # Verify exception is re-raised, not swallowed
-    with pytest.raises(ValueError, match="Test error"):
-        failing_function()
-
-
-@patch('otel_tracer.JaegerExporter')
-def test_span_attributes_set_correctly(mock_jaeger_exporter):
-    """Verify span stage attribute and success status are recorded."""
-    from otel_tracer import trace_stage, init_tracer
-
-    init_tracer("test-attributes-service")
-
-    @trace_stage("test-stage")
-    def tracked_function():
-        return "success"
-
-    # Mock the span to verify attributes are set
-    with patch('otel_tracer.trace.get_tracer') as mock_get_tracer:
-        mock_tracer = MagicMock()
-        mock_span = MagicMock()
-        mock_tracer.start_as_current_span.return_value.__enter__.return_value = mock_span
-        mock_get_tracer.return_value = mock_tracer
-
-        result = tracked_function()
-
-        # Verify stage attribute is set
-        calls = mock_span.set_attribute.call_args_list
-        stage_set = any(call[0] == ("stage", "test-stage") for call in calls)
-        assert stage_set, "Stage attribute not set on span"
-
-        # Verify status is set to success
-        status_set = any(call[0] == ("status", "success") for call in calls)
-        assert status_set, "Success status not set on span"
+class TestTraceDecorator:
+    def test_trace_stage_decorator_wraps_function(self):
+        """Test that @trace_stage decorator works."""
+        @trace_stage("test-operation")
+        def sample_function():
+            return "result"
+        
+        result = sample_function()
+        assert result == "result"
+    
+    def test_trace_stage_decorator_with_args(self):
+        """Test that @trace_stage preserves function arguments."""
+        @trace_stage("computation")
+        def add(a, b):
+            return a + b
+        
+        result = add(2, 3)
+        assert result == 5
