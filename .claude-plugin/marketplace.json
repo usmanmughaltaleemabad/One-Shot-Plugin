@@ -8,7 +8,7 @@
   },
   "plugins": [
     {
-      "name": "one-shot",
+      "name": "one-shot-prompting",
       "description": "Generates production-ready features that fit your existing codebase. Reads your code, understands your patterns, and writes idiomatic code with tests, migrations, and wiring included. Supports FastAPI, Django, Spring Boot, Go, Node.js, NestJS.",
       "author": {
         "name": "Usman Mughal"

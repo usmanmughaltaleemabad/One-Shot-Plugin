@@ -1,5 +1,5 @@
 {
-  "name": "one-shot",
+  "name": "one-shot-prompting",
   "description": "Generates production-ready features that fit your existing codebase. Reads your code, understands your patterns, writes code that belongs there. Supports FastAPI, Django, Spring Boot, Go, Node.js, NestJS.",
   "version": "1.2.2",
   "author": {
