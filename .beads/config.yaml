@@ -1,0 +1,4 @@
+repos:
+  primary: "."
+  additional:
+    - "/home/usman_mughal/.beads-planning"
