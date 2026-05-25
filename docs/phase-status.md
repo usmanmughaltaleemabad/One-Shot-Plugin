@@ -1,14 +1,13 @@
 ---
 type: reference
-last_verified: 2026-05-17
+last_verified: 2026-05-25
 owner: claude
 status: legacy
-supersedes_target: IMPLEMENTATION_STATUS.md
 ---
 
 > **⚠️ Legacy doc — kept as reference for the Phase 0-5 architecture (v1.x → v2.0).**
 > The plugin restructured around tiers + semver in v3.5+. For the current
-> implementation status, see [IMPLEMENTATION_STATUS.md](../IMPLEMENTATION_STATUS.md).
+> state run `python -m pytest tests/` and read `README.md`.
 > This file is referenced from internal `.claude/` workflows (phase-planner
 > agent, retrieval policy) so it stays in place — but treat it as
 > historical context, not current truth.
