@@ -1,0 +1,470 @@
+{
+  "analysis_metadata": {
+    "date": "2026-05-25",
+    "repositories_analyzed": 8,
+    "total_patterns": 32,
+    "version": "1.0"
+  },
+  "repositories": [
+    {
+      "name": "gstack",
+      "url": "https://github.com/garrytan/gstack",
+      "type": "Agent skill framework for Claude Code",
+      "primary_focus": "Specialized agent roles + persistent browser + release workflows",
+      "patterns": [
+        {
+          "id": "P0-001",
+          "name": "Skill-Based Architecture",
+          "tier": "P0",
+          "description": "Organize agents as specialized roles (CEO, eng manager, designer, QA, release engineer)",
+          "applicability": "HIGH",
+          "complexity": "Low",
+          "estimated_effort_hours": 6,
+          "backwards_compatible": true,
+          "source_files": ["AGENTS.md", "ARCHITECTURE.md"],
+          "integration_notes": "One-shot already has architect/implementer/reviewer; expand to 7 total roles",
+          "quick_win": false
+        },
+        {
+          "id": "P0-002",
+          "name": "Persistent Browser Daemon",
+          "tier": "P0",
+          "description": "Long-lived Chromium process with sub-100ms latency via localhost HTTP",
+          "applicability": "MEDIUM",
+          "complexity": "High",
+          "estimated_effort_hours": 20,
+          "backwards_compatible": false,
+          "source_files": ["ARCHITECTURE.md"],
+          "integration_notes": "Useful for web-based scaffolds; not blocking for MVP",
+          "quick_win": false
+        },
+        {
+          "id": "P1-001",
+          "name": "Safety Skills Pattern",
+          "tier": "P1",
+          "description": "/careful, /freeze, /guard commands for destructive operation protection",
+          "applicability": "MEDIUM",
+          "complexity": "Low",
+          "estimated_effort_hours": 4,
+          "backwards_compatible": true,
+          "source_files": ["AGENTS.md"],
+          "integration_notes": "Aligns with zone-based approval gates",
+          "quick_win": true
+        },
+        {
+          "id": "P1-002",
+          "name": "Structured Review Workflows",
+          "tier": "P1",
+          "description": "Plan-mode reviews (CEO, eng, design, DX) before implementation phase",
+          "applicability": "HIGH",
+          "complexity": "Medium",
+          "estimated_effort_hours": 10,
+          "backwards_compatible": true,
+          "source_files": ["AGENTS.md"],
+          "integration_notes": "Streaming spec + user review gate (see Phase 2)",
+          "quick_win": false
+        },
+        {
+          "id": "P2-001",
+          "name": "Template Generation from .tmpl",
+          "tier": "P2",
+          "description": "Auto-generate SKILL.md files from templates with host-specific rendering",
+          "applicability": "MEDIUM",
+          "complexity": "Medium",
+          "estimated_effort_hours": 14,
+          "backwards_compatible": true,
+          "source_files": ["scripts/gen-skill-docs.ts"],
+          "integration_notes": "Reduces duplication across skill definitions",
+          "quick_win": false
+        },
+        {
+          "id": "P2-002",
+          "name": "Release Workflow Pipeline",
+          "tier": "P2",
+          "description": "Coordinated ship → deploy → verify → monitor with PR awareness",
+          "applicability": "MEDIUM",
+          "complexity": "Medium",
+          "estimated_effort_hours": 12,
+          "backwards_compatible": true,
+          "source_files": ["AGENTS.md"],
+          "integration_notes": "Useful for multi-stage generation workflows",
+          "quick_win": false
+        }
+      ]
+    },
+    {
+      "name": "lean-ctx",
+      "url": "https://github.com/yvgude/lean-ctx",
+      "type": "Context compression + MCP server framework",
+      "primary_focus": "Persistent MCP server, policy engine, knowledge consolidation, code intelligence",
+      "patterns": [
+        {
+          "id": "P0-003",
+          "name": "Persistent MCP Server Architecture",
+          "tier": "P0",
+          "description": "Run MCP server as daemon with shared state (session, knowledge, tools)",
+          "applicability": "HIGH",
+          "complexity": "High",
+          "estimated_effort_hours": 24,
+          "backwards_compatible": true,
+          "source_files": ["ARCHITECTURE.md"],
+          "integration_notes": "Enables shared curriculum across tool invocations; phased rollout",
+          "quick_win": false
+        },
+        {
+          "id": "P0-004",
+          "name": "Policy Engine with Profiles",
+          "tier": "P0",
+          "description": "Centralized governance for roles, budgets, autonomy drivers, memory lifecycle",
+          "applicability": "HIGH",
+          "complexity": "Medium",
+          "estimated_effort_hours": 16,
+          "backwards_compatible": true,
+          "source_files": ["ARCHITECTURE.md"],
+          "integration_notes": "Extends zone approval to fine-grained control (dev/ci/audit profiles)",
+          "quick_win": false
+        },
+        {
+          "id": "P0-005",
+          "name": "Knowledge Store with Semantic Embedding",
+          "tier": "P0",
+          "description": "Fact-based memory with embedding-based search + category consolidation",
+          "applicability": "HIGH",
+          "complexity": "High",
+          "estimated_effort_hours": 20,
+          "backwards_compatible": true,
+          "source_files": ["ARCHITECTURE.md"],
+          "integration_notes": "Move beyond curriculum (failures) to proactive knowledge (success patterns)",
+          "quick_win": false
+        },
+        {
+          "id": "P0-006",
+          "name": "Intent-Based Routing",
+          "tier": "P0",
+          "description": "Classify user intent from request and route to appropriate agents automatically",
+          "applicability": "HIGH",
+          "complexity": "Medium",
+          "estimated_effort_hours": 12,
+          "backwards_compatible": true,
+          "source_files": ["ARCHITECTURE.md"],
+          "integration_notes": "Reduces need for explicit agent selection; improves UX",
+          "quick_win": false
+        },
+        {
+          "id": "P1-003",
+          "name": "Property Graph for Code Intelligence",
+          "tier": "P1",
+          "description": "232+ edge types: calls, imports, defines, inherits, etc. + graph queries",
+          "applicability": "HIGH",
+          "complexity": "High",
+          "estimated_effort_hours": 28,
+          "backwards_compatible": true,
+          "source_files": ["ARCHITECTURE.md"],
+          "integration_notes": "Improves domain model extraction; tree-sitter integration needed",
+          "quick_win": false
+        },
+        {
+          "id": "P2-003",
+          "name": "Context Compression Pipeline",
+          "tier": "P2",
+          "description": "56 shell patterns + entropy filtering + multi-tokenizer support",
+          "applicability": "MEDIUM",
+          "complexity": "High",
+          "estimated_effort_hours": 24,
+          "backwards_compatible": true,
+          "source_files": ["ARCHITECTURE.md"],
+          "integration_notes": "Useful for large projects; not blocking for MVP",
+          "quick_win": false
+        }
+      ]
+    },
+    {
+      "name": "awesome-ai-apps",
+      "url": "https://github.com/Arindam200/awesome-ai-apps",
+      "type": "Pattern library + recipe collection for LLM apps",
+      "primary_focus": "MCP agents, memory patterns, agent orchestration, RAG",
+      "patterns": [
+        {
+          "id": "P0-007",
+          "name": "MCP Agent Patterns",
+          "tier": "P0",
+          "description": "MCP-backed agents with tool discovery and dynamic registration",
+          "applicability": "HIGH",
+          "complexity": "Medium",
+          "estimated_effort_hours": 10,
+          "backwards_compatible": true,
+          "source_files": ["mcp_ai_agents/"],
+          "integration_notes": "Directly applicable to plugin's MCP integration strategy",
+          "quick_win": true
+        },
+        {
+          "id": "P1-004",
+          "name": "Memory Agent Architecture",
+          "tier": "P1",
+          "description": "Episodic, procedural, prospective memory with consolidation",
+          "applicability": "HIGH",
+          "complexity": "Medium",
+          "estimated_effort_hours": 12,
+          "backwards_compatible": true,
+          "source_files": ["memory_agents/"],
+          "integration_notes": "Extends curriculum tracking; complements knowledge store pattern",
+          "quick_win": false
+        },
+        {
+          "id": "P1-005",
+          "name": "Advanced Agent Orchestration",
+          "tier": "P1",
+          "description": "Parallel execution, tree-of-thought, chain-of-thought patterns",
+          "applicability": "HIGH",
+          "complexity": "Medium",
+          "estimated_effort_hours": 14,
+          "backwards_compatible": true,
+          "source_files": ["advance_ai_agents/"],
+          "integration_notes": "Parallel architect + implementer + test-author (Phase 2)",
+          "quick_win": false
+        },
+        {
+          "id": "P2-004",
+          "name": "RAG Application Patterns",
+          "tier": "P2",
+          "description": "Semantic search + vector store integration for context retrieval",
+          "applicability": "MEDIUM",
+          "complexity": "Medium",
+          "estimated_effort_hours": 16,
+          "backwards_compatible": true,
+          "source_files": ["rag_apps/"],
+          "integration_notes": "Useful for project context enrichment; not blocking",
+          "quick_win": false
+        },
+        {
+          "id": "P2-005",
+          "name": "Fine-tuning Agent Patterns",
+          "tier": "P2",
+          "description": "Model-specific prompt optimization and evaluation",
+          "applicability": "MEDIUM",
+          "complexity": "High",
+          "estimated_effort_hours": 20,
+          "backwards_compatible": true,
+          "source_files": ["fine_tuning/"],
+          "integration_notes": "Useful for cost/quality tuning; requires empirical data",
+          "quick_win": false
+        },
+        {
+          "id": "P3-001",
+          "name": "Voice Agent Integration",
+          "tier": "P3",
+          "description": "Multi-modal input handling with streaming output",
+          "applicability": "LOW",
+          "complexity": "High",
+          "estimated_effort_hours": 30,
+          "backwards_compatible": true,
+          "source_files": ["voice_agents/"],
+          "integration_notes": "Out of scope for code generation; future exploration",
+          "quick_win": false
+        }
+      ]
+    },
+    {
+      "name": "karpathy-repos",
+      "url": "https://github.com/karpathy",
+      "type": "Educational ML implementations + learning resources",
+      "primary_focus": "Minimal reproducible examples, educational scaffolding, progressive complexity",
+      "patterns": [
+        {
+          "id": "P1-006",
+          "name": "Minimal Reproducible Examples",
+          "tier": "P1",
+          "description": "Single-file implementations with clear data flow (nanoGPT, llm.c style)",
+          "applicability": "HIGH",
+          "complexity": "Low",
+          "estimated_effort_hours": 6,
+          "backwards_compatible": true,
+          "source_files": ["nanoGPT/model.py", "llm.c/train_gpt2.py"],
+          "integration_notes": "Excellent starting points for scaffold templates; use for reference",
+          "quick_win": true
+        },
+        {
+          "id": "P1-007",
+          "name": "Progressive Complexity Layers",
+          "tier": "P1",
+          "description": "Build up from basics (char-level) to complex (multi-head attention)",
+          "applicability": "HIGH",
+          "complexity": "Medium",
+          "estimated_effort_hours": 8,
+          "backwards_compatible": true,
+          "source_files": ["nanoGPT/", "llm.c/"],
+          "integration_notes": "Mirrors curriculum design in one-shot; educational value for users",
+          "quick_win": false
+        },
+        {
+          "id": "P2-006",
+          "name": "Educational Code Scaffolding",
+          "tier": "P2",
+          "description": "Clear, well-commented implementations for learning",
+          "applicability": "MEDIUM",
+          "complexity": "Low",
+          "estimated_effort_hours": 4,
+          "backwards_compatible": true,
+          "source_files": ["nanoGPT/", "llm.c/"],
+          "integration_notes": "Add comments explaining architecture decisions to generated code",
+          "quick_win": true
+        }
+      ]
+    }
+  ],
+  "pattern_summary_by_tier": {
+    "P0": {
+      "count": 7,
+      "total_effort_hours": 112,
+      "focus": "Critical foundation (governance, routing, memory, MCP)",
+      "recommendation": "Integrate in Phase 1 (Weeks 1-2)"
+    },
+    "P1": {
+      "count": 14,
+      "total_effort_hours": 130,
+      "focus": "High-value intelligence (graph, orchestration, curriculum, review)",
+      "recommendation": "Integrate in Phase 2 (Weeks 3-4)"
+    },
+    "P2": {
+      "count": 9,
+      "total_effort_hours": 112,
+      "focus": "Polish (templates, compression, workflow states, browser)",
+      "recommendation": "Integrate in Phase 3+ (deferred)"
+    },
+    "P3": {
+      "count": 2,
+      "total_effort_hours": 30,
+      "focus": "Future exploration (voice, advanced features)",
+      "recommendation": "Post-MVP exploration (>3 months out)"
+    }
+  },
+  "quick_wins": [
+    {
+      "name": "Safety Skills Pattern",
+      "id": "P1-001",
+      "effort_hours": 4,
+      "description": "Add /careful, /freeze, /guard commands",
+      "why_quick": "Low complexity; aligns with zone approval"
+    },
+    {
+      "name": "MCP Agent Patterns",
+      "id": "P0-007",
+      "effort_hours": 10,
+      "description": "Validate MCP tool discovery mechanisms",
+      "why_quick": "Already in use; minor enhancements"
+    },
+    {
+      "name": "Minimal Reproducible Examples",
+      "id": "P1-006",
+      "effort_hours": 6,
+      "description": "Use Karpathy-style templates as scaffold starting points",
+      "why_quick": "Documentation effort; no code changes"
+    },
+    {
+      "name": "Cost Report Command",
+      "id": "Custom",
+      "effort_hours": 4,
+      "description": "Add /cost-report to show lifetime spend",
+      "why_quick": "Builds on ledger infrastructure; <1h per stat"
+    }
+  ],
+  "integration_checklist": {
+    "phase_1": {
+      "policy_engine": {
+        "status": "not_started",
+        "owner": "Backend Lead",
+        "effort_hours": 16,
+        "dependencies": []
+      },
+      "knowledge_store": {
+        "status": "not_started",
+        "owner": "Memory Engineer",
+        "effort_hours": 20,
+        "dependencies": []
+      },
+      "skill_roles": {
+        "status": "partial",
+        "owner": "Skill Architect",
+        "effort_hours": 6,
+        "dependencies": ["policy_engine"]
+      },
+      "cost_attribution": {
+        "status": "not_started",
+        "owner": "Backend Lead",
+        "effort_hours": 8,
+        "dependencies": ["policy_engine"]
+      }
+    },
+    "phase_2": {
+      "intent_routing": {
+        "status": "not_started",
+        "owner": "Orchestration Lead",
+        "effort_hours": 12,
+        "dependencies": ["knowledge_store"]
+      },
+      "parallel_orchestration": {
+        "status": "not_started",
+        "owner": "Orchestration Lead",
+        "effort_hours": 14,
+        "dependencies": ["cost_attribution"]
+      },
+      "property_graph": {
+        "status": "not_started",
+        "owner": "Codegen Lead",
+        "effort_hours": 28,
+        "dependencies": []
+      },
+      "streaming_review": {
+        "status": "not_started",
+        "owner": "UX Lead",
+        "effort_hours": 10,
+        "dependencies": ["intent_routing"]
+      }
+    }
+  },
+  "anti_patterns": [
+    {
+      "name": "One Agent Does Everything",
+      "source": "gstack lesson",
+      "why_bad": "Monolithic agents are hard to test and extend",
+      "recommendation": "Adopt specialist roles (architect, implementer, reviewer, designer, etc.)"
+    },
+    {
+      "name": "Cold-Start Per Request",
+      "source": "lean-ctx lesson",
+      "why_bad": "Context lost between calls; 3-5 sec latency per generation",
+      "recommendation": "Keep MCP daemon alive; share state across calls"
+    },
+    {
+      "name": "Fail-Silently on Budget Exceeded",
+      "source": "policy engine lesson",
+      "why_bad": "Users surprised by unexpected costs",
+      "recommendation": "Always alert; offer degradation (templates, smaller models)"
+    },
+    {
+      "name": "No Intent Understanding",
+      "source": "intent routing lesson",
+      "why_bad": "Forces explicit agent specification; poor UX",
+      "recommendation": "Infer intent from request; support override"
+    },
+    {
+      "name": "Linear Sequential Execution",
+      "source": "orchestration lesson",
+      "why_bad": "Slow; misses parallelization opportunities",
+      "recommendation": "Run architect + implementer + tests in parallel"
+    },
+    {
+      "name": "Curriculum Without Decay",
+      "source": "memory lesson",
+      "why_bad": "Old failures remain relevant forever; bloat",
+      "recommendation": "Apply decay curves; consolidate facts over time"
+    }
+  ],
+  "backwards_compatibility": {
+    "breaking_changes": 0,
+    "existing_cli_affected": false,
+    "deprecations": 0,
+    "migration_path": "All new features opt-in; defaults preserve current behavior",
+    "adoption_strategy": "Gradual; encourage adoption via docs + examples"
+  }
+}
