@@ -255,4 +255,42 @@ If the critic returns SHIPPED, present a summary to the user:
 - Token cost estimate (if `--budget` was set) vs actual if tracked
 - Any auto-patches applied (info diagnostics from Stage 4)
 
+### Stage 7.5 — Autonomous rollback (if verdict is LOOP or ESCALATE)
+
+After critic verdict, if `--rollback` is enabled (default):
+
+```!
+python "../one-shot-generator/scripts/failure_detector.py" \
+    --action should-trigger \
+    --threshold 3 \
+    --json
+```
+
+Parse the `trigger` field. If True and `--rollback != false`:
+
+```python
+from scripts.failure_detector import should_trigger_rollback, record_failure, reset_failure_counter
+from scripts.rollback import execute_rollback
+
+# After critic verdict check
+if should_trigger_rollback(threshold=3):
+    print("[AUTO-ROLLBACK] 3 consecutive failures detected. Rolling back...")
+    success = execute_rollback()
+    if success:
+        print("[AUTO-ROLLBACK] Rollback completed. Failure counter reset.")
+        # Continue to next iteration or escalate depending on loop driver verdict
+    else:
+        print("[AUTO-ROLLBACK] Rollback failed. Escalating.")
+        # Escalate immediately
+else:
+    if verdict == "SHIPPED":
+        reset_failure_counter()
+    else:
+        # verdict is LOOP or ESCALATE: record this failure
+        record_failure(spec_hash)
+```
+
+**Disabling rollback:** If the user passed `--rollback=false`, skip all rollback checks and let
+failures flow through to escalation without autonomous recovery.
+
 ---

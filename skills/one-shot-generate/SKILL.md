@@ -8,7 +8,7 @@ description: |
   "add batch job", "scaffold". Accepts an optional ``--templated`` flag that
   falls back to the legacy Python-only pipeline (no Claude tokens) for users
   who need free, deterministic generation.
-argument-hint: "[task description] [@path/to/project] [--apply] [--templated] [--budget=USD]"
+argument-hint: "[task description] [@path/to/project] [--apply] [--templated] [--budget=USD] [--rollback]"
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Task
 ---
 
@@ -117,6 +117,8 @@ trace.log_decision(
 - `--no-consistency-check` — skip Stage 5.7 (`cross_agent_consistency.py` + `security_deep_scan.py`, DEFAULT ON);
   catches subtle logic bugs that per-agent review misses
 - `--require-approval-webhook=URL` — Stage 5.9: POST before wiring
+- `--rollback` / `--rollback=true` — Stage 7: enable autonomous rollback on N consecutive failures (default: true, N=3)
+- `--rollback=false` — Stage 7: disable rollback, let failures escalate (manual recovery only)
 
 **Productivity-skill integration flags** (skills wired into specific stages):
 
