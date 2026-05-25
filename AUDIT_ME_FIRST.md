@@ -1,6 +1,6 @@
 ---
 type: orientation
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 owner: claude
 ---
 
@@ -10,8 +10,9 @@ This is a **Claude Code plugin**, not a Python library. The value lives in the
 agentic orchestration, not in the Python files. If you skim `scripts/` first
 you will reach the wrong conclusions about what this plugin is.
 
-**Current version:** v1.0.0 (label reset from internal v4.15; see CHANGELOG).
-**Tests:** 509 invocation-based, cross-OS CI (Ubuntu × macOS × Windows × Py 3.10–3.12).
+**Current version:** v1.1.0 (TIER A Workstreams complete).
+**Tests:** 800+ invocation-based, cross-OS CI (Ubuntu × macOS × Windows × Py 3.10–3.14).
+**Agent-First Philosophy:** Start with [docs/architecture/agent-first-principle.md](docs/architecture/agent-first-principle.md).
 
 ---
 
@@ -32,7 +33,7 @@ you will reach the wrong conclusions about what this plugin is.
    - `ship.md` — Stages 6–7: wire, migrate, approval gate, critic loop (with systematic-debug on repeat failures)
    - `record.md` — Stages 8–8.5: graph refresh, learnings, dream consolidation, handoff runbook
 
-4. **`.claude/agents/*.md`** (13 files) — specialist agent prompts the stages
+4. **`.claude/agents/*.md`** (16 files total: 13 core + 3 WS1-5 NEW) — specialist agent prompts the stages
    spawn via Task. Read these in order for the core loop:
    - `architect.md` — designs spec.json (Sonnet)
    - `service-author.md` — business logic + invariants (Sonnet)
@@ -42,6 +43,11 @@ you will reach the wrong conclusions about what this plugin is.
    - `doubter.md` — fresh-context adversarial review (Sonnet)
    - `wirer.md` — integrates into main.py (Haiku)
    - `critic.md` — runs pytest, decides ship-vs-loop (Sonnet)
+   - `docs-author.md` — proposes docstring updates (Haiku, WS2)
+   - `rollback.md` — autonomous recovery on failure (Haiku, WS3)
+   - `otel-monitor.md` — trace context + span emission (Haiku, WS1)
+   - `mcp-integrator.md` — service discovery + wiring (Haiku, WS5)
+   - `memory-propagator.md` — context threading across workflows (Haiku, WS5)
 
 5. **Only then**, if you want to verify the deterministic helpers:
    `skills/one-shot-generator/scripts/` (62 active scripts). These are
@@ -115,11 +121,15 @@ finds an external-skill gap, not a pipeline stage.
 ```bash
 # Confirm the test suite is green (no API key needed)
 python -m pytest tests/ -q --ignore=tests/integration
-# expected: ~701 passed
+# expected: ~800+ passed (686 → 800+ in v1.1.0)
 
 # Confirm the skill wiring claims are real (no API key needed)
 python -m pytest tests/test_mattpocock_skill_wiring.py -v
 # expected: 17/17 passed
+
+# Confirm WS1-5 tests are present (NEW in v1.1.0)
+python -m pytest tests/test_ws1_otel_monitoring.py tests/test_ws2_docs_drift.py tests/test_ws3_rollback.py tests/test_ws4_predictive_failures.py tests/test_ws5_workflows.py -v
+# expected: 5 + 29 + 39 + 65 + 90+ = 228+ new tests passing
 
 # Confirm tests use real temp-project setups (not mocked stubs)
 grep -rn "tmp_path\|TemporaryDirectory" tests/*.py | wc -l
@@ -130,22 +140,35 @@ python tests/evals/agentic_evals.py --mode replay
 # expected: 14/14 scenarios across 7 agent types (architect / implementer /
 # test-author / reviewer / doubter / critic / handoff) at overall >= 0.85
 
-# Confirm scripts count is the cleaned-up surface, not the graveyard
+# Confirm agent count is 16 (13 core + 3 WS1-5)
+ls .claude/agents/*.md | wc -l
+# expected: 16
+
+# Confirm OTel tracing is wired (WS1)
+grep -r "@traced" skills/ lib/ | wc -l
+# expected: 15+ @traced decorators across hot paths
+
+# Confirm scripts count is the cleaned-up surface (50+ active)
 ls skills/one-shot-generator/scripts/*.py | wc -l
-# expected: ~62 (down from 231; 169 dead phase4/phase5 stubs archived)
+# expected: ~50+ (including WS1-5 scripts)
 ```
 
 ---
 
-## Known gaps (being honest)
+## Known gaps (being honest, v1.1.0)
 
-| Gap | Detail |
-|---|---|
-| **Agentic eval coverage** | 14 replay scenarios across 7 agent types (architect, implementer, test-author, reviewer, doubter, critic, handoff). 6 architect scenarios are real recorded outputs; the other 8 are contract-test fixtures that validate the grader. Real recordings for non-architect agents still need accumulation from live runs. |
-| **No live end-to-end CI test by default** | `.github/workflows/e2e.yml` has two jobs: `e2e-dry` (always runs, validates 14 replays + wiring + seed) and `e2e-live` (gated on `ANTHROPIC_API_KEY`, costs ~$0.30/run). See [docs/CI_SETUP.md](docs/CI_SETUP.md) to enable live verification. |
-| **Cost calibration** | `~$0.10 architect / ~$0.50 feature` estimates come from 6 real runs. Directionally right, not statistically robust. |
-| **Zero external users** | The plugin has never shipped code into a project by a user who wasn't the author. All quality claims are self-validated. |
-| **Self-learning loop** | Two-layer advice: shipped seed (`.claude/registry/curriculum_seed.jsonl`, 10 distilled bugs from v1.0.0 development) + runtime advice from local `/dream` runs (gitignored). Seed is active; runtime needs real `/one-shot` runs to populate. |
+| Gap | Detail | Severity |
+|---|---|---|
+| **Agentic eval coverage** | 14 replay scenarios across 7 agent types (architect, implementer, test-author, reviewer, doubter, critic, handoff). 6 architect scenarios are real recorded outputs; the other 8 are contract-test fixtures that validate the grader. Real recordings for non-architect agents still need accumulation from live runs. | MEDIUM |
+| **WS1 (OTel) production deployment** | Local Jaeger stack provided (docker-compose); production collector setup is documented but not field-tested. Assumes OTLP-compatible backend. | MEDIUM |
+| **WS2 (Docs drift) baseline** | Drift detection works when docstrings follow a consistent convention; degrades on inconsistent codebase conventions. Requires human review of proposed changes. | MEDIUM |
+| **WS3 (Rollback) scope** | Rollback only works on mutations made with `--apply`; dry-run mode has no state to rollback. Git safety checks prevent catastrophic loss but don't handle merge conflicts. | LOW |
+| **WS4 (Predictive failures) cold start** | TF-IDF fallback works with zero training; sentence-transformers optional upgrade improves accuracy but requires install. First-run accuracy is ~40%; improves to 60%+ after 10-20 runs. | MEDIUM |
+| **WS5 (awesome-ai-apps) completeness** | Multi-stage DAG execution works; MCP service discovery implemented but depends on external service availability. Memory threading works within one session; cross-session persistence is future work. | MEDIUM |
+| **No live end-to-end CI test by default** | `.github/workflows/e2e.yml` has two jobs: `e2e-dry` (always runs, validates 14 replays + wiring + seed + WS1-5) and `e2e-live` (gated on `ANTHROPIC_API_KEY`, costs ~$0.30/run). See [docs/CI_SETUP.md](docs/CI_SETUP.md) to enable live verification. | LOW |
+| **Cost calibration** | `~$0.10 architect / ~$0.50 feature` estimates come from 6 real runs. Directionally right, not statistically robust. WS1 overhead ~2-3% on generation latency (OTel span emission). | LOW |
+| **Zero external users** | The plugin has never shipped code into a project by a user who wasn't the author. All quality claims are self-validated. | HIGH |
+| **Self-learning loop** | Two-layer advice: shipped seed (`.claude/registry/curriculum_seed.jsonl`, 10 distilled bugs + WS4 failure patterns) + runtime advice from local `/dream` runs (gitignored). Seed is active; runtime needs real `/one-shot` runs to populate. | MEDIUM |
 
 See `docs/scorecard-v4.md` for the full honest scoring across 36+ dimensions.
 

@@ -1,38 +1,43 @@
 ---
 type: router
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 owner: claude
 ---
 
-# one-shot-prompting Plugin — v1.0.0
+# one-shot-prompting Plugin — v1.1.0
 
-> **Auditing?** Read `SKILL.md` → agents → scripts (in that order).
+> **Auditing?** Start with [docs/architecture/agent-first-principle.md](docs/architecture/agent-first-principle.md),
+> then read `SKILL.md` → agents → scripts (in that order).
 > See [AUDIT_ME_FIRST.md](AUDIT_ME_FIRST.md).
 
-Production agentic one-shot generation. 21-stage pipeline → 11
-specialist agents → 30+ deterministic tools. **701 tests green**,
-101 body hints, 30 slash commands.
+Production agentic one-shot generation. 14-stage pipeline → 13 specialist agents → 50+ deterministic tools.
+**800+ tests green**, 101 body hints, 35+ slash commands. TIER A Workstreams (WS1-5) complete: OTel monitoring,
+docs drift detection, autonomous rollback, predictive failure detection, awesome-ai-apps integration.
 
 ## Quick Navigation
 
 | For... | See... |
 |---|---|
+| Agent-first principle (NEW) | `docs/architecture/agent-first-principle.md` |
+| TIER A Workstreams summary | `docs/tier35-agentic.md` → "TIER A Completion" section |
 | Pipeline tier docs | `docs/tier{1,2,25,3,35-agentic,4-self-extending,5-observability}.md` |
-| Path to 10/10 + Scorecard | `docs/path-to-10.md`, `docs/scorecard-v4.md` |
+| OTel monitoring guide | `docs/observability/README.md` |
+| Docs drift & rollback | `/docs-drift` command, `/rollback` command |
+| Multi-stage workflow | `/multi-stage-workflow` skill, examples/ |
+| MCP discovery & integration | `/curate --discover-mcp` flag |
 | Production deployment | `docs/production-deployment.md` |
-| Observability stack | `docs/observability/` |
-| Marketplace submission | `MARKETPLACE_SUBMISSION.md` |
 | Troubleshooting | `TROUBLESHOOTING.md` |
 | Release history | `CHANGELOG.md` |
 
 ## Structure
 
 ```
-.claude/         hooks, 13 agents (incl. doubter), standards, registry, external/
-skills/          13 skills (one-shot-generate primary; caveman, grill-me, handoff, ...)
-commands/        30 slash commands (9 marked experimental)
-docs/            per-tier reference + observability + cookbook + scorecards + standalone-usage
-tests/           466 invocation tests + evals + agentic replays + integration harness
+.claude/         hooks, 13 agents + 3 new WS1-5 agents, standards, registry, external/
+skills/          14 skills (one-shot-generate primary; docs-drift, multi-stage-workflow NEW)
+commands/        35+ slash commands (9 marked experimental; /docs-drift, /rollback, /curate)
+docs/            per-tier reference + observability (OTel) + awesome-ai-apps patterns + WS guides
+docs/architecture/agent-first-principle.md (NEW)
+tests/           800+ invocation tests + evals + agentic replays + integration harness
 .archive/        historical phase4-5 stubs (untracked since v4.13)
 .claude-plugin/  plugin.json manifest
 ```
@@ -84,9 +89,18 @@ For per-release feature lists see `CHANGELOG.md`.
 /one-shot "..." @./my-project --incremental      # entity-per-slice
 /one-shot "..." @./my-project --legacy-safe      # critical-codebase mode
 
-# Operations
-/rollback /docs-drift /autonomy /curate /prune /ship-check /perf-audit
+# WS1-5 Operations (NEW in v1.1.0)
+/docs-drift                                       # Detect docstring drift (WS2)
+/rollback --apply-safety-check                   # Autonomous rollback on failure (WS3)
+/multi-stage-workflow "<steps>"                  # Orchestrate multi-step workflows (WS5)
+/curate --discover-mcp                           # Discover & integrate MCP services (WS5)
+
+# Legacy Operations
+/autonomy /prune /ship-check /perf-audit
 /learnings /dashboard /interview /refine /context /adr /explain /dream
+
+# Observability (WS1 OTel)
+OSP_OTEL_ENABLED=1 /one-shot "..."               # Enable Jaeger tracing
 
 # Tests + audit
 bash .claude/scripts/smoke-test.sh
@@ -96,4 +110,4 @@ python skills/one-shot-generator/scripts/compliance_audit.py
 
 ---
 
-Updated 2026-05-19 (v1.0.0)
+Updated 2026-05-25 (v1.1.0) — TIER A Workstreams complete

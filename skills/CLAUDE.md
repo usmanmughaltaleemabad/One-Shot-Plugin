@@ -1,36 +1,39 @@
 ---
 type: router
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 owner: claude
 mattpocock_integrated: 2026-05-19
+ws1_5_integrated: 2026-05-25
 ---
 
-# Skills Directory
+# Skills Directory — v1.1.0
 
-> **Orientation**: the pipeline is `one-shot-generate/SKILL.md`. The
-> `scripts/` subdirectory is a deterministic tools shelf the agents call —
-> not the pipeline itself. See [AUDIT_ME_FIRST.md](../AUDIT_ME_FIRST.md).
+> **Orientation**: Start with [docs/architecture/agent-first-principle.md](../docs/architecture/agent-first-principle.md).
+> The pipeline is `one-shot-generate/SKILL.md` + `stages/`. The `scripts/` subdirectory is a deterministic tools shelf
+> the agents call — not the pipeline itself. See [AUDIT_ME_FIRST.md](../AUDIT_ME_FIRST.md).
 
-The skills that make up the one-shot-prompting plugin.
+The skills that make up the one-shot-prompting plugin. WS1-5 workstreams added in v1.1.0.
 
 ---
 
-## Quick Skill Index
+## Quick Skill Index (14 skills, 5 core + 2 NEW in v1.1.0 + 7 productivity)
 
-| Skill | SKILL.md | Purpose | Lines |
-|-------|----------|---------|-------|
-| **one-shot-generate** ⭐ | [SKILL.md](one-shot-generate/SKILL.md) | **Agentic pipeline (PRIMARY) — dispatcher + 5 stage files** | 96 + stages |
-| **curator** | [SKILL.md](curator/SKILL.md) | Discover external agents/skills/MCP, add to registry | 150 |
-| one-shot-generator | [SKILL.md](one-shot-generator/SKILL.md) | Templated fallback generator (--templated flag) | 1,677 |
-| **write-plan** | [SKILL.md](write-plan/SKILL.md) | Generate plan before code | 78 |
-| **execute-plan** | [SKILL.md](execute-plan/SKILL.md) | Execute generated steps | 84 |
-| **tdd-cycle** | [SKILL.md](tdd-cycle/SKILL.md) | Red-Green-Refactor TDD cycle with phase gates | 160 |
-| **systematic-debug** | [SKILL.md](systematic-debug/SKILL.md) | Analyze errors from logs | 99 |
-| **verify-before-complete** | [SKILL.md](verify-before-complete/SKILL.md) | Gate: confirm output | 78 |
-| **caveman** | [SKILL.md](caveman/SKILL.md) | Token compression mode — strip filler, keep data | 160 |
-| **grill-me** | [SKILL.md](grill-me/SKILL.md) | Intensive questioning to surface hidden constraints | 180 |
-| **handoff** | [SKILL.md](handoff/SKILL.md) | Conversation-to-runbook: compact handoff for next phase | 170 |
-| **write-a-skill** | [SKILL.md](write-a-skill/SKILL.md) | Skill authoring guide: templates, tests, checklists | 250 |
+| Skill | SKILL.md | Purpose | Lines | Status |
+|-------|----------|---------|-------|--------|
+| **one-shot-generate** ⭐ | [SKILL.md](one-shot-generate/SKILL.md) | **Agentic pipeline (PRIMARY) — dispatcher + 5 stage files** | 96 + stages | ✅ Mature |
+| **docs-drift** ⭐ NEW | [SKILL.md](docs-drift/SKILL.md) | Detect docstring drift from spec (WS2) | 120 | 🆕 v1.1.0 |
+| **multi-stage-workflow** ⭐ NEW | [SKILL.md](multi-stage-workflow/SKILL.md) | Orchestrate multi-entity workflows (WS5) | 140 | 🆕 v1.1.0 |
+| **curator** | [SKILL.md](curator/SKILL.md) | Discover external agents/skills/MCP, add to registry | 150 | ✅ Mature |
+| one-shot-generator | [SKILL.md](one-shot-generator/SKILL.md) | Templated fallback generator (--templated flag) | 1,677 | 📦 Legacy |
+| **write-plan** | [SKILL.md](write-plan/SKILL.md) | Generate plan before code | 78 | ✅ Mature |
+| **execute-plan** | [SKILL.md](execute-plan/SKILL.md) | Execute generated steps | 84 | ✅ Mature |
+| **tdd-cycle** | [SKILL.md](tdd-cycle/SKILL.md) | Red-Green-Refactor TDD cycle with phase gates | 160 | ✅ Mature |
+| **systematic-debug** | [SKILL.md](systematic-debug/SKILL.md) | Analyze errors from logs | 99 | ✅ Mature |
+| **verify-before-complete** | [SKILL.md](verify-before-complete/SKILL.md) | Gate: confirm output | 78 | ✅ Mature |
+| **caveman** | [SKILL.md](caveman/SKILL.md) | Token compression mode — strip filler, keep data | 160 | ✅ Mature |
+| **grill-me** | [SKILL.md](grill-me/SKILL.md) | Intensive questioning to surface hidden constraints | 180 | ✅ Mature |
+| **handoff** | [SKILL.md](handoff/SKILL.md) | Conversation-to-runbook: compact handoff for next phase | 170 | ✅ Mature |
+| **write-a-skill** | [SKILL.md](write-a-skill/SKILL.md) | Skill authoring guide: templates, tests, checklists | 250 | ✅ Mature |
 
 ---
 
