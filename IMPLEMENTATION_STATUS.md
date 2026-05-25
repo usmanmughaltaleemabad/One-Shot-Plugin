@@ -4,9 +4,9 @@ last_verified: 2026-05-25
 owner: claude
 ---
 
-# Implementation Status — v1.2.0 (Phase 3 + Phase 4 Complete)
+# Implementation Status — v1.2.1 (README gap closure)
 
-Feature-by-feature status tracker. Updated daily during development.
+Feature-by-feature status tracker. Updated on release.
 
 ---
 
@@ -14,9 +14,9 @@ Feature-by-feature status tracker. Updated daily during development.
 
 | Aspect | Status | Details |
 |---|---|---|
-| **Version** | 1.2.0 | Phase 3 + Phase 4 complete |
-| **Release Date** | 2026-05-25 | Policy, Knowledge, Routing, Curriculum + Audit |
-| **Test Count** | 960+ | 800 → 960+ in v1.2.0 (+160 tests, 99.79% pass) |
+| **Version** | 1.2.1 | README gap closure on top of v1.2.0 (Phase 3 + Phase 4) |
+| **Release Date** | 2026-05-25 | Replay coverage, cost/curriculum reporters, command tiers, pi.dev research, ride-sharing example shipped with real code |
+| **Test Count** | 960+ unit, 26 replay, 24 example | Plugin suite unchanged at 960+; +26 agentic replay scenarios across 7 agents; +24 ride-sharing example tests |
 | **Agent Count** | 18 | 13 core + 4 Phase 3 + 1 Phase 4 agents |
 | **Skill Count** | 16 | 14 existing + 2 Phase 3 new |
 | **Command Count** | 35+ | /one-shot + /policy + /knowledge + /routing |

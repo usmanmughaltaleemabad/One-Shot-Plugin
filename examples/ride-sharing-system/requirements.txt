@@ -1,0 +1,8 @@
+fastapi>=0.110
+sqlalchemy>=2.0
+aiosqlite>=0.19
+pydantic[email]>=2
+pyjwt>=2.8
+httpx>=0.25
+pytest>=8
+pytest-asyncio>=0.23

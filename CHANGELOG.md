@@ -17,6 +17,15 @@ for the before/after.
 
 ### Added
 
+- **`examples/ride-sharing-system/app/` — actual runnable FastAPI code.**
+  The prior README in this folder described a 87-endpoint
+  "PRODUCTION READY" system that did not exist in the repo (zero `.py`
+  files). This release ships real code: 11 SQLAlchemy models, 29 working
+  endpoints across 8 routers (auth, users, drivers, rides, payments,
+  ratings, support, admin), pricing + matching services, JWT auth +
+  role gates, and 24 tests (`pytest tests/ -v` → 24 passed). The
+  README is now an honest coverage matrix (29 of 87 endpoints
+  implemented, remaining endpoints documented as extension points).
 - **`tests/evals/agentic_replays/` — 12 new replay scenarios** across 5 agent
   types (implementer +3, reviewer +3, doubter +2, critic +2, handoff +2).
   Total replay coverage: 14 → 26 scenarios across 7 agent types, all

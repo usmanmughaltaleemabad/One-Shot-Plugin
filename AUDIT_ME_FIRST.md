@@ -10,8 +10,9 @@ This is a **Claude Code plugin**, not a Python library. The value lives in the
 agentic orchestration, not in the Python files. If you skim `scripts/` first
 you will reach the wrong conclusions about what this plugin is.
 
-**Current version:** v1.2.0 (Phase 3 + Phase 4 complete).
-**Tests:** 960+ invocation-based, cross-OS CI (Ubuntu × macOS × Windows × Py 3.10–3.14). 99.79% pass rate (938/960).
+**Current version:** v1.2.1 (README gap closure on top of Phase 3 + Phase 4).
+**Tests:** 960+ invocation-based + 26 agentic replay scenarios across 7 agents + 24 ride-sharing example tests. Cross-OS CI (Ubuntu × macOS × Windows × Py 3.10–3.14).
+**v1.2.1 audit-relevant additions:** `docs/command-maturity.md` (stable/beta/experimental tiers), `scripts/cost_stats.py` (cost calibration with honest confidence label), `scripts/curriculum_status.py` (self-learning loop state), `docs/patterns/pi-dev-research.md` (peer-harness study), `docs/validation-pathway.md` (external-user path), runnable code in `examples/ride-sharing-system/` (11 tables, 29 endpoints, 24 tests).
 **Agent-First Philosophy:** Start with [docs/architecture/agent-first-principle.md](docs/architecture/agent-first-principle.md).
 
 ---
