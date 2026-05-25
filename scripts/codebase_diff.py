@@ -1,7 +1,10 @@
 import ast
 import json
+import logging
 from pathlib import Path
 from typing import Dict, List
+
+logger = logging.getLogger(__name__)
 
 
 def extract_classes_and_functions(code: str) -> Dict:
@@ -24,13 +27,15 @@ def extract_classes_and_functions(code: str) -> Dict:
                 "bases": [ast.unparse(b) for b in node.bases],
             })
         elif isinstance(node, ast.FunctionDef):
-            # Only include module-level functions (not methods)
-            parent_is_class = any(
-                isinstance(parent, ast.ClassDef) and node in ast.walk(parent)
+            # Only include module-level functions (not methods or nested functions)
+            parent_is_class_or_func = any(
+                isinstance(parent, (ast.ClassDef, ast.FunctionDef))
+                and node in ast.walk(parent)
+                and parent is not node
                 for parent in ast.walk(tree)
-                if isinstance(parent, ast.ClassDef)
+                if isinstance(parent, (ast.ClassDef, ast.FunctionDef))
             )
-            if not parent_is_class:
+            if not parent_is_class_or_func:
                 entities["functions"].append({
                     "name": node.name,
                     "params": [arg.arg for arg in node.args.args],
@@ -53,8 +58,8 @@ def scan_codebase(root: Path) -> Dict:
             code = py_file.read_text(encoding="utf-8")
             entities = extract_classes_and_functions(code)
             all_entities[str(py_file.relative_to(root))] = entities
-        except Exception as e:
-            print(f"Error parsing {py_file}: {e}")
+        except (IOError, OSError, UnicodeDecodeError, SyntaxError) as e:
+            logger.warning(f"Error parsing {py_file}: {e}")
 
     return all_entities
 

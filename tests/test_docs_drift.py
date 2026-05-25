@@ -130,3 +130,17 @@ def broken(:
 '''
     entities = extract_classes_and_functions(code)
     assert entities == {"classes": [], "functions": [], "imports": []}
+
+
+def test_nested_functions_not_extracted():
+    """Nested functions should not be extracted as module-level functions."""
+    code = '''
+def outer():
+    def inner():
+        pass
+    return inner
+'''
+    entities = extract_classes_and_functions(code)
+    # Should only have 'outer', not 'inner'
+    assert len(entities["functions"]) == 1
+    assert entities["functions"][0]["name"] == "outer"
