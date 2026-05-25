@@ -78,36 +78,21 @@ For per-release feature lists see `CHANGELOG.md`.
 ## Quick Commands
 
 ```bash
-# Primary Feature Generation
-/one-shot "<feature>" @./my-project              # dry-run
+/one-shot "<feature>" @./my-project              # dry-run (primary)
 /one-shot "..." @./my-project --apply            # mutate main.py
-/one-shot "..." @./my-project --budget=0.30
-/one-shot "..." @./my-project --review
+/one-shot "..." @./my-project --templated        # free-tier fallback
+```
 
-# Phase 3 Operations (NEW in v1.2.0)
-/policy "<policy-rule>"                          # Define governance policy
-/knowledge "<query>"                             # Query knowledge store
-/routing "<intent>"                              # Analyze intent routing
+Other commands: see `docs/command-maturity.md` for the full list with
+stable / beta / experimental tiers.
 
-# Advanced Operations
-/docs-drift                                       # Detect docstring drift (WS2)
-/rollback --apply-safety-check                   # Autonomous rollback (WS3)
-/multi-stage-workflow "<steps>"                  # Workflow orchestration (WS5)
-/curate --discover-mcp                           # MCP service discovery (WS5)
-
-# Operations & Maintenance
-/autonomy /prune /ship-check /perf-audit
-/learnings /dashboard /interview /refine /context /adr /explain /dream
-
-# Observability
-OSP_OTEL_ENABLED=1 /one-shot "..."               # Enable Jaeger tracing
-
-# Tests & Audit
-bash .claude/scripts/smoke-test.sh
-python -m pytest tests/ -q
-python skills/one-shot-generator/scripts/compliance_audit.py
+```bash
+bash .claude/scripts/smoke-test.sh               # 8/8 expected
+python -m pytest tests/ -q                       # full test suite
+python scripts/cost_stats.py                     # cost calibration confidence
+python scripts/curriculum_status.py              # self-learning loop state
 ```
 
 ---
 
-Updated 2026-05-25 (v1.2.1) — README gaps closure (see docs/command-maturity.md, scripts/cost_stats.py, scripts/curriculum_status.py, docs/patterns/pi-dev-research.md)
+Updated 2026-05-25 (v1.2.2) — audit-response corrections; no new features.

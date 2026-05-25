@@ -1,3 +1,9 @@
+---
+type: reference
+last_verified: 2026-05-25
+owner: claude
+---
+
 # Predictive Failure Detection
 
 ## Overview

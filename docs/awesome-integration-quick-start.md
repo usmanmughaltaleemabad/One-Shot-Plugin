@@ -1,3 +1,9 @@
+---
+type: reference
+last_verified: 2026-05-25
+owner: claude
+---
+
 # Awesome-AI-Apps Integration Quick Start
 
 A quick reference guide to awesome-ai-apps patterns in one-shot-prompting. Learn how multi-stage workflows, MCP integration, and memory learning work together to generate production-ready code.

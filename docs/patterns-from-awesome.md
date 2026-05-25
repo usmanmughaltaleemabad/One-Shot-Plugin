@@ -1,3 +1,9 @@
+---
+type: reference
+last_verified: 2026-05-25
+owner: claude
+---
+
 # AI App Patterns from awesome-ai-apps Research
 
 **Research Date:** May 25, 2026  

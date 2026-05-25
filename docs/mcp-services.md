@@ -1,3 +1,9 @@
+---
+type: reference
+last_verified: 2026-05-25
+owner: claude
+---
+
 # MCP Services Integration
 
 External MCP (Model Context Protocol) services discovered and registered for one-shot code generation.
