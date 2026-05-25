@@ -13,6 +13,35 @@ the curriculum hits *inform* the architect agent, they don't block.
 
 ---
 
+## Stage 0.3 — Predictive failure check (embedding-based)
+
+After curriculum lookup, run the failure predictor to catch risky tasks early:
+
+```!
+python "../one-shot-generator/scripts/failure_predictor.py" "$FEATURE_REQUEST" --json
+```
+
+Parse the output. If `will_fail` is `true`:
+
+1. **Print the hard warning** — the predictor formats it with action items
+2. **Unless `--force` was passed**, ask the user:
+   > "This task appears risky based on past failures. You can:
+   > - Proceed with `--force` flag (acknowledge the risk)
+   > - Proceed with `--review` flag (inspect spec before agents fire)
+   > - Proceed with `--templated` fallback (deterministic generation, lower quality)
+   > - Set `--budget=0.50` to cap cost if trying experimental approach
+   > 
+   > Continue? [y/N/force/review/templated/budget]"
+
+3. **If user says no, stop.** If user says yes/force/review/templated/budget, continue.
+
+If `will_fail` is `false`, emit `[OK] Task appears safe; proceeding.` and continue.
+
+If the predictor encounters an error (missing curriculum, embeddings unavailable),
+skip this stage and proceed without it. Prediction is an enrichment, not a blocker.
+
+---
+
 ## Stage 0.5 — External resource discovery (Tier 4)
 
 Before committing to the local agent lineup, see whether any external

@@ -106,7 +106,7 @@ trace.log_decision(
 
 - `--apply` — Stage 6: mutate project files (default is dry-run)
 - `--budget=USD` — Stage 1.5: halt if cost estimate exceeds this
-- `--force` — bypass clarification gate even at confidence < 0.55
+- `--force` — bypass clarification gate even at confidence < 0.55; **also bypasses predictive failure warnings in Stage 0.3**
 - `--review` — Stage 2.5: show spec.json to user before agents fire
 - `--incremental` — Stage 2.6: one entity per commit
 - `--legacy-safe` — Stage 0.7: `legacy_guard.py` caps to 3 files, blocks --apply
@@ -144,13 +144,18 @@ OTel spans for observability (see `docs/observability/span-propagation.md`).
 
 ### PLAN Phase
 
-Stages 0 – 2.7: curriculum check, scan & extract, cost gate, **grill-me (1.6)**,
+Stages 0 – 2.7: curriculum check, **predictive failure check (0.3)**, scan & extract, cost gate, **grill-me (1.6)**,
 doc lookup, architect, spec review, incremental slice, service-author.
 
 ```!
 # Stage 0: Curriculum check (curriculum_check span)
 with tracer.start_as_current_span("curriculum_check") as span:
     span.set_attribute("stage", "curriculum_check")
+    # Executed below via @./stages/plan.md
+
+# Stage 0.3: Predictive failure check (predictive_check span)
+with tracer.start_as_current_span("predictive_check") as span:
+    span.set_attribute("stage", "predictive_check")
     # Executed below via @./stages/plan.md
 ```
 
