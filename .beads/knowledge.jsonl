@@ -3,3 +3,8 @@
 {"id": "kf-be2c1a7fba47", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T16:57:45.728276", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
 {"id": "kf-4ee6df0176f7", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T17:01:13.516619", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
 {"id": "kf-dfbb2c237050", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T17:02:00.166588", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
+{"id": "kf-e505253357a9", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T17:19:28.452785", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
+{"id": "kf-c361d920dc74", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T17:21:42.898464", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
+{"id": "kf-8f458260378a", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T17:26:32.223184", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
+{"id": "kf-4ec2ee353f61", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T17:31:44.823232", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}
+{"id": "kf-15d3d5dca956", "type": "entity_pattern", "content": "Test fact", "metadata": {"created_at": "2026-05-25T17:38:32.512641", "success_count": 0, "failure_count": 0, "last_used": null, "decay_score": 1.0}}

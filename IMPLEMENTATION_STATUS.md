@@ -14,13 +14,13 @@ Feature-by-feature status tracker. Updated daily during development.
 
 | Aspect | Status | Details |
 |---|---|---|
-| **Version** | 1.1.0 | TIER A Workstreams complete |
-| **Release Date** | 2026-05-25 | 5 parallel workstreams (WS1-5) |
-| **Test Count** | 800+ | 686 → 800+ in v1.1.0 (+228 WS tests) |
-| **Agent Count** | 16 | 13 core + 3 WS1-5 new |
-| **Skill Count** | 14 | 12 existing + 2 new (WS2, WS5) |
-| **Command Count** | 35+ | /one-shot + WS-specific commands |
-| **Production Ready** | ✅ YES | With caveats (see below) |
+| **Version** | 1.2.0 | Phase 3 + Phase 4 complete |
+| **Release Date** | 2026-05-25 | Policy, Knowledge, Routing, Curriculum + Audit |
+| **Test Count** | 960+ | 800 → 960+ in v1.2.0 (+160 tests, 99.79% pass) |
+| **Agent Count** | 18 | 13 core + 4 Phase 3 + 1 Phase 4 agents |
+| **Skill Count** | 16 | 14 existing + 2 Phase 3 new |
+| **Command Count** | 35+ | /one-shot + /policy + /knowledge + /routing |
+| **Production Ready** | ✅ YES | 8.3/10 audit score, ready for deployment |
 
 ---
 

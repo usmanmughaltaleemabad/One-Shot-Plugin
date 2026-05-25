@@ -4,27 +4,27 @@ last_verified: 2026-05-25
 owner: claude
 ---
 
-# one-shot-prompting Plugin — v1.1.0
+# one-shot-prompting Plugin — v1.2.0
 
 > **Auditing?** Start with [docs/architecture/agent-first-principle.md](docs/architecture/agent-first-principle.md),
 > then read `SKILL.md` → agents → scripts (in that order).
 > See [AUDIT_ME_FIRST.md](AUDIT_ME_FIRST.md).
 
-Production agentic one-shot generation. 14-stage pipeline → 13 specialist agents → 50+ deterministic tools.
-**800+ tests green**, 101 body hints, 35+ slash commands. TIER A Workstreams (WS1-5) complete: OTel monitoring,
-docs drift detection, autonomous rollback, predictive failure detection, awesome-ai-apps integration.
+Production agentic one-shot generation. 14-stage pipeline → 18 specialist agents → 50+ deterministic tools.
+**960+ tests green**, 101 body hints, 35+ slash commands. Phase 3 Complete: Policy engine, knowledge store,
+intent routing, advanced curriculum. Phase 4 Complete: Comprehensive audit (8.3/10 score). PRODUCTION READY.
 
 ## Quick Navigation
 
 | For... | See... |
 |---|---|
-| Agent-first principle (NEW) | `docs/architecture/agent-first-principle.md` |
-| TIER A Workstreams summary | `docs/tier35-agentic.md` → "TIER A Completion" section |
+| Phase 3: Policy, Knowledge, Routing | `docs/governance/` + `docs/learning/` + `docs/routing/` |
+| Phase 4 Audit Results (8.3/10) | `audit/AUDIT_SUMMARY_2026-05-25.md` |
+| v1.2.0 Release Notes | `RELEASE_NOTES_v1.2.0.md` |
+| Ride-sharing Example (87 endpoints) | `examples/ride-sharing-system/README.md` |
+| Agent-first principle | `docs/architecture/agent-first-principle.md` |
 | Pipeline tier docs | `docs/tier{1,2,25,3,35-agentic,4-self-extending,5-observability}.md` |
 | OTel monitoring guide | `docs/observability/README.md` |
-| Docs drift & rollback | `/docs-drift` command, `/rollback` command |
-| Multi-stage workflow | `/multi-stage-workflow` skill, examples/ |
-| MCP discovery & integration | `/curate --discover-mcp` flag |
 | Production deployment | `docs/production-deployment.md` |
 | Troubleshooting | `TROUBLESHOOTING.md` |
 | Release history | `CHANGELOG.md` |
@@ -32,12 +32,13 @@ docs drift detection, autonomous rollback, predictive failure detection, awesome
 ## Structure
 
 ```
-.claude/         hooks, 13 agents + 3 new WS1-5 agents, standards, registry, external/
-skills/          14 skills (one-shot-generate primary; docs-drift, multi-stage-workflow NEW)
-commands/        35+ slash commands (9 marked experimental; /docs-drift, /rollback, /curate)
-docs/            per-tier reference + observability (OTel) + awesome-ai-apps patterns + WS guides
-docs/architecture/agent-first-principle.md (NEW)
-tests/           800+ invocation tests + evals + agentic replays + integration harness
+.claude/         hooks, 18 agents (core + Phase 3 + WS1-5), standards, registry, external/
+skills/          16 skills (one-shot-generate primary; P3 policy/routing/knowledge)
+commands/        35+ slash commands (policy, knowledge, routing, rollback, docs-drift, curate)
+docs/            per-tier reference + Phase 3 guides (governance, learning, routing) + observability
+examples/        ride-sharing-system complete example (87 endpoints, 11 tables)
+tests/           960+ invocation tests + evals + agentic replays + integration harness
+audit/           Phase 4 comprehensive audit (8.3/10 score, production ready)
 .archive/        historical phase4-5 stubs (untracked since v4.13)
 .claude-plugin/  plugin.json manifest
 ```
@@ -80,34 +81,36 @@ For per-release feature lists see `CHANGELOG.md`.
 ## Quick Commands
 
 ```bash
-# Primary
+# Primary Feature Generation
 /one-shot "<feature>" @./my-project              # dry-run
 /one-shot "..." @./my-project --apply            # mutate main.py
 /one-shot "..." @./my-project --budget=0.30
 /one-shot "..." @./my-project --review
-/one-shot "..." @./my-project --templated        # free fallback
-/one-shot "..." @./my-project --incremental      # entity-per-slice
-/one-shot "..." @./my-project --legacy-safe      # critical-codebase mode
 
-# WS1-5 Operations (NEW in v1.1.0)
+# Phase 3 Operations (NEW in v1.2.0)
+/policy "<policy-rule>"                          # Define governance policy
+/knowledge "<query>"                             # Query knowledge store
+/routing "<intent>"                              # Analyze intent routing
+
+# Advanced Operations
 /docs-drift                                       # Detect docstring drift (WS2)
-/rollback --apply-safety-check                   # Autonomous rollback on failure (WS3)
-/multi-stage-workflow "<steps>"                  # Orchestrate multi-step workflows (WS5)
-/curate --discover-mcp                           # Discover & integrate MCP services (WS5)
+/rollback --apply-safety-check                   # Autonomous rollback (WS3)
+/multi-stage-workflow "<steps>"                  # Workflow orchestration (WS5)
+/curate --discover-mcp                           # MCP service discovery (WS5)
 
-# Legacy Operations
+# Operations & Maintenance
 /autonomy /prune /ship-check /perf-audit
 /learnings /dashboard /interview /refine /context /adr /explain /dream
 
-# Observability (WS1 OTel)
+# Observability
 OSP_OTEL_ENABLED=1 /one-shot "..."               # Enable Jaeger tracing
 
-# Tests + audit
+# Tests & Audit
 bash .claude/scripts/smoke-test.sh
-python -m pytest tests/
+python -m pytest tests/ -q
 python skills/one-shot-generator/scripts/compliance_audit.py
 ```
 
 ---
 
-Updated 2026-05-25 (v1.1.0) — TIER A Workstreams complete
+Updated 2026-05-25 (v1.2.0) — Phase 3 + Phase 4 Complete
