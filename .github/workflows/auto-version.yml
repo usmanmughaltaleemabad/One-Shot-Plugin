@@ -76,14 +76,17 @@ jobs:
 
           # Delete existing release if it exists, then recreate
           gh release delete "$GH_TAG" --yes 2>/dev/null || true
-          gh release create "$GH_TAG" \
-            --title "v$VERSION" \
-            --notes "**$COMMIT_MSG**
+
+          NOTES="**${COMMIT_MSG}**
 
 Install from community marketplace:
 \`\`\`
 /plugin install one-shot-prompting@claude-community
 \`\`\`
 
-See [CHANGELOG.md](https://github.com/usmanmughaltaleemabad/One-Shot-Plugin/blob/master/CHANGELOG.md) for full history." \
+See [CHANGELOG.md](https://github.com/usmanmughaltaleemabad/One-Shot-Plugin/blob/master/CHANGELOG.md) for full history."
+
+          gh release create "$GH_TAG" \
+            --title "v$VERSION" \
+            --notes "$NOTES" \
             --latest

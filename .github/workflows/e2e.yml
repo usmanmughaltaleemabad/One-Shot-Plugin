@@ -6,11 +6,6 @@ on:
     - cron: '0 6 * * 1'    # every Monday 06:00 UTC
   push:
     branches: [master]
-    paths:
-      - 'skills/one-shot-generate/**'
-      - '.claude/agents/**'
-      - 'skills/one-shot-generator/scripts/live_api_runner.py'
-      - 'tests/evals/**'
 
 jobs:
 
