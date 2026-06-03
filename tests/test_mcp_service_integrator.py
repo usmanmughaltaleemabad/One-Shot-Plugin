@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-AGENTS = REPO_ROOT / ".claude" / "agents"
+AGENTS = REPO_ROOT / "agents"
 REGISTRY_PATH = REPO_ROOT / ".claude" / "mcp-registry.json"
 DOCS_PATH = REPO_ROOT / "docs" / "mcp-services.md"
 

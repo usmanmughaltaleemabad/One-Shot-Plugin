@@ -12,13 +12,13 @@ def test_session_start_hook_runs_docs_drift_check(tmp_path):
     repo_root = Path(__file__).parent.parent
 
     # Create necessary directories
-    (tmp_path / ".claude" / "hooks").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "hooks").mkdir(parents=True, exist_ok=True)
     (tmp_path / "scripts").mkdir(parents=True, exist_ok=True)
     (tmp_path / ".beads").mkdir(parents=True, exist_ok=True)
 
     # Copy the hook script
-    hook_src = repo_root / ".claude" / "hooks" / "session-start.sh"
-    hook_dst = tmp_path / ".claude" / "hooks" / "session-start.sh"
+    hook_src = repo_root / "hooks" / "session-start.sh"
+    hook_dst = tmp_path / "hooks" / "session-start.sh"
     shutil.copy(hook_src, hook_dst)
 
     # Copy codebase_diff.py
@@ -37,7 +37,7 @@ def test_session_start_hook_runs_docs_drift_check(tmp_path):
     env = os.environ.copy()
     env['PYTHONIOENCODING'] = 'utf-8'
     result = subprocess.run(
-        ["bash", ".claude/hooks/session-start.sh"],
+        ["bash", "hooks/session-start.sh"],
         cwd=str(tmp_path),
         capture_output=True,
         text=True,
@@ -67,12 +67,12 @@ def test_session_start_hook_gracefully_handles_missing_script(tmp_path):
     # Copy the hook only
     repo_root = Path(__file__).parent.parent
 
-    (tmp_path / ".claude" / "hooks").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "hooks").mkdir(parents=True, exist_ok=True)
     (tmp_path / ".beads").mkdir(parents=True, exist_ok=True)
     (tmp_path / "docs").mkdir(parents=True, exist_ok=True)
 
-    hook_src = repo_root / ".claude" / "hooks" / "session-start.sh"
-    hook_dst = tmp_path / ".claude" / "hooks" / "session-start.sh"
+    hook_src = repo_root / "hooks" / "session-start.sh"
+    hook_dst = tmp_path / "hooks" / "session-start.sh"
     shutil.copy(hook_src, hook_dst)
 
     # Create minimal phase-status.md
@@ -82,7 +82,7 @@ def test_session_start_hook_gracefully_handles_missing_script(tmp_path):
     env = os.environ.copy()
     env['PYTHONIOENCODING'] = 'utf-8'
     result = subprocess.run(
-        ["bash", ".claude/hooks/session-start.sh"],
+        ["bash", "hooks/session-start.sh"],
         cwd=str(tmp_path),
         capture_output=True,
         text=True,
@@ -105,7 +105,7 @@ def test_session_start_hook_gracefully_handles_missing_script(tmp_path):
 def test_session_start_hook_file_exists():
     """Test that the session-start.sh hook file exists and contains docs-drift check."""
     repo_root = Path(__file__).parent.parent
-    hook_file = repo_root / ".claude" / "hooks" / "session-start.sh"
+    hook_file = repo_root / "hooks" / "session-start.sh"
 
     assert hook_file.exists(), f"Hook file not found at {hook_file}"
 

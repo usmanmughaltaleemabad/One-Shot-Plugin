@@ -20,7 +20,7 @@ import yaml
 REPO_ROOT = Path(__file__).parent.parent
 DOCS_DIR = REPO_ROOT / "docs"
 ARCHITECTURE_DIR = DOCS_DIR / "architecture"
-AGENTS_DIR = REPO_ROOT / ".claude" / "agents"
+AGENTS_DIR = REPO_ROOT / "agents"
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 
 

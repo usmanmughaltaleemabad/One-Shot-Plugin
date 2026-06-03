@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-AGENTS = REPO_ROOT / ".claude" / "agents"
+AGENTS = REPO_ROOT / "agents"
 BEADS = REPO_ROOT / ".beads"
 MEMORY = REPO_ROOT / "memory"
 

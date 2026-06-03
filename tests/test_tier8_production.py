@@ -33,7 +33,7 @@ def _run(script: str, *args: str) -> subprocess.CompletedProcess:
 # ─── service-author agent ───────────────────────────────────────────────────
 
 def test_service_author_agent_exists():
-    path = REPO_ROOT / ".claude" / "agents" / "service-author.md"
+    path = REPO_ROOT / "agents" / "service-author.md"
     assert path.exists()
     text = path.read_text(encoding="utf-8")
     front = re.search(r"^---\n(.+?)\n---", text, re.DOTALL).group(1)

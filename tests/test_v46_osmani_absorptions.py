@@ -209,7 +209,7 @@ def test_doubt_summary(tmp_path):
 
 
 def test_doubt_doubter_agent_md_exists():
-    path = REPO_ROOT / ".claude" / "agents" / "doubter.md"
+    path = REPO_ROOT / "agents" / "doubter.md"
     assert path.exists()
     text = path.read_text(encoding="utf-8")
     assert "model: sonnet" in text

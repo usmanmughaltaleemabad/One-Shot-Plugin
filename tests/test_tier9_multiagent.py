@@ -176,7 +176,7 @@ def test_session_driver_record_mode_writes_templates(tmp_path):
 # ─── extractor agent ────────────────────────────────────────────────────────
 
 def test_extractor_agent_exists_with_proper_frontmatter():
-    path = REPO_ROOT / ".claude" / "agents" / "extractor.md"
+    path = REPO_ROOT / "agents" / "extractor.md"
     assert path.exists()
     text = path.read_text(encoding="utf-8")
     front = re.search(r"^---\n(.+?)\n---", text, re.DOTALL).group(1)

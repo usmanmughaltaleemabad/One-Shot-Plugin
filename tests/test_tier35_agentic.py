@@ -27,7 +27,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = REPO_ROOT / "skills" / "one-shot-generator" / "scripts"
-AGENTS = REPO_ROOT / ".claude" / "agents"
+AGENTS = REPO_ROOT / "agents"
 COMMANDS = REPO_ROOT / "commands"
 SKILLS = REPO_ROOT / "skills"
 
