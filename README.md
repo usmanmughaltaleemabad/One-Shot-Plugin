@@ -1,4 +1,4 @@
-# One-Shot Prompting — v1.2.2
+# One-Shot Prompting — v1.2.3
 
 > Generate production-ready features that fit your codebase. Claude reads your code, understands your patterns, and writes code that belongs there. **Now with enterprise governance, learning, routing, and a comprehensive ride-sharing example.**
 
@@ -8,7 +8,13 @@ Try it: `/one-shot "Add shopping cart with line items" @./my-project`
 
 ---
 
-## What's New in v1.2.0
+## What's New in v1.2.3
+
+**Marketplace sync initiation:** Plugin submitted to Claude Plugins Community and Official marketplaces. GitHub issues filed for sync and official listing. Monitoring workflows activated for automated status tracking.
+
+---
+
+## Previous Release: v1.2.0
 
 Three enterprise workstreams complete (Phase 3 + Phase 4 audit):
 
