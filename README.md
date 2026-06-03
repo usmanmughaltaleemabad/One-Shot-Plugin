@@ -88,11 +88,22 @@ Idiomatic FastAPI, Django, Spring, Go, Node — not lowest-common-denominator. S
 /one-shot "<feature description>" @./project --apply
 ```
 
-### Option 2: CLI
+### Option 2: Marketplace (Claude Code)
+```bash
+# Install from Claude Code marketplace
+claude plugin add one-shot-prompting
+
+# Then use:
+/one-shot "<feature description>" @./project
+```
+
+### Option 3: CLI
 ```bash
 pip install one-shot-prompting
 one-shot "Add user authentication" ./my-project --apply
 ```
+
+**Marketplace Status:** Available in [Claude Plugins Community](https://claude.com/plugins). See [MARKETPLACE_SYNC.md](MARKETPLACE_SYNC.md) for sync timeline.
 
 ### Example
 ```bash

@@ -129,6 +129,27 @@ Use this checklist to verify v1.2.0 is ready for production deployment.
 - [ ] CODE_OF_CONDUCT.md present: Contributor expectations
 - [ ] SUPPORT.md present: Support channels, maintenance policy
 
+### Marketplace Verification
+
+#### Marketplace Submission
+- [ ] Plugin listed in Claude Plugins Community: https://claude.com/plugins
+- [ ] Marketplace README includes installation instructions
+- [ ] MARKETPLACE_SYNC.md documents sync status and timeline
+- [ ] Release tags created: `v4.15.1-sync-nudge`, `bump-ready/one-shot-prompting`
+- [ ] GitHub issues filed: #45 (community), #2150 & #2151 (official)
+
+#### Installation Verification
+- [ ] Community marketplace: `claude plugin add one-shot-prompting` works
+- [ ] Official marketplace (when approved): Plugin appears in CLI listings
+- [ ] Plugin metadata current: `.claude-plugin/marketplace.json` SHA updated
+- [ ] Documentation links valid: All marketplace references point to correct URLs
+
+#### Sync Timeline
+- [ ] Community sync initiated: Issue #45 filed with follow-up comments
+- [ ] Official addition requested: Issues #2150 & #2151 filed with specifications
+- [ ] Marketplace monitoring active: `.github/workflows/marketplace-sync-monitor.yml` configured
+- [ ] Status tracking: `MARKETPLACE_SYNC.md` updated with timeline and expectations
+
 ### Git Verification
 
 #### Commit History

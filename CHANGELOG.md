@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.3] — 2026-06-02 — Marketplace sync initiated
+
+Plugin submitted to Claude Plugins Community (claude-plugins-community) and
+Claude Plugins Official (claude-plugins-official) marketplaces. Marketplace
+sync monitoring and auto-detection infrastructure added.
+
+### Added
+- `.github/workflows/marketplace-sync-monitor.yml` — Daily marketplace sync status check
+- `MARKETPLACE_SYNC.md` — Marketplace sync status tracking and timeline
+- GitHub issues filed: #45 (community), #2150 & #2151 (official)
+- Release tags: `v4.15.1-sync-nudge`, `bump-ready/one-shot-prompting`
+
+### Changed
+- `.claude-plugin/marketplace.json` SHA updated to d2084ab (May 25 commit)
+
+### Status
+- ⏳ Community marketplace sync: Pending (Issue #45)
+- 🔄 Official marketplace: Under review (Issues #2150, #2151)
+
+See [MARKETPLACE_SYNC.md](MARKETPLACE_SYNC.md) for detailed status and timeline.
+
+---
+
 ## [1.2.2] — 2026-05-25 — Audit response: deletions, corrections, no new features
 
 External audit verified concrete contradictions between marketing and
