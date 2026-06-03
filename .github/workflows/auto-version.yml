@@ -17,6 +17,9 @@ on:
   push:
     branches: [master]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   bump-version:
     # Skip if this is a version-bump commit (prevents infinite loop)
