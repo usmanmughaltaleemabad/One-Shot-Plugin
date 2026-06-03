@@ -26,7 +26,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install pytest
-        run: pip install pytest pytest-asyncio httpx fastapi sqlalchemy pydantic anthropic pyyaml opentelemetry-sdk opentelemetry-api
+        run: pip install pytest pytest-asyncio httpx fastapi sqlalchemy pydantic anthropic pyyaml opentelemetry-sdk opentelemetry-api numpy
 
       - name: Run plugin test suite
         env:
