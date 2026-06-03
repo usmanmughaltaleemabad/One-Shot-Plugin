@@ -1,0 +1,87 @@
+name: Marketplace Sync Monitor
+
+on:
+  schedule:
+    # Check daily at 8am UTC for marketplace sync status
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    inputs:
+      check_official:
+        description: 'Check official marketplace (claude-plugins-official)'
+        required: false
+        default: 'true'
+      check_community:
+        description: 'Check community marketplace (claude-plugins-community)'
+        required: false
+        default: 'true'
+
+jobs:
+  check-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Community Marketplace SHA
+        id: community-check
+        run: |
+          echo "Checking community marketplace for plugin SHA..."
+          COMMUNITY_URL="https://raw.githubusercontent.com/anthropics/claude-plugins-community/refs/heads/main/.claude-plugin/marketplace.json"
+          CURRENT_SHA=$(curl -s "$COMMUNITY_URL" | jq -r '.plugins[] | select(.name=="one-shot-prompting") | .source.sha')
+          LATEST_SHA="d2084ab5a54c5320340632a1000f280496de39e7"
+
+          echo "Current SHA in community: $CURRENT_SHA"
+          echo "Latest SHA: $LATEST_SHA"
+          echo "current_sha=$CURRENT_SHA" >> $GITHUB_OUTPUT
+          echo "latest_sha=$LATEST_SHA" >> $GITHUB_OUTPUT
+
+          if [ "$CURRENT_SHA" = "$LATEST_SHA" ]; then
+            echo "status=SYNCED ✅" >> $GITHUB_OUTPUT
+          else
+            echo "status=PENDING ⏳" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check Official Marketplace
+        id: official-check
+        run: |
+          echo "Checking if plugin is in official marketplace..."
+          OFFICIAL_URL="https://raw.githubusercontent.com/anthropics/claude-plugins-official/refs/heads/main/.claude-plugin/marketplace.json"
+          FOUND=$(curl -s "$OFFICIAL_URL" | jq -r '.plugins[] | select(.name=="one-shot-prompting")' | wc -l)
+
+          if [ "$FOUND" -gt 0 ]; then
+            echo "status=FOUND ✅" >> $GITHUB_OUTPUT
+          else
+            echo "status=NOT_FOUND ⏳" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Sync Status Report
+        run: |
+          cat > MARKETPLACE_SYNC_STATUS.md << 'EOF'
+          # Marketplace Sync Status Report
+
+          Generated: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
+
+          ## Community Marketplace
+          - **Status**: ${{ steps.community-check.outputs.status }}
+          - **Current SHA**: ${{ steps.community-check.outputs.current_sha }}
+          - **Latest SHA**: ${{ steps.community-check.outputs.latest_sha }}
+          - **Issues**: [#45](https://github.com/anthropics/claude-plugins-community/issues/45)
+
+          ## Official Marketplace
+          - **Status**: ${{ steps.official-check.outputs.status }}
+          - **Issues**: [#2150](https://github.com/anthropics/claude-plugins-official/issues/2150), [#2151](https://github.com/anthropics/claude-plugins-official/issues/2151)
+
+          ## Release Tags
+          - v4.15.1-sync-nudge (latest)
+          - bump-ready/one-shot-prompting (pattern-matched)
+
+          Last checked: $(date -u)
+          EOF
+
+          echo "Sync status report created"
+          cat MARKETPLACE_SYNC_STATUS.md
+
+      - name: Notify if Synced
+        if: steps.community-check.outputs.status == 'SYNCED ✅'
+        run: |
+          echo "🎉 Community marketplace synced to latest!"
+          echo "SHA: ${{ steps.community-check.outputs.latest_sha }}"
