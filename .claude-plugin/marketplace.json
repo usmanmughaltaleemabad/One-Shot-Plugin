@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "one-shot-prompting",
-      "displayName": "One-Shot — Agentic Feature Generation",
+      "displayName": "One-Shot \u2014 Agentic Feature Generation",
       "description": "Generates production-ready features that fit your existing codebase. Reads your code, understands your patterns, and writes idiomatic code with tests, migrations, and wiring included. Supports FastAPI, Django, Spring Boot, Go, Node.js, NestJS.",
       "author": {
         "name": "Usman Mughal"
@@ -20,7 +20,8 @@
       "source": {
         "source": "github",
         "repo": "usmanmughaltaleemabad/One-Shot-Plugin",
-        "ref": "master"
+        "ref": "master",
+        "sha": "9795a4e62379d6a5776395b4c844b6c42bb2f330"
       },
       "tags": [
         "code-generation",
