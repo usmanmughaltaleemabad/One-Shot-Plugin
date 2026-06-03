@@ -57,5 +57,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-**Last Updated**: 2026-05-25  
-**Current Version**: v1.2.0 (Phase 3 + Phase 4 Complete)
+**Last Updated**: 2026-06-03  
+**Current Version**: v1.2.3 (Phase 3 + Phase 4 Complete; marketplace sync)

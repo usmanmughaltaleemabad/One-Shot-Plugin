@@ -4,9 +4,11 @@ version: v1.2.3
 release_date: 2026-06-03
 ---
 
-# Release Checklist — v1.2.0: Enterprise Policy, Learning & Routing
+# Release Checklist
 
-Use this checklist to verify v1.2.0 is ready for production deployment.
+Reusable pre-release checklist for One-Shot Prompting. Most recently exercised for
+**v1.2.3** (marketplace sync). The verification examples below reference the v1.2.0
+feature baseline; adapt counts and feature names to the release in flight.
 
 ---
 
@@ -334,6 +336,9 @@ Use this checklist to verify v1.2.0 is ready for production deployment.
 
 | Version | Date | Status | Notes |
 |---|---|---|---|
+| 1.2.3 | 2026-06-03 | ✅ RELEASED | Marketplace sync: version bump, strict-clean manifest, network disclosure |
+| 1.2.2 | 2026-05-25 | ✅ RELEASED | Audit response: deletions + corrections, no new features |
+| 1.2.1 | 2026-05-25 | ✅ RELEASED | README gap closure (ride-sharing code, replay evals) |
 | 1.2.0 | 2026-05-25 | ✅ RELEASED | Enterprise governance, learning, routing + Phase 4 audit |
 | 1.1.0 | 2026-05-25 | ✅ SHIPPED | TIER A Workstreams (WS1-5) |
 | 1.0.0 | 2026-05-19 | ✅ SHIPPED | First public release (v4.15 reset) |

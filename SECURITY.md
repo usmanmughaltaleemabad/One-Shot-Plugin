@@ -9,9 +9,9 @@ version: v1.2.3
 
 ## Overview
 
-ONE SHOT PLUGIN v1.2.0 is designed with security-first principles:
+ONE SHOT PLUGIN v1.2.3 is designed with security-first principles:
 - **Zero external dependencies**: Uses Python stdlib only
-- **Local processing only**: No telemetry, no remote APIs
+- **Local processing only**: No telemetry, no remote APIs (one opt-in webhook; see below)
 - **No credential storage**: All processing is ephemeral
 - **Source code disclosure**: Generated code is reviewed by you before use
 
@@ -19,9 +19,16 @@ ONE SHOT PLUGIN v1.2.0 is designed with security-first principles:
 
 ### Local Execution
 - All code generation happens locally in Claude context
-- No external API calls for processing
-- No network requests for feature generation
 - No telemetry collection
+- No network requests for feature generation **by default**
+
+### Network Behavior (opt-in egress)
+The plugin makes **no external network calls by default**. The only egress path is an
+opt-in approval gate: when you explicitly pass `--require-approval-webhook=URL`, the
+approval-gate stage (`skills/one-shot-generator/scripts/approval_gate.py`) POSTs a
+generation summary and code diffs to the webhook URL **you** configure, then optionally
+polls it for an approve/deny decision before wiring changes in. It is disabled unless you
+supply a URL, and only ever contacts the endpoint you provide.
 
 ### Code Privacy
 - Your project code is only analyzed by Claude
@@ -160,7 +167,7 @@ If you find a security issue in generated code:
 
 ---
 
-**Last Updated**: May 25, 2026  
-**Current Version**: v1.2.0  
+**Last Updated**: June 3, 2026  
+**Current Version**: v1.2.3  
 **Audit Score**: 8.3/10 (Security: 8.3/10, Zero Critical Issues)  
 **Status**: Production-ready, security-focused, enterprise-grade
