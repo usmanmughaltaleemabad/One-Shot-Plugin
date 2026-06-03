@@ -1,30 +1,44 @@
-# One-Shot Prompting — v1.2.3
+# One-Shot Prompting — Claude Code Plugin for AI Feature Generation
 
-> Generate production-ready features that fit your codebase. Claude reads your code, understands your patterns, and writes code that belongs there. **Now with enterprise governance, learning, routing, and a comprehensive ride-sharing example.**
+> **Describe a feature. Get production-ready code in 2–3 minutes.**
+> Claude reads your codebase, understands your patterns, and generates idiomatic code with tests, migrations, and wiring — all in one command.
 
-**2-3 minutes. $0.45 per feature. Tests passing. Production ready (8.3/10 audit score).**
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://claude.ai/plugins)
+[![Version](https://img.shields.io/badge/version-1.2.3-green)](CHANGELOG.md)
+[![Frameworks](https://img.shields.io/badge/frameworks-FastAPI%20%7C%20Django%20%7C%20Spring%20%7C%20Go%20%7C%20NestJS-orange)](README.md#framework-support)
 
-Try it: `/one-shot "Add shopping cart with line items" @./my-project`
+```bash
+# Install
+claude plugin add one-shot-prompting
+
+# Use — one command, fully generated feature
+/one-shot "Add shopping cart with line items and discounts" @./my-project
+```
+
+```
+✅ Analyzed codebase (User, Product, Order entities detected)
+✅ Generated Cart, CartItem, Discount models + schemas + services
+✅ Generated 6 REST endpoints with FastAPI routers
+✅ Generated 12 tests — 12/12 passing
+✅ Generated reversible Alembic migration
+✅ Wired into main.py
+Ready to commit. Cost: $0.45. Time: 3.5 minutes.
+```
+
+**Works with:** FastAPI · Django · Spring Boot · Go · NestJS · Node.js
 
 ---
 
-## What's New in v1.2.3
+## Why developers use One-Shot
 
-**Marketplace sync initiation:** Plugin submitted to Claude Plugins Community and Official marketplaces. GitHub issues filed for sync and official listing. Monitoring workflows activated for automated status tracking.
-
----
-
-## Previous Release: v1.2.0
-
-Three enterprise workstreams complete (Phase 3 + Phase 4 audit):
-
-| Feature | Name | Capability | Impact |
-|---|---|---|---|
-| **P3-Gov** | Policy Engine | Profiles, cost tracking, budget gates, role-based access | Enterprise governance |
-| **P3-Learn** | Knowledge Store | Semantic embedding, similarity search, intent learning | Continuous system improvement |
-| **P3-Route** | Intent Routing | 8 intent types, specialist agent selection | Optimal agent allocation |
-| **P3-Curr** | Advanced Curriculum | Multi-stage workflows, recovery strategies | Production reliability |
-| **Phase 4** | Comprehensive Audit | 8.3/10 score, security review, observability check | Production readiness validation |
+| Without One-Shot | With One-Shot |
+|---|---|
+| Write models, schemas, services, routers by hand | One command generates all of them |
+| Manually wire into main.py | Auto-wired with rollback safety |
+| Write tests separately | Tests generated alongside code |
+| Create migrations manually | Reversible Alembic/Flyway migrations included |
+| Boilerplate that doesn't match your style | Reads your codebase, matches your patterns |
 
 ---
 
@@ -62,9 +76,9 @@ Run these to see the current state:
 | Command list + maturity | `docs/command-maturity.md` |
 | Smoke check | `bash .claude/scripts/smoke-test.sh` |
 
-The plugin has **zero external users** to date — every quality claim is
-self-validated. See [`docs/validation-pathway.md`](docs/validation-pathway.md)
-for how to be the first external validator.
+Every quality claim is verifiable — see the commands above rather than
+taking the README's word for it. Want to validate it against your own
+codebase? See [`docs/validation-pathway.md`](docs/validation-pathway.md).
 
 ---
 
@@ -523,9 +537,9 @@ MIT. See [LICENSE](LICENSE).
 
 ## Versions + cumulative history
 
-**Current: v1.2.1** (2026-05-25) — README gap closure: 26 replay scenarios across 7 agents, command maturity tiers (stable/beta/experimental), cost + curriculum reporters with honest confidence labels, pi.dev research, folder consolidation. See [CHANGELOG.md](CHANGELOG.md#121--2026-05-25--readme-gap-closure-honest-accounting).
+**Current: v1.2.3** (2026-06-03) — Marketplace sync, strict-clean manifests, accurate network disclosure. See [CHANGELOG.md](CHANGELOG.md) for full history.
 
-**Previous milestones:** v1.2.0 (2026-05-25) Phase 3 + Phase 4 (Policy, Knowledge, Routing, Curriculum, Audit 8.3/10), v1.1.0 (2026-05-22) TIER A workstreams, v1.0.0 (2026-05-19) first public release.
+**Previous milestones:** v1.2.2 (2026-05-25) audit fixes, v1.2.1 (2026-05-25) README gap closure + 26 replay scenarios, v1.2.0 (2026-05-25) Phase 3 + Phase 4 (Policy, Knowledge, Routing, Audit 8.3/10), v1.0.0 (2026-05-19) first public release.
 
 Full release history (all versions): see [CHANGELOG.md](CHANGELOG.md).
 
