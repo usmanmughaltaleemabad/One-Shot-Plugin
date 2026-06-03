@@ -77,14 +77,7 @@ jobs:
           # Delete existing release if it exists, then recreate
           gh release delete "$GH_TAG" --yes 2>/dev/null || true
 
-          NOTES="**${COMMIT_MSG}**
-
-Install from community marketplace:
-  /plugin install one-shot-prompting@claude-community
-
-See CHANGELOG.md for full history: https://github.com/usmanmughaltaleemabad/One-Shot-Plugin/blob/master/CHANGELOG.md"
-
           gh release create "$GH_TAG" \
             --title "v$VERSION" \
-            --notes "$NOTES" \
+            --notes "**${COMMIT_MSG}** — Install: claude plugin add one-shot-prompting" \
             --latest
