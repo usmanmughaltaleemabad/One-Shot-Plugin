@@ -1,7 +1,7 @@
 ---
 type: checklist
-version: v1.2.0
-release_date: 2026-05-25
+version: v1.2.3
+release_date: 2026-06-03
 ---
 
 # Release Checklist — v1.2.0: Enterprise Policy, Learning & Routing

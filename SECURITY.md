@@ -1,8 +1,8 @@
 ---
 type: policy
-last_verified: 2026-05-25
+last_verified: 2026-06-03
 owner: claude
-version: v1.2.0
+version: v1.2.3
 ---
 
 # Security Policy
