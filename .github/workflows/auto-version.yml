@@ -80,11 +80,9 @@ jobs:
           NOTES="**${COMMIT_MSG}**
 
 Install from community marketplace:
-\`\`\`
-/plugin install one-shot-prompting@claude-community
-\`\`\`
+  /plugin install one-shot-prompting@claude-community
 
-See [CHANGELOG.md](https://github.com/usmanmughaltaleemabad/One-Shot-Plugin/blob/master/CHANGELOG.md) for full history."
+See CHANGELOG.md for full history: https://github.com/usmanmughaltaleemabad/One-Shot-Plugin/blob/master/CHANGELOG.md"
 
           gh release create "$GH_TAG" \
             --title "v$VERSION" \

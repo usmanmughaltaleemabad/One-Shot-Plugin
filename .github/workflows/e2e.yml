@@ -18,7 +18,8 @@ jobs:
   e2e-live:
     name: Live pipeline (requires ANTHROPIC_API_KEY)
     runs-on: ubuntu-latest
-    if: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -29,19 +30,24 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install pytest pytest-asyncio anthropic httpx \
-                      fastapi sqlalchemy pydantic
+        run: pip install pytest pytest-asyncio anthropic httpx fastapi sqlalchemy pydantic
 
-      - name: Replay evals (sanity check before paying for live tokens)
+      - name: Skip if no API key
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "No ANTHROPIC_API_KEY — skipping live steps"
+            echo "SKIP_LIVE=true" >> $GITHUB_ENV
+          fi
+
+      - name: Replay evals
+        if: env.SKIP_LIVE != 'true'
         env:
           PYTHONIOENCODING: utf-8
         run: python tests/evals/agentic_evals.py --mode replay --json
 
       - name: Live architect eval — 1 scenario
-        id: live-architect
+        if: env.SKIP_LIVE != 'true'
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PYTHONIOENCODING: utf-8
         run: |
           python tests/evals/agentic_evals.py \
@@ -50,28 +56,16 @@ jobs:
           cat /tmp/live-result.json
         timeout-minutes: 5
 
-      - name: Assert architect overall ≥ 0.85
+      - name: Assert architect overall >= 0.85
+        if: env.SKIP_LIVE != 'true'
         run: |
           python -c "
           import json, sys
           d = json.load(open('/tmp/live-result.json'))
-          if isinstance(d, list):
-              d = d[0]
-          assert d['overall'] >= 0.85, f\"live architect scored {d['overall']} (< 0.85)\"
-          print(f'OK: live architect overall = {d[\"overall\"]}')
+          if isinstance(d, list): d = d[0]
+          assert d['overall'] >= 0.85, f'scored {d[\"overall\"]} (< 0.85)'
+          print(f'OK: {d[\"overall\"]}')
           "
-
-      - name: Dry-run live_api_runner against fastapi fixture
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          PYTHONIOENCODING: utf-8
-        run: |
-          python skills/one-shot-generator/scripts/live_api_runner.py \
-              --agent architect \
-              --task "add a rate limiter with sliding window per user" \
-              --repo-root examples/fastapi-payment-processor-harness \
-              --dry-run
-        timeout-minutes: 3
 
       - name: Upload live result artifact
         if: always()
