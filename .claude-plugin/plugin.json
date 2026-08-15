@@ -1,7 +1,7 @@
 {
   "name": "one-shot-prompting",
   "description": "Agentic feature generation for Claude Code. 9-stage pipeline with service-author, architect, reviewer agents. Describe a feature, get production-ready code with tests and migrations in 2-3 minutes. FastAPI, Django, Spring Boot, Go, NestJS.",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "author": {
     "name": "Usman Mughal",
     "url": "https://github.com/usmanmughaltaleemabad/One-Shot-Plugin"
