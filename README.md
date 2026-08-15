@@ -547,6 +547,3 @@ Full release history (all versions): see [CHANGELOG.md](CHANGELOG.md).
 
 — Usman Mughal (musman.mughal@taleemabad.com)
 
-<a href="https://launchkiwi.com/p/one-shot-prompting-plugin" target="_blank" rel="noopener">
-  <img src="https://launchkiwi.com/badge-light.svg" alt="Featured on LaunchKiwi" width="198" height="62" />
-</a>
