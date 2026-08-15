@@ -546,3 +546,7 @@ Full release history (all versions): see [CHANGELOG.md](CHANGELOG.md).
 **Try it risk-free.** Launch the [Codespaces sandbox](.devcontainer/README.md) for a one-click demo against a broken FastAPI app — no local install required, GitHub's free tier covers it.
 
 — Usman Mughal (musman.mughal@taleemabad.com)
+
+<a href="https://launchkiwi.com/p/one-shot-prompting-plugin" target="_blank" rel="noopener">
+  <img src="https://launchkiwi.com/badge-dark.svg" alt="Featured on LaunchKiwi" width="198" height="62" />
+</a>
