@@ -26,16 +26,29 @@ if echo "$COMMAND" | grep -qE "git\s+commit"; then
   fi
 fi
 
-# Block committing .env or secrets
-if echo "$COMMAND" | grep -qE "git\s+(add|commit).*\.env|credentials|secret"; then
+# Block committing .env or secrets.
+# The group keeps "credentials" and "secret" tied to git add/commit; without it,
+# alternation precedence blocked any command that merely mentioned those words.
+if echo "$COMMAND" | grep -qE "git\s+(add|commit).*(\.env|credentials|secret)"; then
   echo "ERROR: Do not commit .env files or credentials. These must be local-only." >&2
   exit 2
 fi
 
-# Block force push to main
-if echo "$COMMAND" | grep -qE "git\s+push.*--force.*main|git\s+push.*-f.*main"; then
-  echo "ERROR: Force push to main is blocked. Use a PR or ask repo owner." >&2
-  exit 2
-fi
+# Block force push to main.
+# Inspect each `git push ...` segment on its own (up to ; & |) so text in later
+# chained commands (e.g. `gh pr create --base main`) is ignored, and require a
+# real force flag (--force, --force-with-lease, -f, combined short flags like
+# -uf) or a +refspec, rather than any "-f" substring such as "-form" or "-fix".
+while IFS= read -r PUSH_SEGMENT; do
+  FORCED=0
+  TO_MAIN=0
+  echo "$PUSH_SEGMENT" | grep -qE "(^|\s)(--force(-with-lease)?(=\S*)?|-[A-Za-z]*f[A-Za-z]*)(\s|$)" && FORCED=1
+  echo "$PUSH_SEGMENT" | grep -qE "\s\+\S*main(\s|$)" && FORCED=1
+  echo "$PUSH_SEGMENT" | grep -qE "(\s|:|\+)main(\s|$)" && TO_MAIN=1
+  if [ "$FORCED" = 1 ] && [ "$TO_MAIN" = 1 ]; then
+    echo "ERROR: Force push to main is blocked. Use a PR or ask repo owner." >&2
+    exit 2
+  fi
+done < <(echo "$COMMAND" | grep -oE "git\s+push[^;&|]*")
 
 exit 0
