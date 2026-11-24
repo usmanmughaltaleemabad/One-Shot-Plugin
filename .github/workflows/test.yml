@@ -41,6 +41,9 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Test pre-tool command guard
+      run: python -m unittest discover -s tests -p "test_block_bad_commands.py"
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
